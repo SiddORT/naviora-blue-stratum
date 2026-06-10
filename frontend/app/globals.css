@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 15% 4%;
+    --foreground: 220 10% 90%;
+    --card: 222 25% 10%;
+    --card-foreground: 220 10% 90%;
+    --popover: 221 23% 15%;
+    --popover-foreground: 220 10% 90%;
+    --primary: 43 65% 53%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 210 91% 42%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 22% 20%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 221 23% 18%;
+    --accent-foreground: 220 10% 90%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 18%;
+    --input: 221 23% 15%;
+    --ring: 43 65% 53%;
+    --radius: 0.5rem;
+    --chart-1: 43 65% 53%;
+    --chart-2: 210 91% 42%;
+    --chart-3: 120 60% 40%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 280 60% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #141821;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2A3244;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #374151;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .gradient-gold {
+    background: linear-gradient(135deg, #D4A63A 0%, #B8860B 100%);
+  }
+  .gradient-dark {
+    background: linear-gradient(135deg, #141821 0%, #1E2430 100%);
+  }
+  .glass-panel {
+    background: rgba(20, 24, 33, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(42, 50, 68, 0.6);
+  }
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(42, 50, 68, 0) 0%,
+      rgba(42, 50, 68, 0.5) 50%,
+      rgba(42, 50, 68, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}

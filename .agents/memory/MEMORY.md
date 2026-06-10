@@ -1,0 +1,3 @@
+- [asyncpg-ssl](asyncpg-ssl.md) — asyncpg requires ?ssl= not ?sslmode= in DATABASE_URL; must convert at config layer.
+- [fastapi-annotated-depends](fastapi-annotated-depends.md) — Annotated[T, Depends()] params must NOT also have a default value (= Depends()); causes AssertionError on startup.
+- [pase-compass-stack](pase-compass-stack.md) — key decisions and seed credentials for the PASE Compass foundation.
