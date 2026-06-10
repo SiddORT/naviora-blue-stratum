@@ -2,79 +2,125 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  PASE Compass — Theme Palette
+  ─────────────────────────────────────────────────────────────────────────────
+  Derived from the PASE Ship Simulator visual identity:
+    Dark mode  → deep navy (#0D0D2A) fading to maroon (#1E0808), gold accents
+    Light mode → nautical parchment / chart paper (cream + deep navy + gold)
+  ─────────────────────────────────────────────────────────────────────────────
+*/
+
 @layer base {
-  /* ── Light mode (default) ───────────────────────────── */
+
+  /* ── Light mode — nautical chart / parchment ────────────────────────── */
   :root {
-    --background:         0 0% 100%;
-    --foreground:         222 47% 11%;
-    --surface:            210 40% 98%;
-    --card:               210 40% 98%;
-    --card-foreground:    222 47% 11%;
-    --popover:            0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary:            43 65% 53%;
+    /* Backgrounds — warm ivory/parchment inspired by printed charts */
+    --background:         45 35% 97%;      /* #FAFAF5 — near-white with warm tint  */
+    --surface:            44 30% 93%;      /* #F2EDE0 — parchment surface          */
+    --card:               44 30% 93%;
+    --card-foreground:    240 52% 11%;
+    --popover:            45 35% 97%;
+    --popover-foreground: 240 52% 11%;
+
+    /* Text — deep navy (same hue as simulator background, inverted use) */
+    --foreground:         240 52% 11%;     /* #0D0D2A — simulator nav bg as text   */
+    --muted:              44 25% 87%;      /* #E6DFC8 — muted parchment            */
+    --muted-foreground:   35 12% 42%;      /* #746B5A — warm gray                  */
+
+    /* Brand — unchanged from simulator */
+    --primary:            43 65% 53%;      /* #D4A63A — simulator gold             */
     --primary-foreground: 0 0% 0%;
-    --secondary:          210 91% 42%;
+
+    --secondary:          210 91% 42%;     /* #0A6DCC — maritime blue              */
     --secondary-foreground: 0 0% 100%;
-    --muted:              210 40% 96%;
-    --muted-foreground:   215 14% 43%;
-    --accent:             210 40% 94%;
-    --accent-foreground:  222 47% 11%;
-    --destructive:        0 84% 60%;
+
+    /* UI states */
+    --accent:             44 40% 86%;      /* #E8DEC4 — warm parchment hover       */
+    --accent-foreground:  240 52% 11%;
+    --destructive:        0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --success:            142 70% 40%;
+    --success:            102 40% 36%;     /* muted maritime green (like sim tiers) */
     --success-foreground: 0 0% 100%;
     --warning:            38 92% 50%;
     --warning-foreground: 0 0% 0%;
-    --border:             214 32% 91%;
-    --input:              214 32% 91%;
+
+    --border:             40 22% 76%;      /* #CEC5AD — warm chart-paper border    */
+    --input:              40 22% 76%;
     --ring:               43 65% 53%;
     --radius:             0.5rem;
+
     --chart-1:            43 65% 53%;
     --chart-2:            210 91% 42%;
-    --chart-3:            142 70% 40%;
-    --chart-4:            0 84% 60%;
-    --chart-5:            280 60% 55%;
+    --chart-3:            102 40% 36%;
+    --chart-4:            0 72% 51%;
+    --chart-5:            280 45% 50%;
+
+    /* Simulator-palette extras (available as custom vars) */
+    --sim-navy:           240 52% 11%;
+    --sim-maroon:         0 55% 10%;
+    --sim-gold:           43 65% 53%;
+    --sim-gold-bright:    45 88% 60%;
+    --sim-green:          102 22% 38%;
+    --sim-olive:          50 65% 36%;
+    --sim-inactive:       25 32% 16%;
   }
 
-  /* ── Dark mode ──────────────────────────────────────── */
+  /* ── Dark mode — deep ocean / night navigation ──────────────────────── */
   .dark {
-    --background:         240 15% 4%;
-    --foreground:         220 10% 90%;
-    --surface:            222 25% 10%;
-    --card:               222 25% 10%;
-    --card-foreground:    220 10% 90%;
-    --popover:            221 23% 15%;
-    --popover-foreground: 220 10% 90%;
-    --primary:            43 65% 53%;
+    /* Backgrounds — directly from simulator screenshot */
+    --background:         240 52% 7%;      /* #080818 — very deep navy, sim base   */
+    --surface:            240 48% 12%;     /* #101030 — sim nav panel              */
+    --card:               240 48% 12%;
+    --card-foreground:    45 45% 90%;
+    --popover:            240 44% 16%;     /* #141438 — slightly raised panel      */
+    --popover-foreground: 45 45% 90%;
+
+    /* Text — warm off-white from simulator labels */
+    --foreground:         45 45% 90%;      /* #F0ECD8 — warm white sim text        */
+    --muted:              240 35% 21%;     /* #232344 — muted navy                 */
+    --muted-foreground:   240 18% 62%;     /* #8E8EB0 — subdued label text         */
+
+    /* Brand — unchanged */
+    --primary:            43 65% 53%;      /* #D4A63A — sim gold                   */
     --primary-foreground: 0 0% 0%;
+
     --secondary:          210 91% 42%;
     --secondary-foreground: 0 0% 100%;
-    --muted:              220 22% 20%;
-    --muted-foreground:   220 10% 60%;
-    --accent:             221 23% 18%;
-    --accent-foreground:  220 10% 90%;
-    --destructive:        0 84% 60%;
+
+    /* UI states */
+    --accent:             240 38% 19%;     /* #1C1C40 — hover / pressed            */
+    --accent-foreground:  45 45% 90%;
+    --destructive:        0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --success:            142 70% 40%;
+    --success:            102 35% 38%;     /* sim green tier                       */
     --success-foreground: 0 0% 100%;
     --warning:            38 92% 50%;
     --warning-foreground: 0 0% 0%;
-    --border:             220 20% 18%;
-    --input:              221 23% 15%;
+
+    --border:             240 32% 22%;     /* #1E1E48 — nav border                 */
+    --input:              240 44% 16%;
     --ring:               43 65% 53%;
+
     --chart-1:            43 65% 53%;
     --chart-2:            210 91% 42%;
-    --chart-3:            142 70% 40%;
-    --chart-4:            0 84% 60%;
-    --chart-5:            280 60% 55%;
+    --chart-3:            102 35% 38%;
+    --chart-4:            0 72% 51%;
+    --chart-5:            280 45% 55%;
+
+    /* Simulator-palette extras */
+    --sim-navy:           240 52% 7%;
+    --sim-maroon:         0 55% 10%;
+    --sim-gold:           43 65% 53%;
+    --sim-gold-bright:    45 88% 60%;
+    --sim-green:          102 35% 38%;
+    --sim-olive:          50 65% 36%;
+    --sim-inactive:       25 32% 16%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -82,13 +128,13 @@
   }
 
   /* Scrollbar — dark */
-  .dark ::-webkit-scrollbar-track  { background: hsl(var(--surface)); }
-  .dark ::-webkit-scrollbar-thumb  { background: hsl(var(--border)); border-radius: 3px; }
+  .dark ::-webkit-scrollbar-track       { background: hsl(var(--surface)); }
+  .dark ::-webkit-scrollbar-thumb       { background: hsl(var(--border)); border-radius: 3px; }
   .dark ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted)); }
 
   /* Scrollbar — light */
-  :root ::-webkit-scrollbar-track  { background: hsl(var(--muted)); }
-  :root ::-webkit-scrollbar-thumb  { background: hsl(var(--border)); border-radius: 3px; }
+  :root ::-webkit-scrollbar-track       { background: hsl(var(--muted)); }
+  :root ::-webkit-scrollbar-thumb       { background: hsl(var(--border)); border-radius: 3px; }
   :root ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -97,12 +143,43 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
 
+  /* ── Simulator-derived gradients ─────────────────────────────────────── */
+
+  /* Primary gold button (both modes — same as sim action buttons) */
   .gradient-gold {
     background: linear-gradient(135deg, #D4A63A 0%, #B8860B 100%);
   }
+
+  /* The signature PASE Ship Simulator background:
+     deep navy (top-left) → dark maroon (bottom-right) */
+  .gradient-simulator {
+    background: linear-gradient(135deg, #0D0D2A 0%, #1A0808 100%);
+  }
+
+  /* Light mode surface gradient — parchment feel */
+  .gradient-simulator-light {
+    background: linear-gradient(135deg, #F2EDE0 0%, #E8DEC8 100%);
+  }
+
+  /* Adapts to the current theme */
   .gradient-surface {
     background: linear-gradient(135deg, hsl(var(--surface)) 0%, hsl(var(--accent)) 100%);
   }
+
+  /* Sim-style tier buttons */
+  .tier-green {
+    background-color: hsl(var(--sim-green));
+    color: #ffffff;
+  }
+  .tier-olive {
+    background-color: hsl(var(--sim-olive));
+    color: #ffffff;
+  }
+  .tier-inactive {
+    background-color: hsl(var(--sim-inactive));
+    color: hsl(var(--muted-foreground));
+  }
+
   .glass-panel {
     background: hsl(var(--surface) / 0.8);
     backdrop-filter: blur(12px);
