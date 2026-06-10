@@ -29,14 +29,14 @@ export function TopNavbar() {
           className="object-contain block dark:hidden"
           priority
         />
-        {/* Dark mode — white monochrome */}
+        {/* Dark mode — brighten to keep colors, lift dark text to readable */}
         <Image
           src="/logos/bluestratum-h-light.png"
           alt="Blue Stratum"
           width={110}
           height={19}
           className="object-contain hidden dark:block"
-          style={{ filter: "brightness(0) invert(1)" }}
+          style={{ filter: "brightness(2.5) contrast(0.85)" }}
           priority
         />
       </div>

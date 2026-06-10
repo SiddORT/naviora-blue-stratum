@@ -44,7 +44,7 @@ export function LoginForm() {
 
         {/* ── Brand hero ─────────────────────────────────────────── */}
         <div className="flex flex-col items-center mb-6">
-          {/* Light mode logo */}
+          {/* Light mode */}
           <Image
             src="/logos/bluestratum-v-light.png"
             alt="Blue Stratum"
@@ -53,14 +53,14 @@ export function LoginForm() {
             className="object-contain block dark:hidden"
             priority
           />
-          {/* Dark mode logo — white monochrome */}
+          {/* Dark mode — brighten so the dark text becomes readable on navy bg */}
           <Image
             src="/logos/bluestratum-v-light.png"
             alt="Blue Stratum"
             width={130}
             height={75}
             className="object-contain hidden dark:block"
-            style={{ filter: "brightness(0) invert(1)" }}
+            style={{ filter: "brightness(2.5) contrast(0.85)" }}
             priority
           />
 
