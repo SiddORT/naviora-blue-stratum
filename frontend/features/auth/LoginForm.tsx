@@ -44,28 +44,21 @@ export function LoginForm() {
 
         {/* ── Brand hero ─────────────────────────────────────────── */}
         <div className="flex flex-col items-center mb-6">
-          {/* Light mode */}
+          {/* Mark — transparent PNG, no filter needed in either mode */}
           <Image
-            src="/logos/bluestratum-v-light.png"
+            src="/logos/bluestratum-mark.png"
             alt="Blue Stratum"
-            width={130}
-            height={75}
-            className="object-contain block dark:hidden"
-            priority
-          />
-          {/* Dark mode — brighten so the dark text becomes readable on navy bg */}
-          <Image
-            src="/logos/bluestratum-v-light.png"
-            alt="Blue Stratum"
-            width={130}
-            height={75}
-            className="object-contain hidden dark:block"
-            style={{ filter: "brightness(2.5) contrast(0.85)" }}
+            width={120}
+            height={80}
+            className="object-contain"
             priority
           />
 
           <div className="mt-3 text-center">
-            <h1 className="text-base font-semibold text-foreground tracking-wide">
+            <p className="text-xs font-semibold text-muted-foreground tracking-[0.25em] uppercase">
+              Blue Stratum
+            </p>
+            <h1 className="text-base font-semibold text-foreground tracking-wide mt-1">
               Naviora
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5 tracking-wide">
