@@ -48,8 +48,8 @@ export function LoginForm() {
           <Image
             src="/logos/bluestratum-mark.png"
             alt="Blue Stratum"
-            width={120}
-            height={80}
+            width={220}
+            height={147}
             className="object-contain"
             priority
           />
