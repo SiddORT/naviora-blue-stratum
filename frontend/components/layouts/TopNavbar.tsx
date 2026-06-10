@@ -1,15 +1,17 @@
 "use client";
 
-import { Bell, Search, LogOut, User, Settings, ChevronDown } from "lucide-react";
+import { Bell, Search, LogOut, User, Settings, ChevronDown, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth.store";
+import { useThemeStore } from "@/store/theme.store";
 import { getInitials } from "@/lib/utils";
 
 export function TopNavbar() {
   const { logout } = useAuth();
   const { user } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -30,7 +32,20 @@ export function TopNavbar() {
       </div>
 
       {/* Right actions */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center gap-1 ml-4">
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+        >
+          {theme === "dark" ? (
+            <Sun className="w-5 h-5" />
+          ) : (
+            <Moon className="w-5 h-5" />
+          )}
+        </button>
+
         {/* Notifications */}
         <button className="relative p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
           <Bell className="w-5 h-5" />

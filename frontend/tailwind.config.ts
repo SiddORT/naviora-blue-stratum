@@ -11,63 +11,62 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand primary — gold
+        background:   "hsl(var(--background))",
+        foreground:   "hsl(var(--foreground))",
+        surface:      "hsl(var(--surface))",
+        border:       "hsl(var(--border))",
+        input:        "hsl(var(--input))",
+        ring:         "hsl(var(--ring))",
+
         primary: {
-          DEFAULT: "#D4A63A",
-          dark: "#B8860B",
-          foreground: "#000000",
+          DEFAULT:    "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
-        // Brand secondary — blue
         secondary: {
-          DEFAULT: "#2EA8FF",
-          dark: "#0A6DCC",
-          foreground: "#ffffff",
+          DEFAULT:    "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
-        // Dark backgrounds
-        background: {
-          DEFAULT: "#0B0B0F",
-          card: "#141821",
-          panel: "#1E2430",
+        muted: {
+          DEFAULT:    "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
-        // UI semantic tokens
-        surface: "#141821",
-        border: "#2A3244",
-        muted: "#374151",
-        "muted-foreground": "#9CA3AF",
-        foreground: "#E5E7EB",
-        "foreground-muted": "#9CA3AF",
-        destructive: {
-          DEFAULT: "#EF4444",
-          foreground: "#ffffff",
+        accent: {
+          DEFAULT:    "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
-        success: {
-          DEFAULT: "#22C55E",
-          foreground: "#ffffff",
-        },
-        warning: {
-          DEFAULT: "#F59E0B",
-          foreground: "#000000",
-        },
-        // shadcn/ui compat
         card: {
-          DEFAULT: "#141821",
-          foreground: "#E5E7EB",
+          DEFAULT:    "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
         popover: {
-          DEFAULT: "#1E2430",
-          foreground: "#E5E7EB",
+          DEFAULT:    "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
-        input: "#1E2430",
-        ring: "#D4A63A",
-        accent: {
-          DEFAULT: "#1E2430",
-          foreground: "#E5E7EB",
+        destructive: {
+          DEFAULT:    "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        success: {
+          DEFAULT:    "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT:    "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+
+        chart: {
+          "1": "hsl(var(--chart-1))",
+          "2": "hsl(var(--chart-2))",
+          "3": "hsl(var(--chart-3))",
+          "4": "hsl(var(--chart-4))",
+          "5": "hsl(var(--chart-5))",
         },
       },
       borderRadius: {
-        lg: "0.5rem",
-        md: "0.375rem",
-        sm: "0.25rem",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
@@ -76,21 +75,21 @@ const config: Config = {
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
+          to:   { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          to:   { height: "0" },
         },
         shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
+          "0%":   { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        shimmer: "shimmer 2s linear infinite",
+        "accordion-up":   "accordion-up 0.2s ease-out",
+        shimmer:          "shimmer 2s linear infinite",
       },
     },
   },

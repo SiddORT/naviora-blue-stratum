@@ -1,7 +1,29 @@
 """Standard success/error response builders used across all API endpoints."""
+import json
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Optional
+from uuid import UUID
 
 from fastapi.responses import JSONResponse
+
+
+def _serialize(obj: Any) -> Any:
+    """
+    Walk any Python value and convert non-JSON-native types so that
+    Starlette's JSONResponse never encounters unserializable objects.
+    """
+    if isinstance(obj, dict):
+        return {k: _serialize(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_serialize(v) for v in obj]
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return float(obj)
+    if isinstance(obj, UUID):
+        return str(obj)
+    return obj
 
 
 def success_response(
@@ -19,7 +41,7 @@ def success_response(
         content={
             "success": True,
             "message": message,
-            "data": data,
+            "data": _serialize(data),
         },
     )
 
