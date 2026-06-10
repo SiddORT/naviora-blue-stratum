@@ -2,6 +2,7 @@
 
 import { Bell, Search, LogOut, User, Settings, ChevronDown, Sun, Moon } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth.store";
@@ -15,8 +16,32 @@ export function TopNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="h-16 bg-surface border-b border-border flex items-center justify-between px-6 flex-shrink-0">
-      {/* Search */}
+    <header className="h-16 bg-surface border-b border-border flex items-center gap-4 px-6 flex-shrink-0">
+
+      {/* ── Blue Stratum brand mark ──────────────────────────────── */}
+      <div className="flex items-center gap-2.5 flex-shrink-0 pr-4 border-r border-border">
+        {/* Light mode */}
+        <Image
+          src="/logos/bluestratum-h-light.png"
+          alt="Blue Stratum"
+          width={110}
+          height={19}
+          className="object-contain block dark:hidden"
+          priority
+        />
+        {/* Dark mode — white monochrome */}
+        <Image
+          src="/logos/bluestratum-h-light.png"
+          alt="Blue Stratum"
+          width={110}
+          height={19}
+          className="object-contain hidden dark:block"
+          style={{ filter: "brightness(0) invert(1)" }}
+          priority
+        />
+      </div>
+
+      {/* ── Search ──────────────────────────────────────────────── */}
       <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <input
@@ -31,8 +56,8 @@ export function TopNavbar() {
         />
       </div>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-1 ml-4">
+      {/* ── Right actions ───────────────────────────────────────── */}
+      <div className="flex items-center gap-1 ml-auto">
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
