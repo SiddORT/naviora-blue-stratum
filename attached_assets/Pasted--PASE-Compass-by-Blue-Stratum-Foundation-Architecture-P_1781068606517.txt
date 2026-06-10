@@ -1,0 +1,306 @@
+# PASE Compass by Blue Stratum - Foundation Architecture Prompt
+
+Build the foundation for an enterprise-grade maritime assessment and simulator management platform called:
+
+**PASE Compass by Blue Stratum**
+
+Tech Stack:
+
+Frontend:
+
+* Next.js 15 (App Router)
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* TanStack Query
+* Zustand
+* React Hook Form
+* Zod
+
+Backend:
+
+* FastAPI
+* SQLAlchemy 2.0
+* Alembic
+* PostgreSQL
+* Pydantic v2
+* JWT Authentication
+
+The application must be designed as a scalable SaaS platform supporting:
+
+* Admin Portal
+* Organization Portal
+* User/Candidate Portal
+* Multi-tenant Organizations
+* Simulator Integrations
+* Assessment Management
+* AI Reporting
+* Certifications
+
+---
+
+# Coding Standards
+
+## Backend
+
+Follow:
+
+* SOLID Principles
+* Repository Pattern
+* Service Layer Pattern
+* Dependency Injection
+* Type Hinting everywhere
+* Async APIs where applicable
+* Pydantic request/response schemas
+* Structured exception handling
+* Global error handler
+* Centralized logging
+* Environment-based configuration
+
+Project Structure:
+
+backend/
+
+```
+app/
+
+    api/
+        v1/
+
+    core/
+        config.py
+        security.py
+        permissions.py
+
+    db/
+        session.py
+        base.py
+
+    models/
+
+    schemas/
+
+    repositories/
+
+    services/
+
+    dependencies/
+
+    middleware/
+
+    helpers/
+
+    storage/
+
+    constants/
+
+    enums/
+
+    utils/
+
+    tests/
+```
+
+---
+
+## Frontend
+
+Follow:
+
+* Feature Based Architecture
+* Reusable Components
+* Strict TypeScript
+* API Layer Separation
+* Form Validation using Zod
+* React Query for API calls
+* Zustand for global state
+* Server Components where applicable
+
+Project Structure:
+
+frontend/
+
+```
+app/
+
+components/
+
+    shared/
+    layouts/
+    datatable/
+    forms/
+    ui/
+
+features/
+
+    dashboard/
+    organizations/
+    users/
+    plans/
+    simulators/
+
+services/
+
+hooks/
+
+store/
+
+lib/
+
+types/
+
+constants/
+```
+
+---
+
+# Database Standards
+
+Every table should include:
+
+id
+uuid
+created_at
+updated_at
+created_by
+updated_by
+is_active
+
+Soft Delete Support:
+
+deleted_at
+deleted_by
+
+No hard deletes.
+
+---
+
+# Data Table Standards
+
+Every listing page must support:
+
+* Server-side Pagination
+* Search
+* Sorting
+* Multi-column Filtering
+* Export Ready Structure
+
+Backend Response Format:
+
+{
+"items": [],
+"page": 1,
+"page_size": 20,
+"total": 100,
+"total_pages": 5
+}
+
+Create reusable datatable components.
+
+---
+
+# File Storage Standards
+
+IMPORTANT:
+
+Never store files as BLOBs inside PostgreSQL.
+
+Store only:
+
+* File Name
+* Original Name
+* MIME Type
+* File Size
+* Relative Path
+* Storage Provider
+
+inside database.
+
+Example:
+
+{
+"file_name": "assessment_123.pdf",
+"file_path": "/uploads/certificates/2026/05/file.pdf",
+"storage_provider": "local"
+}
+
+---
+
+# Storage Abstraction Layer
+
+Create a file storage helper.
+
+Storage Interface:
+
+StorageProvider
+
+Methods:
+
+upload()
+delete()
+exists()
+get_url()
+
+Implement:
+
+LocalStorageProvider
+
+Folder Structure:
+
+storage/
+
+```
+uploads/
+
+    organizations/
+
+    users/
+
+    certificates/
+
+    assessments/
+
+    exercises/
+
+    simulators/
+
+    accidents/
+
+    reports/
+
+    temp/
+```
+
+Future Ready:
+
+S3StorageProvider
+
+The application should be able to switch storage providers without changing business logic.
+
+Storage provider must be configurable from environment variables.
+
+---
+
+# Authentication
+
+JWT Based Authentication
+
+Support:
+
+* Access Token
+* Refresh Token
+* Token Rotation
+
+Roles:
+
+* Super Admin
+* Organization Admin
+* Candidate
+
+Role Based Access Control required.
+
+---
+
+# Audit Logging
+
+Create
