@@ -1,0 +1,573 @@
+# PASE Compass by Blue Stratum - Enterprise Foundation Setup
+
+Build an enterprise-grade maritime assessment, simulation, competency, certification, and reporting platform called:
+
+**PASE Compass by Blue Stratum**
+
+The platform will support:
+
+* Super Admin Portal
+* Organization Portal
+* Candidate Portal
+* Simulator Integrations
+* Assessment Management
+* Exercise Management
+* Maritime Incident Library
+* AI Assessment & Reporting
+* Certification Management
+* Multi-Tenant SaaS Architecture
+
+---
+
+# Technology Stack
+
+## Frontend
+
+* Next.js 15 (App Router)
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* TanStack Query
+* Zustand
+* React Hook Form
+* Zod
+* Lucide Icons
+
+## Backend
+
+* FastAPI
+* SQLAlchemy 2.0
+* Alembic
+* PostgreSQL
+* Pydantic v2
+* JWT Authentication
+* Async Support
+
+---
+
+# UI Theme Requirements
+
+Use branding inspired by PASE Simulator and Blue Stratum.
+
+Primary Colors:
+
+```css
+#D4A63A
+#B8860B
+```
+
+Secondary Colors:
+
+```css
+#2EA8FF
+#0A6DCC
+```
+
+Backgrounds:
+
+```css
+#0B0B0F
+#141821
+#1E2430
+```
+
+Theme Style:
+
+* Premium Enterprise SaaS
+* Maritime Simulator Inspired
+* Dark Theme First
+* Modern Analytics Dashboard
+* Responsive Design
+* Professional Corporate Appearance
+
+Avoid generic blue SaaS themes.
+
+---
+
+# Backend Architecture
+
+Use clean architecture principles.
+
+Structure:
+
+backend/
+
+```
+app/
+
+    api/
+        v1/
+
+    core/
+        config.py
+        security.py
+        permissions.py
+
+    db/
+        session.py
+        base.py
+
+    models/
+
+    schemas/
+
+    repositories/
+
+    services/
+
+    dependencies/
+
+    middleware/
+
+    storage/
+
+    helpers/
+
+    utils/
+
+    enums/
+
+    constants/
+
+    tests/
+```
+
+---
+
+# Frontend Architecture
+
+frontend/
+
+```
+app/
+
+components/
+
+    shared/
+    layouts/
+    forms/
+    datatable/
+    ui/
+
+features/
+
+    dashboard/
+    organizations/
+    users/
+    roles/
+    plans/
+
+services/
+
+hooks/
+
+store/
+
+types/
+
+constants/
+
+lib/
+```
+
+---
+
+# Development Standards
+
+Follow:
+
+* SOLID Principles
+* DRY Principles
+* Repository Pattern
+* Service Layer Pattern
+* Dependency Injection
+* Strong Typing
+* Centralized Error Handling
+* Global Logging
+* Reusable Components
+* Reusable API Clients
+* Environment Driven Configuration
+
+No business logic inside controllers.
+
+Controllers should only:
+
+* Validate
+* Authorize
+* Call Services
+* Return Response
+
+---
+
+# Database Standards
+
+Use PostgreSQL.
+
+Every table must include:
+
+```sql
+id
+uuid
+created_at
+updated_at
+created_by
+updated_by
+is_active
+
+deleted_at
+deleted_by
+```
+
+Soft Delete Only.
+
+Never hard delete records.
+
+---
+
+# Base Entity
+
+Create a reusable base model inherited by all entities.
+
+---
+
+# Audit Trail
+
+Every create, update, delete, activate, deactivate action should be auditable.
+
+Create audit_logs table:
+
+```sql
+id
+user_id
+module
+action
+old_values
+new_values
+ip_address
+created_at
+```
+
+---
+
+# Multi-Tenant Architecture
+
+Organizations are isolated.
+
+Every organization-owned record must contain:
+
+```sql
+organization_id
+```
+
+Support:
+
+* Super Admin
+* Organization Admin
+* Candidate
+
+Future-ready for additional roles.
+
+---
+
+# Authentication
+
+JWT Authentication.
+
+Features:
+
+* Login
+* Logout
+* Refresh Token
+* Password Reset
+* Change Password
+
+Token Types:
+
+* Access Token
+* Refresh Token
+
+Support token rotation.
+
+---
+
+# Authorization
+
+Role Based Access Control.
+
+Tables:
+
+```sql
+roles
+permissions
+role_permissions
+user_roles
+```
+
+Create permission middleware.
+
+Example:
+
+```text
+users.view
+users.create
+users.edit
+users.delete
+
+organizations.view
+organizations.create
+```
+
+Permissions must be dynamic and database driven.
+
+No hardcoded permissions.
+
+---
+
+# Data Table Standards
+
+Every grid/list page must support:
+
+* Search
+* Pagination
+* Sorting
+* Filters
+* Column Visibility
+* Export Ready Structure
+
+Backend Pagination Response:
+
+```json
+{
+  "items": [],
+  "page": 1,
+  "page_size": 20,
+  "total": 200,
+  "total_pages": 10
+}
+```
+
+Create reusable frontend DataTable component.
+
+All modules must use the same DataTable.
+
+---
+
+# File Storage Standards
+
+IMPORTANT:
+
+Never store files as blobs inside PostgreSQL.
+
+Store only metadata.
+
+Example:
+
+```json
+{
+  "file_name": "certificate.pdf",
+  "original_name": "certificate.pdf",
+  "file_size": 50000,
+  "mime_type": "application/pdf",
+  "file_path": "/uploads/certificates/2026/01/file.pdf",
+  "storage_provider": "local"
+}
+```
+
+---
+
+# Storage Architecture
+
+Create storage abstraction.
+
+Interface:
+
+```python
+StorageProvider
+```
+
+Methods:
+
+```python
+upload()
+delete()
+exists()
+get_url()
+```
+
+Implement:
+
+```python
+LocalStorageProvider
+```
+
+Future:
+
+```python
+S3StorageProvider
+AzureStorageProvider
+MinIOStorageProvider
+```
+
+Business logic must never know which storage provider is being used.
+
+---
+
+# Storage Folder Structure
+
+/uploads
+
+```
+/organizations
+
+/users
+
+/certificates
+
+/assessments
+
+/simulators
+
+/exercises
+
+/accidents
+
+/reports
+
+/temp
+```
+
+Generate paths automatically.
+
+Example:
+
+```text
+/uploads/certificates/2026/05/file.pdf
+```
+
+---
+
+# API Standards
+
+Version APIs.
+
+Example:
+
+```text
+/api/v1/
+```
+
+Naming:
+
+```text
+GET
+POST
+PUT
+PATCH
+DELETE
+```
+
+Use REST conventions.
+
+---
+
+# API Response Standards
+
+Success:
+
+```json
+{
+  "success": true,
+  "message": "Record created successfully",
+  "data": {}
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": []
+}
+```
+
+Create global response handlers.
+
+---
+
+# Logging
+
+Create centralized logging.
+
+Log:
+
+* Errors
+* API Requests
+* Authentication Events
+* File Uploads
+* Permission Violations
+
+Support future integrations:
+
+* Sentry
+* Datadog
+
+---
+
+# Dashboard Foundation
+
+Create Admin Dashboard Layout.
+
+Sidebar Modules:
+
+* Dashboard
+* Organizations
+* Users
+* Roles & Permissions
+* Plans & Subscriptions
+* Simulator Management
+* Exercise Management
+* Assessment Management
+* Maritime Knowledge Base
+* AI Management
+* Certificates
+* Reports & Analytics
+* Audit Logs
+* Settings
+
+Top Navbar:
+
+* PASE Compass Logo
+* Blue Stratum Branding
+* Search
+* Notifications
+* User Menu
+
+Dashboard Cards (Mock Data):
+
+* Organizations
+* Users
+* Assessments
+* Simulator Sessions
+* Pending Enquiries
+* Active Plans
+
+---
+
+# Quality Requirements
+
+Generate production-ready code.
+
+Requirements:
+
+* No placeholder architecture
+* No duplicate code
+* Modular design
+* Scalable folder structure
+* Reusable components
+* Enterprise-grade code quality
+* Proper comments where necessary
+* Clean naming conventions
+
+Build the complete foundation architecture first before implementing feature modules.
