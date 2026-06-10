@@ -7,7 +7,7 @@ interface LogoProps {
 }
 
 /**
- * PASE Compass product logo — sidebar header.
+ * Naviora product logo — sidebar header.
  * Source image: pase-simulator.png  316 × 350 px  (≈ 0.903 : 1)
  */
 export function Logo({ className, compact = false }: LogoProps) {
@@ -17,7 +17,7 @@ export function Logo({ className, compact = false }: LogoProps) {
         {/* 36 wide × 40 tall keeps aspect ratio  316:350 */}
         <Image
           src="/logos/pase-simulator.png"
-          alt="PASE Compass"
+          alt="Naviora"
           width={36}
           height={40}
           className="rounded-lg object-cover"
@@ -31,7 +31,7 @@ export function Logo({ className, compact = false }: LogoProps) {
     <div className={cn("flex items-center gap-2.5", className)}>
       <Image
         src="/logos/pase-simulator.png"
-        alt="PASE Compass"
+        alt="Naviora"
         width={36}
         height={40}
         className="rounded-lg object-cover flex-shrink-0"
@@ -39,7 +39,7 @@ export function Logo({ className, compact = false }: LogoProps) {
       />
       <div className="min-w-0">
         <div className="text-foreground font-semibold text-sm leading-tight tracking-wide truncate">
-          PASE Compass
+          Naviora
         </div>
         <div className="text-[10px] text-primary font-medium tracking-widest uppercase leading-tight">
           by Blue Stratum

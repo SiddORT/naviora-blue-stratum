@@ -66,7 +66,7 @@ export function LoginForm() {
 
           <div className="mt-3 text-center">
             <h1 className="text-base font-semibold text-foreground tracking-wide">
-              PASE Compass
+              Naviora
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5 tracking-wide">
               Maritime Assessment Platform
@@ -99,7 +99,7 @@ export function LoginForm() {
                 id="email"
                 type="email"
                 autoComplete="email"
-                placeholder="admin@pasecompass.com"
+                placeholder="admin@naviora.app"
                 {...register("email")}
                 className={cn(
                   "w-full bg-background border rounded-md px-3 py-2.5 text-sm text-foreground",

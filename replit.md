@@ -1,4 +1,4 @@
-# PASE Compass by Blue Stratum
+# Naviora by Blue Stratum
 
 Enterprise-grade maritime assessment, simulation, competency, certification, and reporting SaaS platform.
 
@@ -26,7 +26,7 @@ Seed data: `cd backend && python seed.py`
 
 ## Default Credentials
 
-Super Admin: admin@pasecompass.com / Admin@2026!
+Super Admin: admin@pasecompass.com / Admin@2026!  (login placeholder shows admin@naviora.app)
 
 ## User Preferences
 

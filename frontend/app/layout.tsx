@@ -12,8 +12,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "PASE Compass — Blue Stratum",
-    template: "%s | PASE Compass",
+    default: "Naviora — Blue Stratum",
+    template: "%s | Naviora",
   },
   description:
     "Enterprise maritime assessment, simulation, competency, and certification platform by Blue Stratum.",
