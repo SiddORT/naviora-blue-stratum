@@ -8,22 +8,29 @@ from uuid import UUID
 from fastapi.responses import JSONResponse
 
 
-def _serialize(obj: Any) -> Any:
+class _AppJSONEncoder(json.JSONEncoder):
+    """JSON encoder that handles types Pydantic model_dump() can produce."""
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        if isinstance(obj, Decimal):
+            return float(obj)
+        if isinstance(obj, UUID):
+            return str(obj)
+        # Pydantic models, dataclasses, enums, etc.
+        if hasattr(obj, "model_dump"):
+            return obj.model_dump()
+        if hasattr(obj, "__dict__"):
+            return obj.__dict__
+        return super().default(obj)
+
+
+def _to_json_safe(data: Any) -> Any:
     """
-    Walk any Python value and convert non-JSON-native types so that
-    Starlette's JSONResponse never encounters unserializable objects.
+    Serialize `data` through our encoder then parse back so that
+    Starlette's JSONResponse always receives native Python types.
     """
-    if isinstance(obj, dict):
-        return {k: _serialize(v) for k, v in obj.items()}
-    if isinstance(obj, (list, tuple)):
-        return [_serialize(v) for v in obj]
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    if isinstance(obj, Decimal):
-        return float(obj)
-    if isinstance(obj, UUID):
-        return str(obj)
-    return obj
+    return json.loads(json.dumps(data, cls=_AppJSONEncoder))
 
 
 def success_response(
@@ -33,16 +40,15 @@ def success_response(
 ) -> JSONResponse:
     """
     Return a standardised success envelope.
-
     Shape: { "success": true, "message": "...", "data": { ... } }
     """
     return JSONResponse(
         status_code=status_code,
-        content={
+        content=_to_json_safe({
             "success": True,
             "message": message,
-            "data": _serialize(data),
-        },
+            "data": data,
+        }),
     )
 
 
@@ -53,7 +59,6 @@ def error_response(
 ) -> JSONResponse:
     """
     Return a standardised error envelope.
-
     Shape: { "success": false, "message": "...", "errors": [ ... ] }
     """
     return JSONResponse(

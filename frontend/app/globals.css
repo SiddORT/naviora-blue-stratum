@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tailwind preflight sets height:auto on all <img> elements.
+   Adding width:auto alongside it prevents the Next.js Image
+   "dimension modified without the other" console warning. */
+@layer base {
+  img[data-nimg] {
+    width: auto;
+  }
+}
+
 /*
   PASE Compass — Theme Palette
   ─────────────────────────────────────────────────────────────────────────────
