@@ -32,10 +32,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const urlLabels: Record<string, string> = {
-  REST_API:    "API Base URL",
-  WEBSOCKET:   "WebSocket URL",
-  FILE_IMPORT: "File Source URL",
-  CUSTOM:      "Base URL",
+  REST_API:    "Simulator URL",
+  WEBSOCKET:   "Simulator URL",
+  FILE_IMPORT: "Simulator URL",
+  CUSTOM:      "Simulator URL",
 };
 
 const urlPlaceholders: Record<string, string> = {
@@ -195,7 +195,7 @@ export function VendorForm({ vendor }: Props) {
         danger={false}
       />
 
-      <div className="max-w-2xl space-y-6">
+      <div className="space-y-6">
         {/* Back */}
         <button
           type="button"
