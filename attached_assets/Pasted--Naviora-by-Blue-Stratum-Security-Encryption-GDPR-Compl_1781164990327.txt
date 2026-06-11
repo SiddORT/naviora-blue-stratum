@@ -1,0 +1,335 @@
+# Naviora by Blue Stratum
+
+## Security, Encryption & GDPR Compliance Baseline
+
+Before implementing any further modules, review the entire application architecture and implement a security and privacy baseline across both FastAPI and Next.js.
+
+The platform handles:
+
+* User Accounts
+* Candidate Records
+* Assessment Results
+* Simulator Data
+* Certificates
+* Organization Information
+* AI Assessment Reports
+
+Therefore security and privacy must be implemented from the foundation.
+
+---
+
+# Data Classification
+
+Classify all data into categories:
+
+## Public
+
+Examples:
+
+* Landing Page Content
+* Plans
+* Public Articles
+
+No encryption required.
+
+---
+
+## Internal
+
+Examples:
+
+* Organization Configuration
+* Exercise Templates
+* Simulator Vendors
+
+Database storage only.
+
+---
+
+## Sensitive
+
+Examples:
+
+* User Profiles
+* Candidate Records
+* Assessment Results
+* Simulator Session Data
+* AI Reports
+* Certificates
+
+Protect through encryption and access controls.
+
+---
+
+## Confidential
+
+Examples:
+
+* Passwords
+* API Keys
+* Client Secrets
+* Refresh Tokens
+* Simulator Credentials
+
+Must be encrypted and never exposed.
+
+---
+
+# Password Security
+
+Requirements:
+
+* Never store plaintext passwords.
+* Use bcrypt or Argon2.
+* Minimum password complexity rules.
+* Password reset token expiry.
+* Password history support for future implementation.
+
+---
+
+# JWT Security
+
+Requirements:
+
+* Short-lived access tokens.
+* Refresh token rotation.
+* Token revocation support.
+* Secure token validation middleware.
+
+Never store JWT secrets in source code.
+
+Use environment variables.
+
+---
+
+# Encryption Requirements
+
+Encrypt sensitive data at rest.
+
+Examples:
+
+* Simulator API Keys
+* Client Secrets
+* Integration Credentials
+* Refresh Tokens (if stored)
+* Webhook Secrets
+
+Create reusable encryption service:
+
+```text
+EncryptionService
+```
+
+Methods:
+
+```text
+encrypt()
+decrypt()
+hash()
+verify()
+```
+
+Use AES-256 encryption for sensitive values.
+
+Do not implement custom cryptography.
+
+Use industry-standard libraries.
+
+---
+
+# Secrets Management
+
+Never hardcode:
+
+* API Keys
+* JWT Secrets
+* Database Passwords
+* SMTP Credentials
+* Encryption Keys
+
+All secrets must come from:
+
+```text
+.env
+```
+
+and be loaded through centralized configuration.
+
+---
+
+# Database Security
+
+Requirements:
+
+* Parameterized queries only.
+* SQLAlchemy ORM usage.
+* No raw SQL unless absolutely necessary.
+* Input validation through Pydantic.
+
+---
+
+# File Security
+
+Files must never be stored inside database blobs.
+
+Store files through Storage Provider abstraction.
+
+Requirements:
+
+* Unique filenames.
+* MIME validation.
+* File size validation.
+* Virus scanning extension point.
+* Access control before download.
+
+Store only metadata in database.
+
+---
+
+# API Security
+
+Implement:
+
+* Request validation
+* Response validation
+* Global exception handling
+* Rate limiting architecture
+* CORS configuration
+* Secure headers
+
+Future-ready for:
+
+* API Keys
+* OAuth
+* SSO
+
+---
+
+# GDPR Compliance
+
+The platform must be designed with GDPR principles.
+
+Implement architecture supporting:
+
+## Right to Access
+
+Users can request:
+
+* Profile Data
+* Assessment Data
+* Certificates
+* Activity Records
+
+---
+
+## Right to Rectification
+
+Users can update:
+
+* Personal Information
+* Contact Information
+
+Subject to permissions.
+
+---
+
+## Right to Erasure
+
+Support account anonymization.
+
+Never hard delete records.
+
+Implement:
+
+```text
+Anonymize User
+```
+
+instead of physical deletion.
+
+Replace personal identifiers while preserving assessment history.
+
+---
+
+## Right to Data Portability
+
+Prepare export architecture.
+
+Support future exports:
+
+* JSON
+* CSV
+* PDF
+
+for user-owned records.
+
+---
+
+## Consent Management
+
+Create architecture for:
+
+* Privacy Policy Acceptance
+* Terms Acceptance
+* Cookie Consent
+
+Store:
+
+```text
+accepted_at
+ip_address
+policy_version
+```
+
+---
+
+# Audit Logging
+
+All critical actions must be logged.
+
+Examples:
+
+* Login
+* Logout
+* Password Change
+* User Creation
+* Assessment Updates
+* Simulator Configuration Changes
+
+Log:
+
+```text
+User
+Action
+Module
+Timestamp
+IP Address
+```
+
+---
+
+# Frontend Security
+
+Requirements:
+
+* Secure route guards.
+* Protected pages.
+* Sensitive data masking.
+* Prevent accidental secret exposure.
+* Form validation using Zod.
+* No secrets in browser code.
+
+---
+
+# Privacy by Design
+
+All future modules must follow:
+
+* Least Privilege Access
+* Secure Defaults
+* Data Minimization
+* Encryption First
+* Auditability
+* GDPR Compliance
+
+Review existing codebase and implement these security and compliance foundations before continuing development of feature modules.
