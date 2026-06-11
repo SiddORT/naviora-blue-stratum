@@ -2,7 +2,6 @@
 
 import { Bell, Search, LogOut, User, Settings, ChevronDown, Sun, Moon } from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthStore } from "@/store/auth.store";
 import { useThemeStore } from "@/store/theme.store";
@@ -25,44 +24,6 @@ export function TopNavbar() {
         boxShadow: "0 1px 0 rgba(24,178,188,0.06), 0 4px 24px rgba(0,0,0,0.20)",
       }}
     >
-
-      {/* ── Brand identity ────────────────────────────────────────────── */}
-      <div
-        className="flex items-center gap-3 h-full px-5 flex-shrink-0"
-        style={{ borderRight: "1px solid rgba(24,178,188,0.12)" }}
-      >
-        {/* Infinity mark */}
-        <Image
-          src="/logos/bluestratum-mark-v2.png"
-          alt="Naviora"
-          width={38}
-          height={26}
-          className="object-contain flex-shrink-0"
-          priority
-        />
-
-        {/* Naviora gradient wordmark */}
-        <div className="hidden sm:block">
-          <span
-            className="font-black text-lg leading-none"
-            style={{
-              background: "linear-gradient(135deg, #F5A623 0%, #FFD580 40%, #18B2BC 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Naviora
-          </span>
-          <div
-            className="text-[9px] font-semibold tracking-[0.22em] uppercase mt-0.5"
-            style={{ color: "rgba(24,178,188,0.60)" }}
-          >
-            by Blue Stratum
-          </div>
-        </div>
-      </div>
 
       {/* ── Search ────────────────────────────────────────────────────── */}
       <div className="relative flex-1 max-w-sm mx-5">
