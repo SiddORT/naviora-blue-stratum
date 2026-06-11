@@ -28,15 +28,35 @@ export function Logo({ className, compact = false }: LogoProps) {
   }
 
   return (
-    <div className={cn("flex items-center justify-center", className)}>
+    <div className={cn("flex items-center gap-2.5", className)}>
       <Image
         src="/logos/bluestratum-mark-v2.png"
         alt="Naviora"
-        width={56}
-        height={38}
-        className="object-contain"
+        width={52}
+        height={35}
+        className="object-contain flex-shrink-0"
         priority
       />
+      <div className="min-w-0">
+        <div
+          className="font-black text-[15px] leading-tight truncate"
+          style={{
+            background: "linear-gradient(135deg, #F5A623 0%, #FFD580 45%, #18B2BC 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Naviora
+        </div>
+        <div
+          className="text-[9px] font-semibold tracking-[0.20em] uppercase leading-tight mt-0.5"
+          style={{ color: "rgba(24,178,188,0.65)" }}
+        >
+          by Blue Stratum
+        </div>
+      </div>
     </div>
   );
 }
