@@ -1,0 +1,368 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.2 – Maritime Master Data Hub
+
+Build the Maritime Master Data Hub module.
+
+This module will act as the central source of truth for all maritime master data used throughout the platform.
+
+Future modules including Exercises, Assessments, Simulator Sessions, Incident Scenarios, AI Assessment and Reporting will consume these records.
+
+Follow all existing platform standards:
+
+* FastAPI
+* SQLAlchemy 2.0
+* PostgreSQL
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* TanStack Query
+* React Hook Form
+* Zod
+
+Use existing:
+
+* Authentication
+* Audit Logging
+* Encryption Framework
+* DataTable Component
+* API Standards
+* Storage Architecture
+* Soft Delete Standards
+
+---
+
+# Admin Navigation
+
+Create new section:
+
+Master Data
+
+* Vessel Library
+* Port Library
+* Weather Conditions
+* Sea States
+* Visibility Conditions
+* Time Of Day
+* Environment Profiles
+
+---
+
+# Common Requirements
+
+Every module must support:
+
+* Create
+* Edit
+* View
+* Activate
+* Deactivate
+* Soft Delete
+
+Every listing page must support:
+
+* Server-side Pagination
+* Search
+* Filters
+* Sorting
+
+All actions must create Audit Log entries.
+
+---
+
+# Vessel Library
+
+Purpose:
+
+Store vessel types used by exercises and assessments.
+
+Fields:
+
+* vessel_name
+* vessel_code
+* vessel_type
+* imo_category
+* length
+* beam
+* draft
+* max_speed
+* maneuverability_rating
+* description
+* status
+
+Default Vessel Types:
+
+* Container Vessel
+* Bulk Carrier
+* Oil Tanker
+* Chemical Tanker
+* LNG Carrier
+* Ferry
+* Tug
+* Fishing Vessel
+* Naval Vessel
+* Offshore Vessel
+* Custom
+
+Search:
+
+* vessel_name
+* vessel_code
+
+Filters:
+
+* vessel_type
+* status
+
+---
+
+# Port Library
+
+Purpose:
+
+Store ports available in exercises.
+
+Fields:
+
+* port_name
+* port_code
+* country
+* city
+* latitude
+* longitude
+* traffic_density
+* description
+* status
+
+Traffic Density:
+
+* Low
+* Medium
+* High
+* Very High
+
+Search:
+
+* port_name
+* country
+* city
+
+Filters:
+
+* country
+* traffic_density
+
+---
+
+# Weather Conditions
+
+Purpose:
+
+Reusable weather templates.
+
+Fields:
+
+* name
+* visibility_range
+* wind_speed
+* precipitation_level
+* description
+* status
+
+Seed Records:
+
+* Clear
+* Cloudy
+* Rain
+* Heavy Rain
+* Fog
+* Storm
+* Cyclone
+* Snow
+
+---
+
+# Sea States
+
+Purpose:
+
+Reusable sea condition definitions.
+
+Fields:
+
+* name
+* wave_height_min
+* wave_height_max
+* description
+* status
+
+Seed Records:
+
+* Calm
+* Slight
+* Moderate
+* Rough
+* Very Rough
+* High
+* Very High
+* Phenomenal
+
+---
+
+# Visibility Conditions
+
+Purpose:
+
+Reusable visibility presets.
+
+Fields:
+
+* name
+* visibility_distance
+* description
+* status
+
+Seed Records:
+
+* Excellent
+* Good
+* Moderate
+* Poor
+* Restricted
+* Very Restricted
+
+---
+
+# Time Of Day Library
+
+Purpose:
+
+Standardized environmental settings.
+
+Fields:
+
+* name
+* description
+* status
+
+Seed Records:
+
+* Day
+* Night
+* Dawn
+* Dusk
+
+---
+
+# Environment Profiles
+
+Purpose:
+
+Reusable environmental presets.
+
+An Environment Profile combines:
+
+* Weather
+* Sea State
+* Visibility
+* Time Of Day
+
+Fields:
+
+* profile_name
+* weather_condition_id
+* sea_state_id
+* visibility_condition_id
+* time_of_day_id
+* description
+* status
+
+Example Profiles:
+
+* Clear Day Navigation
+* Restricted Visibility Crossing
+* Heavy Weather Transit
+* Night Port Entry
+* Foggy Coastal Navigation
+
+---
+
+# Backend Deliverables
+
+Generate:
+
+* Database Models
+* Alembic Migrations
+* Enums
+* Pydantic Schemas
+* Repository Layer
+* Service Layer
+* API Routes
+* Validators
+* Seed Data Scripts
+
+Implement reusable CRUD architecture.
+
+---
+
+# Frontend Deliverables
+
+Pages:
+
+/administration/master-data/vessels
+
+/administration/master-data/ports
+
+/administration/master-data/weather
+
+/administration/master-data/sea-states
+
+/administration/master-data/visibility
+
+/administration/master-data/time-of-day
+
+/administration/master-data/environment-profiles
+
+Requirements:
+
+* Reusable DataTable
+* Search
+* Filters
+* Pagination
+* Sorting
+* Drawer/Modal Forms
+* Form Validation
+* Empty States
+* Loading States
+
+---
+
+# API Standards
+
+Use existing API response standards.
+
+Support:
+
+* Pagination
+* Search
+* Filters
+* Sorting
+
+All listing endpoints must follow platform standards.
+
+---
+
+# Audit Requirements
+
+Log:
+
+* Create
+* Update
+* Activate
+* Deactivate
+* Delete
+
+using existing Audit Logging framework.
+
+Build Sprint 2.2 as a complete Maritime Master Data Management module that becomes the foundation for future Exercise Builder and Assessment Engine modules.

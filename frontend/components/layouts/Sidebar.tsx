@@ -7,6 +7,7 @@ import {
   Monitor, BookOpen, ClipboardList, Anchor, Cpu, Award,
   BarChart3, FileText, Settings, ChevronLeft, ChevronRight,
   Server, Sliders, PlayCircle, ScrollText, ChevronDown,
+  Database, Ship, Cloud, Waves, Eye, Clock, Layers,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ const iconMap: Record<string, React.ElementType> = {
   Monitor, BookOpen, ClipboardList, Anchor, Cpu, Award,
   BarChart3, FileText, Settings,
   Server, Sliders, PlayCircle, ScrollText,
+  Database, Ship, Cloud, Waves, Eye, Clock, Layers,
 };
 
 export function Sidebar() {

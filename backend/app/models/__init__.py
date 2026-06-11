@@ -15,3 +15,10 @@ from app.models.simulator_configuration import SimulatorConfiguration  # noqa: F
 from app.models.simulator_session import SimulatorSession  # noqa: F401
 from app.models.integration_log import IntegrationLog  # noqa: F401
 from app.models.consent import Consent  # noqa: F401
+from app.models.vessel import Vessel  # noqa: F401
+from app.models.port import Port  # noqa: F401
+from app.models.weather_condition import WeatherCondition  # noqa: F401
+from app.models.sea_state import SeaState  # noqa: F401
+from app.models.visibility_condition import VisibilityCondition  # noqa: F401
+from app.models.time_of_day import TimeOfDay  # noqa: F401
+from app.models.environment_profile import EnvironmentProfile  # noqa: F401
