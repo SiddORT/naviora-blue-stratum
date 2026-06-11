@@ -26,15 +26,24 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative flex flex-col h-full bg-surface border-r border-border transition-all duration-300 ease-in-out",
+        "relative flex flex-col h-full transition-all duration-300 ease-in-out",
         collapsed ? "w-16" : "w-60"
       )}
+      style={{
+        background: "rgba(10, 28, 32, 0.85)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        borderRight: "1px solid rgba(24,178,188,0.15)",
+      }}
     >
-      {/* ── Header — PASE Compass brand ──────────────────────────── */}
-      <div className={cn(
-        "flex items-center h-16 px-4 border-b border-border flex-shrink-0",
-        collapsed && "justify-center px-2"
-      )}>
+      {/* ── Header — Naviora brand ────────────────────────────────── */}
+      <div
+        className={cn(
+          "flex items-center h-16 px-4 flex-shrink-0",
+          collapsed && "justify-center px-2"
+        )}
+        style={{ borderBottom: "1px solid rgba(24,178,188,0.12)" }}
+      >
         {collapsed ? <Logo compact /> : <Logo />}
       </div>
 
@@ -50,36 +59,42 @@ export function Sidebar() {
               href={item.href}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors group",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 group",
                 collapsed && "justify-center px-2"
               )}
+              style={isActive ? {
+                background: "rgba(24,178,188,0.12)",
+                color: "#18B2BC",
+                borderLeft: collapsed ? "none" : "2px solid #18B2BC",
+                paddingLeft: collapsed ? undefined : "10px",
+              } : {
+                color: "rgba(255,255,255,0.5)",
+              }}
+              onMouseEnter={e => { if (!isActive) { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(24,178,188,0.07)"; (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.85)"; } }}
+              onMouseLeave={e => { if (!isActive) { (e.currentTarget as HTMLAnchorElement).style.background = ""; (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.5)"; } }}
             >
               <Icon
-                className={cn(
-                  "flex-shrink-0 transition-colors",
-                  collapsed ? "w-5 h-5" : "w-4 h-4",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                )}
+                className={cn("flex-shrink-0", collapsed ? "w-5 h-5" : "w-4 h-4")}
               />
               {!collapsed && <span className="truncate">{item.label}</span>}
               {isActive && !collapsed && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                <div className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0"
+                     style={{ background: "#18B2BC" }} />
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* ── Footer — Blue Stratum parent brand ───────────────────── */}
-      <div className={cn(
-        "border-t border-border flex-shrink-0",
-        collapsed ? "py-3 flex justify-center" : "px-4 py-3"
-      )}>
+      {/* ── Footer — Blue Stratum brand ──────────────────────────── */}
+      <div
+        className={cn(
+          "flex-shrink-0",
+          collapsed ? "py-3 flex justify-center" : "px-4 py-3"
+        )}
+        style={{ borderTop: "1px solid rgba(24,178,188,0.12)" }}
+      >
         {collapsed ? (
-          /* Collapsed: show the infinity mark only */
           <div title="Blue Stratum">
             <Image
               src="/logos/bluestratum-h-light.png"
@@ -94,12 +109,13 @@ export function Sidebar() {
               width={28}
               height={28}
               className="object-contain hidden dark:block rounded"
-              style={{ filter: "brightness(0) invert(1)", opacity: 0.7 }}
+              style={{ filter: "brightness(2.5) contrast(0.85)", opacity: 0.7 }}
             />
           </div>
         ) : (
           <div className="space-y-1.5">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
+            <p className="text-[10px] uppercase tracking-widest font-medium"
+               style={{ color: "rgba(255,255,255,0.3)" }}>
               Powered by
             </p>
             <BlueStratumLogo size="sm" />
@@ -110,11 +126,13 @@ export function Sidebar() {
       {/* ── Collapse toggle ───────────────────────────────────────── */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className={cn(
-          "absolute -right-3 top-20 z-10 flex items-center justify-center w-6 h-6 rounded-full",
-          "bg-surface border border-border text-muted-foreground hover:text-foreground hover:bg-accent",
-          "transition-colors shadow-sm"
-        )}
+        className="absolute -right-3 top-20 z-10 flex items-center justify-center w-6 h-6 rounded-full transition-all duration-150"
+        style={{
+          background: "rgba(10,28,32,0.95)",
+          border: "1px solid rgba(24,178,188,0.30)",
+          color: "rgba(24,178,188,0.7)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+        }}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}

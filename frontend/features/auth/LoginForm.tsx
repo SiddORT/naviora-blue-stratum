@@ -43,49 +43,61 @@ export function LoginForm() {
       <div className="w-full max-w-sm">
 
         {/* ── Brand hero ─────────────────────────────────────────── */}
-        <div className="flex flex-col items-center mb-6">
-          {/* Mark — transparent PNG, no filter needed in either mode */}
+        <div className="flex flex-col items-center mb-7">
           <Image
             src="/logos/bluestratum-mark.png"
             alt="Blue Stratum"
             width={220}
             height={147}
-            className="object-contain"
+            className="object-contain drop-shadow-[0_0_32px_rgba(24,178,188,0.35)]"
             priority
           />
-
-          <div className="mt-3 text-center">
-            <p className="text-xs font-semibold text-muted-foreground tracking-[0.25em] uppercase">
+          <div className="mt-4 text-center">
+            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase"
+               style={{ color: "rgba(24,178,188,0.85)" }}>
               Blue Stratum
             </p>
-            <h1 className="text-base font-semibold text-foreground tracking-wide mt-1">
+            <h1 className="text-xl font-bold text-white tracking-wide mt-1">
               Naviora
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5 tracking-wide">
+            <p className="text-xs mt-0.5 tracking-wide"
+               style={{ color: "rgba(255,255,255,0.45)" }}>
               Maritime Assessment Platform
             </p>
           </div>
         </div>
 
-        {/* ── Card ───────────────────────────────────────────────── */}
-        <div className="bg-surface border border-border rounded-xl shadow-2xl px-8 pt-6 pb-8">
+        {/* ── Glass card ─────────────────────────────────────────── */}
+        <div className="rounded-2xl px-8 pt-7 pb-8"
+             style={{
+               background: "rgba(13, 42, 46, 0.55)",
+               backdropFilter: "blur(28px)",
+               WebkitBackdropFilter: "blur(28px)",
+               border: "1px solid rgba(245, 166, 35, 0.22)",
+               boxShadow: "0 8px 40px rgba(0,0,0,0.40), inset 0 1px 0 rgba(245,166,35,0.10)",
+             }}>
 
           <div className="mb-5 text-center">
-            <p className="text-sm font-medium text-foreground">Welcome back</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Sign in to your account</p>
+            <p className="text-sm font-semibold text-white">Welcome back</p>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+              Sign in to your account
+            </p>
           </div>
 
-          {/* API error */}
           {apiError && (
-            <div className="mb-4 px-3 py-2.5 rounded-md bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+            <div className="mb-4 px-3 py-2.5 rounded-lg text-sm"
+                 style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", color: "#FCA5A5" }}>
               {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
             {/* Email */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground" htmlFor="email">
+              <label className="block text-xs font-medium tracking-wide uppercase"
+                     style={{ color: "rgba(255,255,255,0.6)" }}
+                     htmlFor="email">
                 Email address
               </label>
               <input
@@ -95,21 +107,27 @@ export function LoginForm() {
                 placeholder="admin@naviora.app"
                 {...register("email")}
                 className={cn(
-                  "w-full bg-background border rounded-md px-3 py-2.5 text-sm text-foreground",
-                  "placeholder:text-muted-foreground focus:outline-none focus:ring-1 transition-colors",
-                  errors.email
-                    ? "border-destructive focus:ring-destructive"
-                    : "border-border focus:border-primary focus:ring-primary"
+                  "w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/30",
+                  "focus:outline-none transition-all duration-200",
+                  errors.email ? "ring-1 ring-red-500/60" : ""
                 )}
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: errors.email
+                    ? "1px solid rgba(239,68,68,0.5)"
+                    : "1px solid rgba(24,178,188,0.25)",
+                }}
+                onFocus={e => { if (!errors.email) e.currentTarget.style.border = "1px solid rgba(24,178,188,0.65)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(24,178,188,0.10)"; }}
+                onBlur={e  => { e.currentTarget.style.border = errors.email ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(24,178,188,0.25)"; e.currentTarget.style.boxShadow = "none"; }}
               />
-              {errors.email && (
-                <p className="text-xs text-destructive">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-foreground" htmlFor="password">
+              <label className="block text-xs font-medium tracking-wide uppercase"
+                     style={{ color: "rgba(255,255,255,0.6)" }}
+                     htmlFor="password">
                 Password
               </label>
               <div className="relative">
@@ -120,25 +138,30 @@ export function LoginForm() {
                   placeholder="Enter your password"
                   {...register("password")}
                   className={cn(
-                    "w-full bg-background border rounded-md px-3 py-2.5 pr-10 text-sm text-foreground",
-                    "placeholder:text-muted-foreground focus:outline-none focus:ring-1 transition-colors",
-                    errors.password
-                      ? "border-destructive focus:ring-destructive"
-                      : "border-border focus:border-primary focus:ring-primary"
+                    "w-full rounded-lg px-3 py-2.5 pr-10 text-sm text-white placeholder:text-white/30",
+                    "focus:outline-none transition-all duration-200",
+                    errors.password ? "ring-1 ring-red-500/60" : ""
                   )}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: errors.password
+                      ? "1px solid rgba(239,68,68,0.5)"
+                      : "1px solid rgba(24,178,188,0.25)",
+                  }}
+                  onFocus={e => { if (!errors.password) e.currentTarget.style.border = "1px solid rgba(24,178,188,0.65)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(24,178,188,0.10)"; }}
+                  onBlur={e  => { e.currentTarget.style.border = errors.password ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(24,178,188,0.25)"; e.currentTarget.style.boxShadow = "none"; }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: "rgba(255,255,255,0.4)" }}
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-xs text-destructive">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
             </div>
 
             {/* Submit */}
@@ -146,11 +169,18 @@ export function LoginForm() {
               type="submit"
               disabled={isLoggingIn}
               className={cn(
-                "w-full flex items-center justify-center gap-2 gradient-gold text-black",
-                "font-semibold text-sm rounded-md py-2.5 px-4 mt-2",
-                "hover:opacity-90 active:opacity-80 transition-opacity",
+                "w-full flex items-center justify-center gap-2 mt-2",
+                "font-semibold text-sm rounded-xl py-3 px-4",
+                "transition-all duration-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
+              style={{
+                background: "linear-gradient(135deg, #F5A623 0%, #D4820A 100%)",
+                color: "#000",
+                boxShadow: "0 4px 20px rgba(245,166,35,0.30)",
+              }}
+              onMouseEnter={e => { if (!isLoggingIn) (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 28px rgba(245,166,35,0.50)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(245,166,35,0.30)"; }}
             >
               {isLoggingIn ? (
                 <><Loader2 className="w-4 h-4 animate-spin" />Signing in...</>
@@ -159,6 +189,15 @@ export function LoginForm() {
               )}
             </button>
           </form>
+        </div>
+
+        {/* ── Teal divider line ─────────────────────────────────── */}
+        <div className="mt-6 flex items-center justify-center gap-2 opacity-40">
+          <div className="flex-1 h-px" style={{ background: "rgba(24,178,188,0.4)" }} />
+          <span className="text-[10px] tracking-widest uppercase" style={{ color: "rgba(24,178,188,0.8)" }}>
+            Secure Login
+          </span>
+          <div className="flex-1 h-px" style={{ background: "rgba(24,178,188,0.4)" }} />
         </div>
 
       </div>

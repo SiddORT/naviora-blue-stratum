@@ -2,126 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tailwind preflight sets height:auto on all <img> elements.
-   Adding width:auto alongside it prevents the Next.js Image
-   "dimension modified without the other" console warning. */
+/* Tailwind preflight / Next.js Image aspect-ratio fix */
 @layer base {
-  img[data-nimg] {
-    width: auto;
-  }
+  img[data-nimg] { width: auto; }
 }
 
 /*
   Naviora by Blue Stratum — Theme Palette
   ─────────────────────────────────────────────────────────────────────────────
-  Derived from the Blue Stratum infinity-mark logo:
-    Cerulean blue  (#3B9FE6)  — the cool sweeping arc of the mark
-    Warm amber     (#F0A030)  — the golden arc of the mark
-
-  Dark mode  → deep ocean blue-black base, cerulean primary, amber CTA
-  Light mode → arctic white / blue-tinted surfaces, same brand accents
+  Inspired by reference UI + Blue Stratum logo colors:
+    Teal / cyan   → primary brand action  (#18B2BC)
+    Amber / gold  → logo gold arc, CTA    (#F5A623)
+    Deep teal bg  → base dark surface     (#071B1E)
+  Glassmorphism: backdrop-blur panels with teal-tinted borders
   ─────────────────────────────────────────────────────────────────────────────
 */
 
 @layer base {
 
-  /* ── Light mode — Arctic Horizon ────────────────────────────────────── */
+  /* ── Light mode ─────────────────────────────────────────────────────── */
   :root {
-    /* Backgrounds — cool blue-white, clean & professional */
-    --background:         214 80% 98%;     /* #F2F7FF — arctic white             */
-    --surface:            0   0% 100%;     /* #FFFFFF — pure white card          */
+    --background:         185 55% 97%;     /* #EFF8F9 — pale teal white          */
+    --surface:            0   0% 100%;     /* #FFFFFF                            */
     --card:               0   0% 100%;
-    --card-foreground:    216 68% 9%;
+    --card-foreground:    186 65% 8%;
     --popover:            0   0% 100%;
-    --popover-foreground: 216 68% 9%;
+    --popover-foreground: 186 65% 8%;
 
-    /* Text — deep ocean navy */
-    --foreground:         216 68% 9%;      /* #07162A — deepest navy             */
-    --muted:              214 55% 93%;     /* #E3EDFB — light blue muted bg      */
-    --muted-foreground:   212 24% 46%;     /* #5B7899 — steel blue gray          */
+    --foreground:         186 65% 8%;      /* #071B1E — very dark teal           */
+    --muted:              185 40% 92%;     /* #D6EEEF — light teal muted         */
+    --muted-foreground:   185 22% 44%;     /* #537F84 — muted teal-gray          */
 
-    /* Brand — cerulean from logo blue arc */
-    --primary:            207 72% 48%;     /* #2288D8 — cerulean (light-mode)    */
+    --primary:            183 78% 36%;     /* #0D99A6 — deep teal (light mode)   */
     --primary-foreground: 0   0% 100%;
 
-    /* Amber CTA — from logo gold arc */
-    --secondary:          36  90% 44%;     /* #D4880A — amber/gold               */
-    --secondary-foreground: 0  0% 100%;
+    --secondary:          38  92% 52%;     /* #F5A623 — logo amber               */
+    --secondary-foreground: 0  0% 0%;
 
-    /* UI states */
-    --accent:             214 60% 93%;     /* #DDE9FA — blue hover/pressed       */
-    --accent-foreground:  216 68% 9%;
-    --destructive:        4   86% 56%;     /* #EF4444                            */
+    --accent:             185 50% 90%;     /* #CCE9EB — teal hover               */
+    --accent-foreground:  186 65% 8%;
+    --destructive:        4   86% 56%;
     --destructive-foreground: 0 0% 100%;
-    --success:            158 64% 36%;     /* #20966A                            */
+    --success:            158 64% 36%;
     --success-foreground: 0   0% 100%;
     --warning:            38  92% 50%;
     --warning-foreground: 0   0% 0%;
 
-    --border:             214 38% 85%;     /* #C5D5EC — soft blue-gray border    */
-    --input:              214 38% 85%;
-    --ring:               207 72% 48%;
-    --radius:             0.5rem;
+    --border:             185 35% 84%;     /* #BDD9DC — teal border              */
+    --input:              185 35% 84%;
+    --ring:               183 78% 36%;
+    --radius:             0.625rem;
 
-    --chart-1:            207 72% 48%;     /* cerulean                           */
-    --chart-2:            36  90% 44%;     /* amber                              */
-    --chart-3:            158 64% 36%;     /* teal-green                         */
-    --chart-4:            4   86% 56%;     /* destructive red                    */
-    --chart-5:            270 60% 55%;     /* violet                             */
+    --chart-1:            183 78% 36%;
+    --chart-2:            38  92% 52%;
+    --chart-3:            158 64% 36%;
+    --chart-4:            4   86% 56%;
+    --chart-5:            270 60% 55%;
 
-    /* Brand token aliases */
-    --brand-blue:         207 72% 48%;
-    --brand-amber:        36  90% 44%;
-    --brand-navy:         216 68% 9%;
+    --brand-teal:         183 78% 36%;
+    --brand-amber:        38  92% 52%;
   }
 
-  /* ── Dark mode — Deep Ocean Night ───────────────────────────────────── */
+  /* ── Dark mode — Deep Teal / Glassmorphism ──────────────────────────── */
   .dark {
-    /* Backgrounds — true deep ocean, no purple tint */
-    --background:         216 72% 6%;      /* #050F1E — deepest ocean black      */
-    --surface:            216 64% 10%;     /* #0B1A2E — ocean panel              */
-    --card:               216 64% 10%;
-    --card-foreground:    210 55% 92%;
-    --popover:            216 58% 13%;     /* #0F2038 — raised panel             */
-    --popover-foreground: 210 55% 92%;
+    /* Deep teal-black base — matches reference image */
+    --background:         186 62% 6%;      /* #071B1E — deepest teal-black       */
+    --surface:            186 56% 9%;      /* #0D2A2E — teal panel               */
+    --card:               186 56% 9%;
+    --card-foreground:    185 45% 93%;
+    --popover:            186 52% 12%;     /* #112F34 — raised glass panel       */
+    --popover-foreground: 185 45% 93%;
 
-    /* Text — soft blue-white, easy on ocean bg */
-    --foreground:         210 55% 92%;     /* #D6E6F7 — blue-tinted white        */
-    --muted:              216 48% 16%;     /* #162032 — muted navy               */
-    --muted-foreground:   210 26% 58%;     /* #7B98B8 — steel ocean blue         */
+    --foreground:         185 45% 93%;     /* #E0F3F5 — bright teal-white        */
+    --muted:              186 45% 14%;     /* #152F34 — muted dark teal          */
+    --muted-foreground:   185 24% 58%;     /* #6FA8AF — steel teal               */
 
-    /* Brand — cerulean, slightly brighter for dark bg */
-    --primary:            207 78% 56%;     /* #3B9FE6 — cerulean (logo blue arc) */
+    /* Bright teal/cyan — reference image accent */
+    --primary:            183 80% 44%;     /* #18B2BC — bright teal              */
     --primary-foreground: 0   0% 100%;
 
-    /* Amber CTA */
-    --secondary:          36  90% 52%;     /* #F0A030 — amber (logo gold arc)    */
+    /* Logo amber / yellow — from infinity mark gold arc */
+    --secondary:          38  95% 55%;     /* #F5A623 — warm amber               */
     --secondary-foreground: 0  0% 0%;
 
-    /* UI states */
-    --accent:             216 54% 14%;     /* #112030 — dark ocean hover         */
-    --accent-foreground:  210 55% 92%;
-    --destructive:        4   86% 56%;
+    --accent:             186 48% 13%;     /* #122B30 — dark teal hover          */
+    --accent-foreground:  185 45% 93%;
+    --destructive:        4   86% 58%;
     --destructive-foreground: 0 0% 100%;
-    --success:            158 58% 38%;
+    --success:            158 60% 40%;
     --success-foreground: 0   0% 100%;
-    --warning:            38  92% 52%;
+    --warning:            38  92% 55%;
     --warning-foreground: 0   0% 0%;
 
-    --border:             216 44% 19%;     /* #172537 — deep border              */
-    --input:              216 58% 13%;
-    --ring:               207 78% 56%;
+    --border:             186 44% 16%;     /* #163337 — subtle teal border       */
+    --input:              186 52% 12%;
+    --ring:               183 80% 44%;
 
-    --chart-1:            207 78% 56%;
-    --chart-2:            36  90% 52%;
-    --chart-3:            158 58% 42%;
-    --chart-4:            4   86% 60%;
+    --chart-1:            183 80% 44%;
+    --chart-2:            38  95% 55%;
+    --chart-3:            158 60% 40%;
+    --chart-4:            4   86% 58%;
     --chart-5:            270 60% 62%;
 
-    /* Brand token aliases */
-    --brand-blue:         207 78% 56%;
-    --brand-amber:        36  90% 52%;
-    --brand-navy:         216 72% 6%;
+    --brand-teal:         183 80% 44%;
+    --brand-amber:        38  95% 55%;
   }
 }
 
@@ -133,80 +117,100 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scrollbar — dark */
-  .dark ::-webkit-scrollbar-track       { background: hsl(var(--surface)); }
-  .dark ::-webkit-scrollbar-thumb       { background: hsl(var(--border)); border-radius: 3px; }
-  .dark ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted)); }
-
-  /* Scrollbar — light */
-  :root ::-webkit-scrollbar-track       { background: hsl(var(--muted)); }
-  :root ::-webkit-scrollbar-thumb       { background: hsl(var(--border)); border-radius: 3px; }
-  :root ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.4); }
-
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar               { width: 6px; height: 6px; }
+  .dark ::-webkit-scrollbar-track   { background: hsl(var(--surface)); }
+  .dark ::-webkit-scrollbar-thumb   { background: hsl(var(--border)); border-radius: 3px; }
+  .dark ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.5); }
+  :root ::-webkit-scrollbar-track   { background: hsl(var(--muted)); }
+  :root ::-webkit-scrollbar-thumb   { background: hsl(var(--border)); border-radius: 3px; }
 }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
 
-  /* ── Naviora brand gradients ──────────────────────────────────────────── */
+  /* ── Brand gradients ─────────────────────────────────────────────────── */
 
-  /* Primary amber CTA button — from logo's gold arc */
+  /* CTA button — amber from logo gold arc */
   .gradient-gold {
-    background: linear-gradient(135deg, #F0A030 0%, #C87A08 100%);
+    background: linear-gradient(135deg, #F5A623 0%, #D4820A 100%);
   }
 
-  /* Deep ocean hero gradient — login page bg, card accents */
+  /* Teal primary button */
+  .gradient-teal {
+    background: linear-gradient(135deg, #18B2BC 0%, #0C8A93 100%);
+  }
+
+  /* Hero bg — deep teal sweep */
   .gradient-ocean {
-    background: linear-gradient(135deg, #050F1E 0%, #0B1D3A 100%);
+    background: linear-gradient(160deg, #071B1E 0%, #0D3038 50%, #071B1E 100%);
   }
 
-  /* Cerulean-to-amber brand sweep — matches the infinity mark */
+  /* Infinity-mark sweep — teal → amber, matches logo */
   .gradient-brand {
-    background: linear-gradient(135deg, #3B9FE6 0%, #F0A030 100%);
+    background: linear-gradient(135deg, #18B2BC 0%, #F5A623 100%);
   }
 
-  /* Subtle blue surface gradient */
   .gradient-surface {
     background: linear-gradient(135deg, hsl(var(--surface)) 0%, hsl(var(--accent)) 100%);
   }
 
-  /* Legacy aliases kept so existing class references don't break */
-  .gradient-simulator       { background: linear-gradient(135deg, #050F1E 0%, #0B1D3A 100%); }
-  .gradient-simulator-light { background: linear-gradient(135deg, #EBF3FF 0%, #D6E8FF 100%); }
+  /* Legacy aliases */
+  .gradient-simulator       { @apply gradient-ocean; }
+  .gradient-simulator-light { background: linear-gradient(135deg, #EBF8F9 0%, #CCE9EB 100%); }
 
-  /* Status tier badges */
-  .tier-green {
-    background-color: hsl(var(--success));
-    color: #ffffff;
-  }
-  .tier-blue {
-    background-color: hsl(var(--primary));
-    color: #ffffff;
-  }
-  .tier-amber {
-    background-color: hsl(var(--secondary));
-    color: #000000;
-  }
-  .tier-inactive {
-    background-color: hsl(var(--muted));
-    color: hsl(var(--muted-foreground));
+  /* ── Glassmorphism panels ────────────────────────────────────────────── */
+
+  /* Base glass — faint white frost, any bg */
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  /* Legacy sim-tier aliases */
-  .tier-olive    { @apply tier-amber; }
-
-  .glass-panel {
-    background: hsl(var(--surface) / 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.6);
+  /* Teal-tinted glass card — matches reference UI */
+  .glass-card {
+    background: rgba(13, 42, 46, 0.65);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(24, 178, 188, 0.20);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255,255,255,0.06);
   }
 
+  /* Amber-accented glass — for highlighted panels / login card */
+  .glass-amber {
+    background: rgba(13, 42, 46, 0.55);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(245, 166, 35, 0.22);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(245,166,35,0.08);
+  }
+
+  /* Light glass — for light mode */
+  .glass-light {
+    background: rgba(255, 255, 255, 0.70);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(13, 153, 166, 0.18);
+    box-shadow: 0 4px 24px rgba(7, 27, 30, 0.08);
+  }
+
+  /* ── Status badges ───────────────────────────────────────────────────── */
+  .tier-green   { background-color: hsl(var(--success));   color: #ffffff; }
+  .tier-teal    { background-color: hsl(var(--primary));   color: #ffffff; }
+  .tier-amber   { background-color: hsl(var(--secondary)); color: #000000; }
+  .tier-inactive{ background-color: hsl(var(--muted));     color: hsl(var(--muted-foreground)); }
+
+  /* Legacy */
+  .tier-blue    { @apply tier-teal; }
+  .tier-olive   { @apply tier-amber; }
+
+  /* ── Shimmer skeleton ────────────────────────────────────────────────── */
   .shimmer {
     background: linear-gradient(
       90deg,
       hsl(var(--muted) / 0) 0%,
-      hsl(var(--muted) / 0.5) 50%,
+      hsl(var(--muted) / 0.6) 50%,
       hsl(var(--muted) / 0) 100%
     );
     background-size: 200% 100%;
