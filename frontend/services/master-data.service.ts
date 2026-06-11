@@ -8,14 +8,19 @@ import type {
   VisibilityCondition,
   WeatherCondition,
 } from "@/types/master-data.types";
+import { useAuthStore } from "@/store/auth.store";
 
 const BASE = "/api/v1/master-data";
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const token = useAuthStore.getState().accessToken;
   const res = await fetch(url, {
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers ?? {}),
+    },
   });
   const json = await res.json();
   if (!json.success) throw new Error(json.message || "Request failed");
