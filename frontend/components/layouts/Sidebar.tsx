@@ -9,9 +9,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Logo, BlueStratumLogo } from "@/components/shared/Logo";
+import { Logo } from "@/components/shared/Logo";
 import { ADMIN_NAV_ITEMS } from "@/constants/navigation";
-import Image from "next/image";
 
 const iconMap: Record<string, React.ElementType> = {
   LayoutDashboard, Building2, Users, ShieldCheck, CreditCard,
@@ -86,42 +85,20 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* ── Footer — Blue Stratum brand ──────────────────────────── */}
-      <div
-        className={cn(
-          "flex-shrink-0",
-          collapsed ? "py-3 flex justify-center" : "px-4 py-3"
-        )}
-        style={{ borderTop: "1px solid rgba(24,178,188,0.12)" }}
-      >
-        {collapsed ? (
-          <div title="Blue Stratum">
-            <Image
-              src="/logos/bluestratum-h-light.png"
-              alt="Blue Stratum"
-              width={28}
-              height={28}
-              className="object-contain block dark:hidden rounded"
-            />
-            <Image
-              src="/logos/bluestratum-h-light.png"
-              alt="Blue Stratum"
-              width={28}
-              height={28}
-              className="object-contain hidden dark:block rounded"
-              style={{ filter: "brightness(2.5) contrast(0.85)", opacity: 0.7 }}
-            />
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            <p className="text-[10px] uppercase tracking-widest font-medium"
-               style={{ color: "rgba(255,255,255,0.3)" }}>
-              Powered by
-            </p>
-            <BlueStratumLogo size="sm" />
-          </div>
-        )}
-      </div>
+      {/* ── Footer ───────────────────────────────────────────────── */}
+      {!collapsed && (
+        <div
+          className="flex-shrink-0 px-4 py-3"
+          style={{ borderTop: "1px solid rgba(24,178,188,0.12)" }}
+        >
+          <p
+            className="text-[10px] font-medium tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.28)" }}
+          >
+            Powered by Blue Stratum
+          </p>
+        </div>
+      )}
 
       {/* ── Collapse toggle ───────────────────────────────────────── */}
       <button
