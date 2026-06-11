@@ -22,3 +22,10 @@ from app.models.sea_state import SeaState  # noqa: F401
 from app.models.visibility_condition import VisibilityCondition  # noqa: F401
 from app.models.time_of_day import TimeOfDay  # noqa: F401
 from app.models.environment_profile import EnvironmentProfile  # noqa: F401
+from app.models.exercise_category import ExerciseCategory  # noqa: F401
+from app.models.objective import Objective  # noqa: F401
+from app.models.scenario import Scenario  # noqa: F401
+from app.models.exercise import Exercise  # noqa: F401
+from app.models.exercise_objective import ExerciseObjective  # noqa: F401
+from app.models.exercise_variant import ExerciseVariant  # noqa: F401
+from app.models.exercise_version import ExerciseVersion  # noqa: F401

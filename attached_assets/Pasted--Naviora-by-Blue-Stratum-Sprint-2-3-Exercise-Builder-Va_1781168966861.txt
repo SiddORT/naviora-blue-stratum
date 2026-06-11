@@ -1,0 +1,630 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.3 – Exercise Builder & Variant Management
+
+Build the Exercise Builder module for Naviora.
+
+This is a core domain module and must be designed correctly from the beginning.
+
+Important Concept:
+
+An Exercise represents a competency objective.
+
+An Exercise Variant represents an actual simulator setup.
+
+Do NOT duplicate exercises for different weather, visibility, ports or vessels.
+
+One Exercise can contain multiple Variants.
+
+Example:
+
+Exercise:
+
+* Crossing Situation Assessment
+
+Variants:
+
+* Day Crossing
+* Night Crossing
+* Fog Crossing
+* Storm Crossing
+* Tanker Crossing
+* Multi Vessel Crossing
+
+The platform must support unlimited variants under a single exercise.
+
+Future modules including Assessments, Simulator Sessions, AI Assessment and Reporting will consume Exercise Variants.
+
+Follow all existing platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* Audit Logging
+* Soft Delete
+* Search
+* Filters
+* Pagination
+* Encryption Standards
+* GDPR Standards
+
+---
+
+# Navigation
+
+Create:
+
+Exercise Management
+
+├── Exercise Categories
+├── Objectives Library
+├── Scenario Library
+├── Exercise Library
+└── Exercise Variants
+
+---
+
+# Exercise Categories
+
+Purpose:
+
+Group exercises logically.
+
+Fields:
+
+* category_name
+* category_code
+* description
+* status
+
+Seed Records:
+
+* COLREG
+* Navigation
+* Emergency Response
+* Port Operations
+* Restricted Visibility
+* Bridge Resource Management
+* Vessel Handling
+
+Features:
+
+* Create
+* Edit
+* Activate
+* Deactivate
+* Soft Delete
+
+---
+
+# Objectives Library
+
+Purpose:
+
+Reusable competency objectives.
+
+Fields:
+
+* objective_name
+* objective_code
+* competency_area
+* description
+* status
+
+Examples:
+
+* Collision Avoidance
+* Rule Compliance
+* Situational Awareness
+* Risk Assessment
+* Decision Making
+* Communication
+* Traffic Management
+
+Features:
+
+* CRUD
+* Search
+* Filters
+* Pagination
+
+---
+
+# Scenario Library
+
+Purpose:
+
+Reusable maritime scenarios.
+
+Fields:
+
+* scenario_name
+* scenario_code
+* scenario_type
+* difficulty
+* description
+* status
+
+Scenario Types:
+
+* Head-On
+* Crossing
+* Overtaking
+* Restricted Visibility
+* Traffic Separation Scheme
+* Port Entry
+* Port Exit
+* Pilotage
+* Multi Vessel Encounter
+* Emergency Response
+* Engine Failure
+* Steering Failure
+* Man Overboard
+
+Difficulty:
+
+* Beginner
+* Intermediate
+* Advanced
+* Expert
+
+Features:
+
+* CRUD
+* Search
+* Filters
+* Pagination
+
+---
+
+# Exercise Library
+
+Purpose:
+
+Represents a competency assessment objective.
+
+Exercise does NOT contain environmental data.
+
+Exercise does NOT contain vessel data.
+
+Exercise does NOT contain weather data.
+
+Those belong to Variants.
+
+Fields:
+
+* exercise_name
+
+* exercise_code
+
+* category_id
+
+* scenario_id
+
+* description
+
+* difficulty
+
+* passing_score
+
+* max_attempts
+
+* estimated_duration
+
+* generation_mode
+
+* status
+
+Generation Modes:
+
+* MANUAL
+* RANDOMIZED
+* PARAMETERIZED
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+Relationship:
+
+Exercise
+→ Multiple Objectives
+
+Exercise
+→ Multiple Variants
+
+Features:
+
+* Create
+* Edit
+* Activate
+* Archive
+* Clone
+* Versioning
+
+---
+
+# Exercise Objectives
+
+Create Junction Table
+
+exercise_objectives
+
+Fields:
+
+* exercise_id
+* objective_id
+
+Support:
+
+One Exercise
+→ Many Objectives
+
+---
+
+# Exercise Variants
+
+Purpose:
+
+Represents an actual simulator setup.
+
+Fields:
+
+* variant_name
+
+* variant_code
+
+* exercise_id
+
+* port_id
+
+* environment_profile_id
+
+* primary_vessel_id
+
+* secondary_vessel_id
+
+* tertiary_vessel_id
+
+* duration_minutes
+
+* passing_score
+
+* description
+
+* status
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+Relationships:
+
+Exercise
+→ Many Variants
+
+Variant
+→ One Port
+
+Variant
+→ One Environment Profile
+
+Variant
+→ Multiple Vessels
+
+---
+
+# Variant Configuration
+
+Allow configuration of:
+
+Environment
+
+* Weather
+* Sea State
+* Visibility
+* Time Of Day
+
+Vessels
+
+* Own Ship
+* Target Ship
+* Additional Ships
+
+Port
+
+* Port Selection
+
+Assessment
+
+* Duration
+* Passing Score
+
+---
+
+# Exercise Versioning
+
+Very Important.
+
+Never overwrite an active exercise.
+
+Create:
+
+exercise_versions
+
+Fields:
+
+* exercise_id
+* version_number
+* change_summary
+* created_at
+* created_by
+
+When changes occur:
+
+Version 1
+→ Version 2
+
+Maintain complete history.
+
+---
+
+# Exercise Cloning
+
+Support:
+
+Clone Exercise
+
+Example:
+
+Crossing Situation
+
+Clone
+
+Crossing Situation Advanced
+
+or
+
+Crossing Situation v2
+
+Clone should duplicate:
+
+* Objectives
+* Variants
+* Settings
+
+---
+
+# Variant Generation Support
+
+Design for future support.
+
+Generation Mode:
+
+MANUAL
+
+Admin manually creates variants.
+
+---
+
+RANDOMIZED
+
+System randomly selects:
+
+* Ports
+* Environment Profiles
+* Vessels
+
+from allowed pools.
+
+---
+
+PARAMETERIZED
+
+Admin defines constraints.
+
+Example:
+
+Allowed Weather:
+
+* Clear
+* Fog
+* Rain
+
+Allowed Vessels:
+
+* Container
+* Tanker
+* Bulk Carrier
+
+System generates scenarios dynamically.
+
+Do not build the generation engine now.
+
+Only create architecture for it.
+
+---
+
+# Backend Deliverables
+
+Generate:
+
+* Models
+* Migrations
+* Schemas
+* Repositories
+* Services
+* Validators
+* API Routes
+
+Modules:
+
+exercise_categories
+
+objectives
+
+scenarios
+
+exercises
+
+exercise_objectives
+
+exercise_variants
+
+exercise_versions
+
+---
+
+# Frontend Deliverables
+
+Pages:
+
+/administration/exercises/categories
+
+/administration/exercises/objectives
+
+/administration/exercises/scenarios
+
+/administration/exercises/library
+
+/administration/exercises/variants
+
+---
+
+# Exercise Library Grid
+
+Columns:
+
+* Exercise Name
+* Category
+* Scenario
+* Difficulty
+* Variants Count
+* Status
+* Version
+* Created On
+
+Actions:
+
+* View
+* Edit
+* Clone
+* Archive
+
+---
+
+# Exercise Variants Grid
+
+Columns:
+
+* Variant Name
+* Exercise
+* Port
+* Environment Profile
+* Primary Vessel
+* Status
+
+Actions:
+
+* View
+* Edit
+* Duplicate
+* Archive
+
+---
+
+# Exercise Wizard
+
+Create wizard-based creation flow.
+
+Step 1
+
+Exercise Information
+
+* Name
+* Category
+* Scenario
+* Description
+
+Step 2
+
+Objectives
+
+Select multiple objectives.
+
+Step 3
+
+Assessment Settings
+
+* Passing Score
+* Duration
+* Attempts
+
+Step 4
+
+Create Variants
+
+Add one or more variants.
+
+Step 5
+
+Review & Save
+
+---
+
+# Search Standards
+
+All grids must support:
+
+Search
+
+Filters
+
+Sorting
+
+Pagination
+
+Server-side implementation only.
+
+---
+
+# Audit Logging
+
+Log:
+
+* Create
+* Update
+* Clone
+* Archive
+* Activate
+* Deactivate
+
+using existing Audit framework.
+
+---
+
+# Future Compatibility
+
+Design this module to support:
+
+* Multiple Simulator Vendors
+* COLREG Rule Mapping
+* AI Assessment Rules
+* Dynamic Scenario Generation
+* Multi Vessel Scenarios
+* Accident Replay Scenarios
+* Assessment Templates
+
+Do not hardcode simulator-specific logic.
+
+Exercise Builder must remain simulator agnostic.
+
+Build this as a production-ready enterprise Exercise & Variant Management module for Naviora by Blue Stratum.
