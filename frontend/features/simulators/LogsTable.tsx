@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { simulatorsService } from "@/services/simulators.service";
 import type { IntegrationLog } from "@/types/simulator.types";
@@ -56,7 +56,6 @@ export function LogsTable() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-muted-foreground" />
           <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className={inputClass}>
             <option value="">All Statuses</option>
             <option value="success">Success</option>

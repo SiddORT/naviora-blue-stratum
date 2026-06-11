@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Filter, Pencil, Trash2, Wifi } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Wifi } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { simulatorsService } from "@/services/simulators.service";
 import { toast } from "@/hooks/use-toast";
@@ -99,7 +99,6 @@ export function ConfigurationsTable() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-muted-foreground" />
           <select value={authType} onChange={(e) => { setAuthType(e.target.value); setPage(1); }} className={inputClass}>
             <option value="">All Auth Types</option>
             <option value="API_KEY">API Key</option>

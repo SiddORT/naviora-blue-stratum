@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Filter, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn, formatDate } from "@/lib/utils";
 import { simulatorsService } from "@/services/simulators.service";
@@ -83,7 +83,6 @@ export function VendorsTable() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-muted-foreground" />
           <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} className={inputClass}>
             <option value="">All Statuses</option>
             <option value="active">Active</option>
