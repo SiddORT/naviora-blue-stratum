@@ -170,7 +170,7 @@ export function LoginForm() {
               <label className="block text-xs font-medium tracking-widest uppercase"
                      style={{ color: "rgba(255,255,255,0.5)" }}
                      htmlFor="email">
-                Email address
+                Email address <span style={{ color: "#F5A623" }}>*</span>
               </label>
               <input
                 id="email"
@@ -199,7 +199,7 @@ export function LoginForm() {
               <label className="block text-xs font-medium tracking-widest uppercase"
                      style={{ color: "rgba(255,255,255,0.5)" }}
                      htmlFor="password">
-                Password
+                Password <span style={{ color: "#F5A623" }}>*</span>
               </label>
               <div className="relative">
                 <input
