@@ -10,3 +10,7 @@ from app.models.audit_log import AuditLog  # noqa: F401
 from app.models.plan import Plan  # noqa: F401
 from app.models.file_metadata import FileMetadata  # noqa: F401
 from app.models.refresh_token import RefreshToken  # noqa: F401
+from app.models.simulator_vendor import SimulatorVendor  # noqa: F401
+from app.models.simulator_configuration import SimulatorConfiguration  # noqa: F401
+from app.models.simulator_session import SimulatorSession  # noqa: F401
+from app.models.integration_log import IntegrationLog  # noqa: F401

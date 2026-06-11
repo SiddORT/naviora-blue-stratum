@@ -1,0 +1,700 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.1 – Simulator Integration Hub
+
+You are building Sprint 2.1 of Naviora by Blue Stratum.
+
+Naviora is a Maritime Assessment, Simulation, Competency, Certification and AI Reporting Platform that integrates with multiple maritime simulators.
+
+The project foundation already exists.
+
+Follow all existing architecture, coding standards, database conventions, storage conventions, API standards, pagination standards and audit standards.
+
+This sprint focuses only on Simulator Integration Hub.
+
+Build production-ready code.
+
+Do not generate mock architecture.
+
+Do not generate placeholder code.
+
+Implement complete backend and frontend modules.
+
+---
+
+# Objective
+
+Create a vendor-agnostic simulator integration framework capable of supporting:
+
+* PASE Simulators
+* Kongsberg
+* Wärtsilä
+* Transas
+* Custom Simulators
+* Future Simulator Vendors
+
+The system must be extensible without code changes to core business logic.
+
+Use Adapter Pattern.
+
+Never hardcode simulator-specific logic.
+
+---
+
+# Admin Menu
+
+Create a new Admin Module:
+
+```text
+Simulator Management
+├── Simulator Vendors
+├── Simulator Configurations
+├── Simulator Sessions
+├── Integration Logs
+└── Connection Testing
+```
+
+Add navigation entries to sidebar.
+
+---
+
+# Backend Implementation
+
+Create module:
+
+```text
+backend/app/modules/simulators
+```
+
+Structure:
+
+```text
+simulators
+
+├── models
+├── schemas
+├── repositories
+├── services
+├── routers
+├── validators
+├── adapters
+├── enums
+└── migrations
+```
+
+---
+
+# Database Tables
+
+## simulator_vendors
+
+Purpose:
+
+Stores supported simulator vendors.
+
+Fields:
+
+```sql
+id
+uuid
+
+name
+code
+
+vendor_name
+version
+
+description
+
+integration_type
+
+status
+
+is_active
+
+created_at
+updated_at
+
+created_by
+updated_by
+
+deleted_at
+deleted_by
+```
+
+Validation:
+
+* code unique
+* name unique
+
+Searchable:
+
+* name
+* code
+* vendor_name
+
+Filterable:
+
+* status
+* integration_type
+
+Sortable:
+
+* name
+* created_at
+
+---
+
+## simulator_configurations
+
+Purpose:
+
+Stores simulator connection settings.
+
+Fields:
+
+```sql
+id
+uuid
+
+simulator_vendor_id
+
+configuration_name
+
+base_url
+
+authentication_type
+
+api_key
+
+client_id
+
+client_secret
+
+webhook_url
+
+connection_timeout
+
+status
+
+is_active
+
+created_at
+updated_at
+
+created_by
+updated_by
+
+deleted_at
+deleted_by
+```
+
+Authentication Types Enum:
+
+```text
+API_KEY
+BEARER
+BASIC
+NONE
+```
+
+Searchable:
+
+* configuration_name
+* base_url
+
+Filterable:
+
+* authentication_type
+* status
+
+---
+
+## simulator_sessions
+
+Purpose:
+
+Stores every simulator session.
+
+Fields:
+
+```sql
+id
+uuid
+
+session_reference
+
+simulator_vendor_id
+
+candidate_id
+
+organization_id
+
+assessment_id
+
+exercise_id
+
+start_time
+
+end_time
+
+duration_seconds
+
+status
+
+raw_payload
+
+processed_payload
+
+remarks
+
+created_at
+updated_at
+
+created_by
+updated_by
+```
+
+Status Enum:
+
+```text
+PENDING
+RUNNING
+COMPLETED
+FAILED
+CANCELLED
+```
+
+Requirements:
+
+* Store original simulator payload
+* Store processed payload
+* Never overwrite payload history
+
+Searchable:
+
+* session_reference
+
+Filterable:
+
+* simulator
+* status
+
+Sortable:
+
+* start_time
+* created_at
+
+---
+
+## integration_logs
+
+Purpose:
+
+Stores communication logs.
+
+Fields:
+
+```sql
+id
+uuid
+
+simulator_vendor_id
+
+request_type
+
+request_url
+
+request_payload
+
+response_payload
+
+status
+
+error_message
+
+created_at
+```
+
+Searchable:
+
+* request_type
+* status
+
+---
+
+# Repository Layer
+
+Implement repository pattern.
+
+No SQL queries inside routes.
+
+Responsibilities:
+
+* CRUD operations
+* Pagination
+* Filtering
+* Searching
+* Sorting
+
+Create reusable base repository.
+
+---
+
+# Service Layer
+
+Business logic belongs only inside services.
+
+Implement:
+
+SimulatorVendorService
+
+SimulatorConfigurationService
+
+SimulatorSessionService
+
+IntegrationLogService
+
+---
+
+# API Endpoints
+
+## Simulator Vendors
+
+```http
+GET    /api/v1/simulators/vendors
+
+GET    /api/v1/simulators/vendors/{id}
+
+POST   /api/v1/simulators/vendors
+
+PUT    /api/v1/simulators/vendors/{id}
+
+DELETE /api/v1/simulators/vendors/{id}
+```
+
+Support:
+
+* pagination
+* search
+* filters
+* sorting
+
+---
+
+## Simulator Configurations
+
+```http
+GET
+
+POST
+
+PUT
+
+DELETE
+```
+
+Same standards.
+
+---
+
+## Simulator Sessions
+
+```http
+GET
+
+GET BY ID
+```
+
+Read-only for UI.
+
+Sessions will later be created by integrations.
+
+---
+
+## Integration Logs
+
+```http
+GET
+
+GET BY ID
+```
+
+Read-only.
+
+---
+
+# API Response Standard
+
+Success:
+
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {}
+}
+```
+
+Paginated:
+
+```json
+{
+  "success": true,
+  "data": {
+    "items": [],
+    "page": 1,
+    "page_size": 20,
+    "total": 100,
+    "total_pages": 5
+  }
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": []
+}
+```
+
+---
+
+# Adapter Architecture
+
+Create:
+
+```text
+adapters
+
+├── base_adapter.py
+├── pase_adapter.py
+├── kongsberg_adapter.py
+├── transas_adapter.py
+└── custom_adapter.py
+```
+
+Create abstract class:
+
+```python
+BaseSimulatorAdapter
+```
+
+Methods:
+
+```python
+test_connection()
+
+start_session()
+
+end_session()
+
+get_results()
+
+transform_payload()
+```
+
+Implement stubs only.
+
+No simulator-specific business logic yet.
+
+Design for future integrations.
+
+---
+
+# Frontend Implementation
+
+Create module:
+
+```text
+frontend/features/simulators
+```
+
+Pages:
+
+```text
+/administration/simulators/vendors
+
+/administration/simulators/configurations
+
+/administration/simulators/sessions
+
+/administration/simulators/logs
+```
+
+Use existing Admin Layout.
+
+---
+
+# Simulator Vendors Page
+
+Create DataTable.
+
+Columns:
+
+```text
+Name
+Code
+Vendor
+Version
+Integration Type
+Status
+Created On
+Actions
+```
+
+Features:
+
+* Search
+* Pagination
+* Filters
+* Sorting
+* Create
+* Edit
+* Soft Delete
+
+Create Add/Edit Drawer or Modal.
+
+Use React Hook Form + Zod.
+
+---
+
+# Simulator Configurations Page
+
+Columns:
+
+```text
+Configuration Name
+Simulator
+Base URL
+Authentication Type
+Status
+Last Updated
+Actions
+```
+
+Features:
+
+* Search
+* Pagination
+* Filters
+* Sorting
+
+---
+
+# Simulator Sessions Page
+
+Columns:
+
+```text
+Session Reference
+Simulator
+Candidate
+Assessment
+Status
+Started
+Ended
+Duration
+```
+
+Features:
+
+* Search
+* Filters
+* Pagination
+
+View Details Drawer.
+
+Display:
+
+* Raw Payload
+* Processed Payload
+
+JSON viewer component.
+
+---
+
+# Integration Logs Page
+
+Columns:
+
+```text
+Simulator
+Request Type
+Status
+Created On
+```
+
+Features:
+
+* Search
+* Pagination
+* Filters
+
+View Details Drawer.
+
+Show:
+
+* Request Payload
+* Response Payload
+* Error Message
+
+---
+
+# DataTable Standards
+
+Every table must support:
+
+* Server-side Pagination
+* Search
+* Filters
+* Sorting
+* Empty State
+* Loading State
+
+Use reusable DataTable component.
+
+Do not create custom table implementations.
+
+---
+
+# Security
+
+Follow existing JWT implementation.
+
+Protect all routes.
+
+Apply authorization middleware placeholders for future RBAC implementation.
+
+---
+
+# Audit Logging
+
+Every create, update, delete action must generate audit records.
+
+Use existing audit framework.
+
+---
+
+# Deliverables
+
+Generate:
+
+1. Database models
+2. Alembic migrations
+3. Pydantic schemas
+4. Repository layer
+5. Service layer
+6. API routes
+7. Adapter architecture
+8. Next.js pages
+9. Forms
+10. DataTables
+11. Validation
+12. Search/filter/sort/pagination support
+13. Audit integration
+
+Build this as the first fully functional business module of Naviora by Blue Stratum.
