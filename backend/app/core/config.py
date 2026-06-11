@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     MAX_PAGE_SIZE: int = 100
 
     # Seed data
-    SUPER_ADMIN_EMAIL: str = "admin@pasecompass.com"
+    SUPER_ADMIN_EMAIL: str = "admin@naviora.com"
     SUPER_ADMIN_PASSWORD: str = "Admin@2026!"
     SUPER_ADMIN_NAME: str = "Super Admin"
 

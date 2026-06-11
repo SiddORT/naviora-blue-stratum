@@ -26,7 +26,7 @@ Seed data: `cd backend && python seed.py`
 
 ## Default Credentials
 
-Super Admin: admin@pasecompass.com / Admin@2026!  (login placeholder shows admin@naviora.app)
+Super Admin: admin@naviora.com / Admin@2026!
 
 ## User Preferences
 
