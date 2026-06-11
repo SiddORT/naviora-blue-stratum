@@ -7,20 +7,20 @@ interface LogoProps {
 }
 
 /**
- * Naviora product logo — sidebar header.
- * Source image: pase-simulator.png  316 × 350 px  (≈ 0.903 : 1)
+ * Naviora sidebar header logo.
+ * Full: infinity mark icon + "Naviora" + "by Blue Stratum"
+ * Compact (collapsed sidebar): infinity mark icon only
  */
 export function Logo({ className, compact = false }: LogoProps) {
   if (compact) {
     return (
       <div className={cn("flex items-center justify-center", className)}>
-        {/* 36 wide × 40 tall keeps aspect ratio  316:350 */}
         <Image
-          src="/logos/pase-simulator.png"
+          src="/logos/bluestratum-mark.png"
           alt="Naviora"
-          width={36}
-          height={40}
-          className="rounded-lg object-cover"
+          width={34}
+          height={23}
+          className="object-contain"
           priority
         />
       </div>
@@ -30,18 +30,19 @@ export function Logo({ className, compact = false }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <Image
-        src="/logos/pase-simulator.png"
-        alt="Naviora"
-        width={36}
-        height={40}
-        className="rounded-lg object-cover flex-shrink-0"
+        src="/logos/bluestratum-mark.png"
+        alt="Blue Stratum"
+        width={38}
+        height={26}
+        className="object-contain flex-shrink-0"
         priority
       />
       <div className="min-w-0">
-        <div className="text-foreground font-semibold text-sm leading-tight tracking-wide truncate">
+        <div className="text-white font-bold text-sm leading-tight tracking-wide truncate">
           Naviora
         </div>
-        <div className="text-[10px] text-primary font-medium tracking-widest uppercase leading-tight">
+        <div className="text-[10px] font-medium tracking-widest uppercase leading-tight"
+             style={{ color: "rgba(24,178,188,0.85)" }}>
           by Blue Stratum
         </div>
       </div>
@@ -50,11 +51,7 @@ export function Logo({ className, compact = false }: LogoProps) {
 }
 
 /**
- * Blue Stratum parent-brand logo — "Powered by" use.
- * Source image: bluestratum-h-light.png  428 × 72 px  (≈ 5.94 : 1)
- *
- * Light mode → original colours (dark text on transparent bg).
- * Dark mode  → brightness(0) invert(1) gives clean white-on-dark silhouette.
+ * Blue Stratum horizontal logo — "Powered by" footer use.
  */
 export function BlueStratumLogo({
   size = "sm",
@@ -63,13 +60,11 @@ export function BlueStratumLogo({
   size?: "sm" | "md";
   className?: string;
 }) {
-  // Keep the 428:72 ratio.  sm → 100 × 17,  md → 130 × 22
   const width  = size === "md" ? 130 : 100;
   const height = size === "md" ? 22  : 17;
 
   return (
     <div className={cn("flex items-center", className)}>
-      {/* Light mode */}
       <Image
         src="/logos/bluestratum-h-light.png"
         alt="Blue Stratum"
@@ -78,7 +73,6 @@ export function BlueStratumLogo({
         className="object-contain block dark:hidden"
         priority
       />
-      {/* Dark mode — brighten to keep colors, lift dark text to readable */}
       <Image
         src="/logos/bluestratum-h-light.png"
         alt="Blue Stratum"
