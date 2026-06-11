@@ -21,6 +21,7 @@ def _to_response(v: SimulatorVendor) -> SimulatorVendorResponse:
     return SimulatorVendorResponse(
         id=v.id, uuid=v.uuid, name=v.name, code=v.code,
         vendor_name=v.vendor_name, version=v.version, description=v.description,
+        base_url=v.base_url,
         integration_type=v.integration_type, status=v.status, is_active=v.is_active,
         created_at=v.created_at, updated_at=v.updated_at,
     )
@@ -30,6 +31,7 @@ def _to_list_response(v: SimulatorVendor) -> SimulatorVendorListResponse:
     return SimulatorVendorListResponse(
         id=v.id, uuid=v.uuid, name=v.name, code=v.code,
         vendor_name=v.vendor_name, version=v.version,
+        base_url=v.base_url,
         integration_type=v.integration_type, status=v.status,
         is_active=v.is_active, created_at=v.created_at,
     )

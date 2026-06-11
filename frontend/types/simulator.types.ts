@@ -11,6 +11,7 @@ export interface SimulatorVendor {
   vendor_name: string | null;
   version: string | null;
   description: string | null;
+  base_url: string | null;
   integration_type: IntegrationType;
   status: VendorStatus;
   is_active: boolean;
@@ -78,6 +79,7 @@ export interface VendorCreatePayload {
   vendor_name?: string;
   version?: string;
   description?: string;
+  base_url?: string;
   integration_type: IntegrationType;
   status: VendorStatus;
 }
@@ -87,6 +89,7 @@ export interface VendorUpdatePayload {
   vendor_name?: string;
   version?: string;
   description?: string;
+  base_url?: string;
   integration_type?: IntegrationType;
   status?: VendorStatus;
   is_active?: boolean;

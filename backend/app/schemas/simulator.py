@@ -7,7 +7,7 @@ from pydantic import Field
 from app.schemas.common import BaseSchema
 
 
-# ── Enums (string literals kept as plain str for flexibility) ──────────────
+# ── Enums ──────────────────────────────────────────────────────────────────
 
 INTEGRATION_TYPES = ["REST_API", "WEBSOCKET", "FILE_IMPORT", "CUSTOM"]
 AUTH_TYPES = ["API_KEY", "BEARER", "BASIC", "NONE"]
@@ -23,6 +23,7 @@ class SimulatorVendorCreate(BaseSchema):
     vendor_name: Optional[str] = Field(default=None, max_length=255)
     version: Optional[str] = Field(default=None, max_length=50)
     description: Optional[str] = None
+    base_url: Optional[str] = Field(default=None, max_length=500)
     integration_type: str = Field(default="REST_API")
     status: str = Field(default="active")
 
@@ -32,6 +33,7 @@ class SimulatorVendorUpdate(BaseSchema):
     vendor_name: Optional[str] = Field(default=None, max_length=255)
     version: Optional[str] = Field(default=None, max_length=50)
     description: Optional[str] = None
+    base_url: Optional[str] = Field(default=None, max_length=500)
     integration_type: Optional[str] = None
     status: Optional[str] = None
     is_active: Optional[bool] = None
@@ -45,6 +47,7 @@ class SimulatorVendorResponse(BaseSchema):
     vendor_name: Optional[str] = None
     version: Optional[str] = None
     description: Optional[str] = None
+    base_url: Optional[str] = None
     integration_type: str
     status: str
     is_active: bool
@@ -59,6 +62,7 @@ class SimulatorVendorListResponse(BaseSchema):
     code: str
     vendor_name: Optional[str] = None
     version: Optional[str] = None
+    base_url: Optional[str] = None
     integration_type: str
     status: str
     is_active: bool

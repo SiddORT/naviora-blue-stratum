@@ -13,6 +13,7 @@ class SimulatorVendor(TimestampMixin):
     vendor_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     version: Mapped[str | None] = mapped_column(String(50), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    base_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     integration_type: Mapped[str] = mapped_column(String(50), nullable=False, default="REST_API")
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="active")
 

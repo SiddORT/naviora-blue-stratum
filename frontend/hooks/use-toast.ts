@@ -6,7 +6,7 @@ interface Toast {
   id: string;
   title?: string;
   description?: string;
-  variant?: "default" | "destructive";
+  variant?: "default" | "destructive" | "success";
 }
 
 const toastStore: { toasts: Toast[]; listeners: Set<() => void> } = {
@@ -37,7 +37,6 @@ export function useToast() {
     return () => toastStore.listeners.delete(update);
   }, []);
 
-  // Subscribe on mount
   useState(() => {
     const unsubscribe = subscribe();
     return unsubscribe;
