@@ -45,19 +45,15 @@ export function LoginForm() {
         {/* ── Brand hero ─────────────────────────────────────────── */}
         <div className="flex flex-col items-center mb-7">
           <Image
-            src="/logos/bluestratum-mark.png"
+            src="/logos/bluestratum-mark-v2.png"
             alt="Blue Stratum"
             width={220}
             height={147}
             className="object-contain drop-shadow-[0_0_32px_rgba(24,178,188,0.35)]"
             priority
           />
-          <div className="mt-4 text-center">
-            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase"
-               style={{ color: "rgba(24,178,188,0.85)" }}>
-              Blue Stratum
-            </p>
-            <h1 className="text-xl font-bold text-white tracking-wide mt-1">
+          <div className="mt-3 text-center">
+            <h1 className="text-xl font-bold text-white tracking-wide">
               Naviora
             </h1>
             <p className="text-xs mt-0.5 tracking-wide"

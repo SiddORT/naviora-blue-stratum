@@ -16,7 +16,7 @@ export function Logo({ className, compact = false }: LogoProps) {
     return (
       <div className={cn("flex items-center justify-center", className)}>
         <Image
-          src="/logos/bluestratum-mark.png"
+          src="/logos/bluestratum-mark-v2.png"
           alt="Naviora"
           width={34}
           height={23}
@@ -30,7 +30,7 @@ export function Logo({ className, compact = false }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <Image
-        src="/logos/bluestratum-mark.png"
+        src="/logos/bluestratum-mark-v2.png"
         alt="Blue Stratum"
         width={38}
         height={26}
