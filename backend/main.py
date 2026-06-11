@@ -12,6 +12,7 @@ from app.core.logging import setup_logging
 from app.api.v1.router import api_router
 from app.middleware.error_handler import ErrorHandlerMiddleware
 from app.middleware.logging import RequestLoggingMiddleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
 
 setup_logging()
 logger = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(ErrorHandlerMiddleware)
 

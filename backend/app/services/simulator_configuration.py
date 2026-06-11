@@ -1,4 +1,4 @@
-"""SimulatorConfiguration service."""
+"""SimulatorConfiguration service — with field-level encryption for api_key / client_secret."""
 import logging
 from typing import Optional
 
@@ -13,19 +13,41 @@ from app.schemas.simulator import (
     SimulatorConfigurationUpdate,
 )
 from app.services.audit import AuditService
+from app.services.encryption import encryption_service
 
 logger = logging.getLogger(__name__)
+
+# Fields that are encrypted at rest and must never be returned in listings
+_ENCRYPTED_FIELDS = ("api_key", "client_secret")
+
+
+def _encrypt_sensitive(data: dict) -> dict:
+    """Encrypt api_key and client_secret before writing to the database."""
+    out = dict(data)
+    for field in _ENCRYPTED_FIELDS:
+        if out.get(field):
+            out[field] = encryption_service.encrypt(out[field])
+    return out
+
+
+def _decrypt_config(c: SimulatorConfiguration) -> tuple[Optional[str], Optional[str]]:
+    """Return decrypted (api_key, client_secret) for a single record."""
+    api_key = encryption_service.decrypt_if_present(c.api_key)
+    client_secret = encryption_service.decrypt_if_present(c.client_secret)
+    return api_key, client_secret
 
 
 def _to_response(c: SimulatorConfiguration) -> SimulatorConfigurationResponse:
     vendor_name = c.vendor.name if c.vendor else None
     vendor_code = c.vendor.code if c.vendor else None
+    api_key, client_secret = _decrypt_config(c)
     return SimulatorConfigurationResponse(
         id=c.id, uuid=c.uuid,
         simulator_vendor_id=c.simulator_vendor_id,
         vendor_name=vendor_name, vendor_code=vendor_code,
         configuration_name=c.configuration_name,
         base_url=c.base_url, authentication_type=c.authentication_type,
+        api_key=api_key, client_id=c.client_id, client_secret=client_secret,
         webhook_url=c.webhook_url, connection_timeout=c.connection_timeout,
         status=c.status, is_active=c.is_active,
         created_at=c.created_at, updated_at=c.updated_at,
@@ -74,17 +96,22 @@ class SimulatorConfigurationService:
     async def create_configuration(
         self, data: SimulatorConfigurationCreate, created_by_uuid: Optional[str] = None
     ) -> SimulatorConfigurationResponse:
+        raw = data.model_dump()
+        encrypted = _encrypt_sensitive(raw)
         c = await self.repo.create({
-            **data.model_dump(),
+            **encrypted,
             "created_by": created_by_uuid,
             "updated_by": created_by_uuid,
         })
-        # Reload with vendor relationship
         c = await self.repo.get_by_uuid_with_vendor(c.uuid)
         await self.audit.log(
             module="simulators", action="create",
             user_id=created_by_uuid, resource_type="simulator_configuration", resource_id=c.uuid,
-            new_values={"configuration_name": c.configuration_name, "base_url": c.base_url},
+            new_values={
+                "configuration_name": c.configuration_name,
+                "base_url": c.base_url,
+                "authentication_type": c.authentication_type,
+            },
         )
         return _to_response(c)
 
@@ -96,13 +123,15 @@ class SimulatorConfigurationService:
             return None
         old = {"configuration_name": c.configuration_name, "status": c.status}
         update_dict = data.model_dump(exclude_unset=True)
+        update_dict = _encrypt_sensitive(update_dict)
         update_dict["updated_by"] = updated_by_uuid
         c = await self.repo.update(c, update_dict)
         c = await self.repo.get_by_uuid_with_vendor(uuid)
         await self.audit.log(
             module="simulators", action="update",
             user_id=updated_by_uuid, resource_type="simulator_configuration", resource_id=uuid,
-            old_values=old, new_values=update_dict,
+            old_values=old,
+            new_values={k: v for k, v in update_dict.items() if k not in _ENCRYPTED_FIELDS},
         )
         return _to_response(c)
 

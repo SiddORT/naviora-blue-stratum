@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     BCRYPT_ROUNDS: int = 12
 
+    # Field-level encryption — injected from ENCRYPTION_KEY env var
+    # Must be a 64-character hex string (32 bytes / AES-256).
+    # Do NOT change this value after data is written — all existing
+    # encrypted fields will become unreadable.
+    ENCRYPTION_KEY: str = ""
+
     # Database
     DATABASE_URL: str = ""
 
@@ -81,6 +87,7 @@ def get_settings() -> Settings:
     return Settings(
         SECRET_KEY=os.environ.get("SESSION_SECRET", "dev-secret-change-in-production"),
         DATABASE_URL=os.environ.get("DATABASE_URL", ""),
+        ENCRYPTION_KEY=os.environ.get("ENCRYPTION_KEY", ""),
     )
 
 

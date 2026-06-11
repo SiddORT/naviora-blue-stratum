@@ -16,6 +16,7 @@ from app.schemas.auth import (
     TokenResponse,
     UserMeResponse,
 )
+from app.helpers.rate_limit import auth_limiter
 from app.services.auth import AuthService
 from app.utils.responses import error_response, success_response, unauthorized_response
 
@@ -33,6 +34,7 @@ def _get_client_ip(request: Request) -> Optional[str]:
 async def login(
     body: LoginRequest,
     request: Request,
+    _rl: None = Depends(auth_limiter),
     db: AsyncSession = Depends(get_db),
 ):
     service = AuthService(db)
@@ -51,7 +53,12 @@ async def login(
 
 
 @router.post("/refresh", summary="Rotate refresh token and get new access token")
-async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh(
+    body: RefreshRequest,
+    request: Request,
+    _rl: None = Depends(auth_limiter),
+    db: AsyncSession = Depends(get_db),
+):
     service = AuthService(db)
     result = await service.refresh(body.refresh_token)
     if not result:
@@ -99,7 +106,12 @@ async def change_password(
 
 
 @router.post("/forgot-password", summary="Request a password reset token")
-async def forgot_password(body: PasswordResetRequest, db: AsyncSession = Depends(get_db)):
+async def forgot_password(
+    body: PasswordResetRequest,
+    request: Request,
+    _rl: None = Depends(auth_limiter),
+    db: AsyncSession = Depends(get_db),
+):
     service = AuthService(db)
     await service.request_password_reset(body.email)
     # Always return success to prevent email enumeration

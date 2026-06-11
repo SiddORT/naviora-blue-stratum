@@ -14,3 +14,4 @@ from app.models.simulator_vendor import SimulatorVendor  # noqa: F401
 from app.models.simulator_configuration import SimulatorConfiguration  # noqa: F401
 from app.models.simulator_session import SimulatorSession  # noqa: F401
 from app.models.integration_log import IntegrationLog  # noqa: F401
+from app.models.consent import Consent  # noqa: F401

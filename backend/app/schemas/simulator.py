@@ -106,6 +106,10 @@ class SimulatorConfigurationResponse(BaseSchema):
     configuration_name: str
     base_url: Optional[str] = None
     authentication_type: str
+    # Credentials — decrypted at service layer, never stored in plaintext
+    api_key: Optional[str] = None
+    client_id: Optional[str] = None
+    client_secret: Optional[str] = None
     webhook_url: Optional[str] = None
     connection_timeout: int
     status: str
