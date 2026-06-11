@@ -1,22 +1,32 @@
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden"
-         style={{ background: "linear-gradient(160deg, #071B1E 0%, #0C2A30 45%, #071B1E 100%)" }}>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
 
-      {/* ── Ambient glow orbs — mirrors the reference UI lighting ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Teal radial glow — top right */}
+      {/* ── Sea wave background photo ─────────────────────────── */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/sea-wave-bg.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ zIndex: 0 }}
+      />
+
+      {/* ── Dark teal overlay — preserves glassmorphism palette ── */}
+      <div className="absolute inset-0" style={{
+        zIndex: 1,
+        background: "linear-gradient(160deg, rgba(7,27,30,0.82) 0%, rgba(12,42,48,0.78) 45%, rgba(7,27,30,0.88) 100%)",
+      }} />
+
+      {/* ── Ambient glow orbs (on top of overlay) ────────────── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 2 }}>
         <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full"
-             style={{ background: "radial-gradient(circle, rgba(24,178,188,0.18) 0%, transparent 70%)" }} />
-        {/* Amber radial glow — bottom left */}
+             style={{ background: "radial-gradient(circle, rgba(24,178,188,0.14) 0%, transparent 70%)" }} />
         <div className="absolute -bottom-32 -left-32 w-[450px] h-[450px] rounded-full"
-             style={{ background: "radial-gradient(circle, rgba(245,166,35,0.12) 0%, transparent 70%)" }} />
-        {/* Soft teal mid glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full"
-             style={{ background: "radial-gradient(ellipse, rgba(24,178,188,0.06) 0%, transparent 65%)" }} />
+             style={{ background: "radial-gradient(circle, rgba(245,166,35,0.10) 0%, transparent 70%)" }} />
       </div>
 
-      <div className="relative z-10 w-full">{children}</div>
+      <div className="relative w-full" style={{ zIndex: 3 }}>{children}</div>
     </div>
   );
 }
