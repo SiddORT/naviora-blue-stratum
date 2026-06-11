@@ -8,8 +8,8 @@ interface LogoProps {
 
 /**
  * Naviora sidebar header logo.
- * Full: infinity mark icon + "Naviora" + "by Blue Stratum"
- * Compact (collapsed sidebar): infinity mark icon only
+ * Full:    infinity mark + "Naviora" gradient headline + "by Blue Stratum" teal label
+ * Compact: infinity mark only (collapsed sidebar)
  */
 export function Logo({ className, compact = false }: LogoProps) {
   if (compact) {
@@ -18,8 +18,8 @@ export function Logo({ className, compact = false }: LogoProps) {
         <Image
           src="/logos/bluestratum-mark-v2.png"
           alt="Naviora"
-          width={34}
-          height={23}
+          width={36}
+          height={24}
           className="object-contain"
           priority
         />
@@ -28,21 +28,33 @@ export function Logo({ className, compact = false }: LogoProps) {
   }
 
   return (
-    <div className={cn("flex items-center gap-2.5", className)}>
+    <div className={cn("flex items-center gap-3", className)}>
       <Image
         src="/logos/bluestratum-mark-v2.png"
         alt="Blue Stratum"
-        width={38}
-        height={26}
+        width={42}
+        height={28}
         className="object-contain flex-shrink-0"
         priority
       />
       <div className="min-w-0">
-        <div className="text-white font-bold text-sm leading-tight tracking-wide truncate">
+        {/* Naviora — same gold→teal gradient as login hero */}
+        <div
+          className="font-black text-base leading-tight truncate"
+          style={{
+            background: "linear-gradient(135deg, #F5A623 0%, #FFD580 45%, #18B2BC 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            letterSpacing: "-0.01em",
+          }}
+        >
           Naviora
         </div>
-        <div className="text-[10px] font-medium tracking-widest uppercase leading-tight"
-             style={{ color: "rgba(24,178,188,0.85)" }}>
+        <div
+          className="text-[9px] font-semibold tracking-[0.22em] uppercase leading-tight mt-0.5"
+          style={{ color: "rgba(24,178,188,0.70)" }}
+        >
           by Blue Stratum
         </div>
       </div>
@@ -51,7 +63,7 @@ export function Logo({ className, compact = false }: LogoProps) {
 }
 
 /**
- * Blue Stratum horizontal logo — "Powered by" footer use.
+ * Blue Stratum horizontal logo — "Powered by" sidebar footer.
  */
 export function BlueStratumLogo({
   size = "sm",
