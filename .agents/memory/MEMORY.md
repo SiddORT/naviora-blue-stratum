@@ -2,3 +2,4 @@
 - [fastapi-annotated-depends](fastapi-annotated-depends.md) — Annotated[T, Depends()] params must NOT also have a default value (= Depends()); causes AssertionError on startup.
 - [pase-compass-stack](pase-compass-stack.md) — key decisions and seed credentials for the PASE Compass foundation.
 - [encryption-service](encryption-service.md) — AES-256-GCM field-level encryption for sensitive fields; key must never rotate after data is written.
+- [assessment-engine](assessment-engine.md) — Sprint 2.4 Assessment Engine: models, migration, seed, API routes, and frontend conventions.

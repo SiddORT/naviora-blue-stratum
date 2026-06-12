@@ -24,6 +24,7 @@ from app.models.role import Role
 from app.models.role_permission import RolePermission
 from app.models.user import User
 from app.models.user_role import UserRole
+from app.models.assessment_category import AssessmentCategory
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("seed")
@@ -129,6 +130,25 @@ async def seed_super_admin(session: AsyncSession, role_map: dict[str, Role]) -> 
     log.info("Super admin created: %s", settings.SUPER_ADMIN_EMAIL)
 
 
+async def seed_assessment_categories(session: AsyncSession) -> None:
+    existing = (await session.execute(select(AssessmentCategory))).scalars().all()
+    if existing:
+        log.info("Assessment categories already seeded (%d found)", len(existing))
+        return
+    cats = [
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="COLREG & Navigation",        category_code="COLREG",    description="Rules of the road, collision regulations, and navigation.", status="active"),
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Port Operations",             category_code="PORT_OPS",  description="Port entry, exit, pilotage, and berthing procedures.", status="active"),
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Emergency Response",          category_code="EMRG",      description="Man overboard, fire-fighting, engine failure, and crisis management.", status="active"),
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Traffic Separation Schemes",  category_code="TSS",       description="Navigation in and around traffic separation schemes.", status="active"),
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Restricted Visibility",       category_code="RESTR_VIS", description="Operating in fog, rain, and other restricted-visibility conditions.", status="active"),
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Manoeuvring & Shiphandling",  category_code="MANOEUVRE", description="Ship control, propulsion response, and close-quarters manoeuvring.", status="active"),
+        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Bridge Resource Management",  category_code="BRM",       description="Crew coordination, communication, and situational awareness.", status="active"),
+    ]
+    session.add_all(cats)
+    await session.flush()
+    log.info("Seeded %d assessment categories", len(cats))
+
+
 async def main() -> None:
     log.info("Starting database seed...")
     async with AsyncSessionLocal() as session:
@@ -137,6 +157,7 @@ async def main() -> None:
             perm_map = await seed_permissions(session)
             role_map = await seed_roles(session, perm_map)
             await seed_super_admin(session, role_map)
+            await seed_assessment_categories(session)
     log.info("Seed complete.")
 
 
