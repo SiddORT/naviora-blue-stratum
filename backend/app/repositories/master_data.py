@@ -54,6 +54,12 @@ class VesselRepository(BaseRepository[Vessel]):
         rows = (await self.db.execute(q)).scalars().all()
         return list(rows), total
 
+    async def get_all_active(self) -> list[Vessel]:
+        q = select(Vessel).where(
+            and_(Vessel.deleted_at.is_(None), Vessel.status == "active")
+        ).order_by(Vessel.vessel_name)
+        return list((await self.db.execute(q)).scalars().all())
+
 
 # ── Port ───────────────────────────────────────────────────────────────────
 
@@ -95,6 +101,12 @@ class PortRepository(BaseRepository[Port]):
         q = q.offset((page - 1) * page_size).limit(page_size)
         rows = (await self.db.execute(q)).scalars().all()
         return list(rows), total
+
+    async def get_all_active(self) -> list[Port]:
+        q = select(Port).where(
+            and_(Port.deleted_at.is_(None), Port.status == "active")
+        ).order_by(Port.port_name)
+        return list((await self.db.execute(q)).scalars().all())
 
 
 # ── WeatherCondition ───────────────────────────────────────────────────────
@@ -308,3 +320,14 @@ class EnvironmentProfileRepository(BaseRepository[EnvironmentProfile]):
         if not include_deleted:
             q = q.where(EnvironmentProfile.deleted_at.is_(None))
         return (await self.db.execute(q)).scalar_one_or_none()
+
+    async def get_all_active(self) -> list[EnvironmentProfile]:
+        q = select(EnvironmentProfile).where(
+            and_(EnvironmentProfile.deleted_at.is_(None), EnvironmentProfile.status == "active")
+        ).options(
+            selectinload(EnvironmentProfile.weather_condition),
+            selectinload(EnvironmentProfile.sea_state),
+            selectinload(EnvironmentProfile.visibility_condition),
+            selectinload(EnvironmentProfile.time_of_day),
+        ).order_by(EnvironmentProfile.profile_name)
+        return list((await self.db.execute(q)).scalars().all())

@@ -1,0 +1,559 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.4 – Assessment Engine
+
+Build the Assessment Engine module.
+
+This module is responsible for creating reusable assessment templates that can later be assigned to organizations, candidates and simulator sessions.
+
+The Assessment Engine sits between:
+
+Exercise Management
+↓
+Assessment Templates
+↓
+Assessment Assignments
+↓
+Simulator Sessions
+↓
+Results & Evaluation
+
+Follow all existing platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* Audit Logging
+* Soft Delete
+* Search
+* Filters
+* Pagination
+* Encryption Standards
+* GDPR Standards
+
+Use existing architecture patterns:
+
+* Models
+* Schemas
+* Repositories
+* Services
+* Routers
+* Validators
+
+---
+
+# Navigation
+
+Create:
+
+Assessment Management
+
+├── Assessment Categories
+├── Assessment Templates
+├── Assessment Rules
+└── Assessment Preview
+
+---
+
+# Business Concept
+
+An Assessment is a collection of one or more Exercises.
+
+Example:
+
+Assessment:
+COLREG Level 1 Assessment
+
+Contains:
+
+* Basic Crossing Assessment
+* Basic Head-On Assessment
+* Basic Overtaking Assessment
+
+The assessment defines:
+
+* Pass Criteria
+* Duration
+* Attempts
+* Variant Selection Rules
+* Assessment Instructions
+
+Assessments do NOT belong to organizations.
+
+Assessments are platform assets created by Admin and later assigned to organizations.
+
+---
+
+# Assessment Categories
+
+Purpose:
+
+Group assessments logically.
+
+Fields:
+
+* category_name
+* category_code
+* description
+* status
+
+Seed Records:
+
+* COLREG
+* Navigation
+* Emergency Response
+* Bridge Resource Management
+* Competency Assessment
+* Certification Assessment
+
+Features:
+
+* CRUD
+* Search
+* Filters
+* Pagination
+* Soft Delete
+
+---
+
+# Assessment Templates
+
+Purpose:
+
+Reusable assessment definitions.
+
+Fields:
+
+* assessment_name
+
+* assessment_code
+
+* assessment_category_id
+
+* description
+
+* instructions
+
+* duration_minutes
+
+* passing_score
+
+* max_attempts
+
+* variant_selection_mode
+
+* randomize_exercise_order
+
+* randomize_variant_selection
+
+* status
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+Variant Selection Modes:
+
+* MANUAL
+* RANDOM
+* ALL_VARIANTS
+
+Examples:
+
+Assessment Name:
+
+COLREG Level 1
+
+Description:
+
+Assessment covering fundamental crossing, overtaking and head-on situations.
+
+---
+
+# Assessment Exercises
+
+Purpose:
+
+Link exercises to assessments.
+
+Create junction table:
+
+assessment_exercises
+
+Fields:
+
+* assessment_id
+
+* exercise_id
+
+* sequence_number
+
+* weightage
+
+* mandatory
+
+Example:
+
+COLREG Level 1
+
+Exercise 1
+
+Crossing Assessment
+
+Weightage:
+40%
+
+Mandatory:
+Yes
+
+Exercise 2
+
+Head-On Assessment
+
+Weightage:
+30%
+
+Mandatory:
+Yes
+
+Exercise 3
+
+Overtaking Assessment
+
+Weightage:
+30%
+
+Mandatory:
+Yes
+
+---
+
+# Assessment Rules
+
+Purpose:
+
+Define assessment behavior.
+
+Fields:
+
+* assessment_id
+
+* minimum_pass_score
+
+* max_attempts
+
+* assessment_duration
+
+* allow_reassessment
+
+* reassessment_wait_days
+
+* variant_selection_mode
+
+* randomize_exercises
+
+* randomize_variants
+
+* auto_fail_on_collision
+
+* auto_fail_on_major_violation
+
+Rules should be editable separately.
+
+---
+
+# Assessment Preview
+
+Purpose:
+
+Allow Admin to preview assessment structure.
+
+Show:
+
+Assessment Information
+
+Exercises Included
+
+Exercise Weightage
+
+Pass Criteria
+
+Estimated Duration
+
+Variant Selection Logic
+
+Assessment Flow
+
+---
+
+# Assessment Scoring Model
+
+Support:
+
+# Assessment Score
+
+Weighted Score of Exercises
+
+Example:
+
+Crossing Assessment
+40%
+
+Score:
+80
+
+Contribution:
+32
+
+Head-On Assessment
+30%
+
+Score:
+90
+
+Contribution:
+27
+
+Overtaking Assessment
+30%
+
+Score:
+70
+
+Contribution:
+21
+
+Final Score:
+80%
+
+Pass
+
+Architecture must support future AI scoring.
+
+---
+
+# Assessment Versioning
+
+Important.
+
+Never overwrite active assessments.
+
+Create:
+
+assessment_versions
+
+Fields:
+
+* assessment_id
+* version_number
+* change_summary
+* created_at
+* created_by
+
+Maintain full history.
+
+---
+
+# Assessment Cloning
+
+Support:
+
+Clone Assessment
+
+Example:
+
+COLREG Level 1
+
+Clone
+
+COLREG Level 1 – Advanced
+
+Cloning should duplicate:
+
+* Assessment Details
+* Assessment Rules
+* Exercise Mapping
+
+---
+
+# Database Tables
+
+Create:
+
+assessment_categories
+
+assessment_templates
+
+assessment_exercises
+
+assessment_rules
+
+assessment_versions
+
+---
+
+# Backend Deliverables
+
+Generate:
+
+* SQLAlchemy Models
+* Alembic Migrations
+* Pydantic Schemas
+* Repository Layer
+* Service Layer
+* Validators
+* API Routes
+
+Implement complete CRUD.
+
+Support:
+
+* Search
+* Filters
+* Pagination
+* Sorting
+
+---
+
+# Frontend Deliverables
+
+Pages:
+
+/administration/assessments/categories
+
+/administration/assessments/templates
+
+/administration/assessments/rules
+
+/administration/assessments/preview
+
+Use existing Admin Layout.
+
+---
+
+# Assessment Templates Grid
+
+Columns:
+
+* Assessment Name
+* Category
+* Exercises Count
+* Passing Score
+* Duration
+* Status
+* Version
+* Created On
+
+Actions:
+
+* View
+* Edit
+* Clone
+* Preview
+* Archive
+
+---
+
+# Assessment Builder Wizard
+
+Step 1
+
+Assessment Information
+
+* Name
+* Category
+* Description
+* Instructions
+
+Step 2
+
+Select Exercises
+
+Multi-select Exercises.
+
+Configure:
+
+* Weightage
+* Sequence
+* Mandatory
+
+Step 3
+
+Assessment Rules
+
+* Pass Marks
+* Duration
+* Attempts
+* Reassessment
+
+Step 4
+
+Variant Rules
+
+* Manual Selection
+* Random Selection
+* All Variants
+
+Step 5
+
+Preview
+
+Review full assessment.
+
+Step 6
+
+Save
+
+---
+
+# Search Standards
+
+All grids must support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+Server-side implementation only.
+
+---
+
+# Audit Logging
+
+Generate audit entries for:
+
+* Create
+* Update
+* Clone
+* Archive
+* Activate
+* Deactivate
+
+Use existing Audit framework.
+
+---
+
+# Future Compatibility
+
+Design Assessment Engine to support:
+
+* Organization Assignment
+* Candidate Assignment
+* Simulator Sessions
+* AI Evaluation
+* Competency Tracking
+* Certification Generation
+* Multi-Simulator Assessments
+
+Do not hardcode simulator-specific logic.
+
+Assessment Engine must remain simulator agnostic.
+
+Build Sprint 2.4 as a complete production-ready Assessment Engine for Naviora by Blue Stratum.

@@ -89,6 +89,12 @@ async def create_vessel(body: VesselCreate, current_user: CurrentUser, db: Async
     return created_response(data=result.model_dump(), message="Vessel created successfully")
 
 
+@vessels.get("/all-active", dependencies=[Depends(check_permissions(["master_data.view"]))])
+async def list_vessels_all_active(db: AsyncSession = Depends(get_db)):
+    items = await VesselService(db).list_all_active()
+    return success_response(data=[i.model_dump() for i in items])
+
+
 @vessels.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])
 async def get_vessel(uuid: str, db: AsyncSession = Depends(get_db)):
     result = await VesselService(db).get(uuid)
@@ -167,6 +173,12 @@ async def create_port(body: PortCreate, current_user: CurrentUser, db: AsyncSess
     except ValueError as e:
         return error_response(str(e))
     return created_response(data=result.model_dump(), message="Port created successfully")
+
+
+@ports.get("/all-active", dependencies=[Depends(check_permissions(["master_data.view"]))])
+async def list_ports_all_active(db: AsyncSession = Depends(get_db)):
+    items = await PortService(db).list_all_active()
+    return success_response(data=[i.model_dump() for i in items])
 
 
 @ports.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])
@@ -549,6 +561,12 @@ async def list_env_profiles(
 async def create_env_profile(body: EnvironmentProfileCreate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
     result = await EnvironmentProfileService(db).create(body, by=current_user.uuid)
     return created_response(data=result.model_dump(), message="Environment profile created")
+
+
+@env_profiles.get("/all-active", dependencies=[Depends(check_permissions(["master_data.view"]))])
+async def list_env_profiles_all_active(db: AsyncSession = Depends(get_db)):
+    items = await EnvironmentProfileService(db).list_all_active()
+    return success_response(data=[i.model_dump() for i in items])
 
 
 @env_profiles.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])

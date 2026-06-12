@@ -144,6 +144,10 @@ class VesselService:
         await self.audit.log(_MODULE, "deactivate", user_id=by, resource_type="vessel", resource_id=uuid)
         return _vessel_response(v)
 
+    async def list_all_active(self):
+        items = await self.repo.get_all_active()
+        return [_vessel_response(v) for v in items]
+
 
 # ── Port ───────────────────────────────────────────────────────────────────
 
@@ -221,6 +225,10 @@ class PortService:
         p = await self.repo.deactivate(p, by)
         await self.audit.log(_MODULE, "deactivate", user_id=by, resource_type="port", resource_id=uuid)
         return _port_response(p)
+
+    async def list_all_active(self):
+        items = await self.repo.get_all_active()
+        return [_port_response(p) for p in items]
 
 
 # ── WeatherCondition ───────────────────────────────────────────────────────
@@ -629,3 +637,7 @@ class EnvironmentProfileService:
         e = await self.repo.get_by_uuid(uuid)
         await self.audit.log(_MODULE, "deactivate", user_id=by, resource_type="environment_profile", resource_id=uuid)
         return _ep_response(e)
+
+    async def list_all_active(self):
+        items = await self.repo.get_all_active()
+        return [_ep_response(e) for e in items]

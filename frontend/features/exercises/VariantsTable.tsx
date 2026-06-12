@@ -55,6 +55,7 @@ export function VariantsTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [filterExerciseId, setFilterExerciseId] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [editItem, setEditItem] = useState<ExerciseVariant | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ExerciseVariant | null>(null);
@@ -63,8 +64,13 @@ export function VariantsTable() {
   const codeManual = useRef(false);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["exercise-variants", page, search, status],
-    queryFn: () => variantService.list({ page, page_size: pageSize, search: search || undefined, status: status || undefined }),
+    queryKey: ["exercise-variants", page, search, status, filterExerciseId],
+    queryFn: () => variantService.list({
+      page, page_size: pageSize,
+      search: search || undefined,
+      status: status || undefined,
+      exercise_id: filterExerciseId ? Number(filterExerciseId) : undefined,
+    }),
   });
 
   const { data: exercisesData } = useQuery({ queryKey: ["exercises-all"], queryFn: () => exerciseService.list({ page_size: 100 }) });
@@ -159,6 +165,12 @@ export function VariantsTable() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input type="text" placeholder="Search variants..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className={cn(filterInput, "pl-9 w-full")} />
         </div>
+        <select value={filterExerciseId} onChange={e => { setFilterExerciseId(e.target.value); setPage(1); }} className={cn(filterInput, "min-w-[180px] max-w-xs")}>
+          <option value="">All Exercises</option>
+          {exercises.map((e: Exercise) => (
+            <option key={e.id} value={e.id}>{e.exercise_name}</option>
+          ))}
+        </select>
         <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} className={filterInput}>
           <option value="">All Statuses</option>
           <option value="draft">Draft</option>
