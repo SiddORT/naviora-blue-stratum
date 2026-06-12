@@ -363,6 +363,10 @@ class EnvironmentProfileListResponse(BaseSchema):
     id: int
     uuid: str
     profile_name: str
+    weather_condition_id: Optional[int] = None
+    sea_state_id: Optional[int] = None
+    visibility_condition_id: Optional[int] = None
+    time_of_day_id: Optional[int] = None
     weather_condition_name: Optional[str] = None
     sea_state_name: Optional[str] = None
     visibility_condition_name: Optional[str] = None

@@ -16,6 +16,7 @@ const VESSEL_TYPES = [
   "Container Vessel","Bulk Carrier","Oil Tanker","Chemical Tanker","LNG Carrier",
   "Ferry","Tug","Fishing Vessel","Naval Vessel","Offshore Vessel","Custom",
 ];
+const CUSTOM_TYPE = "Custom";
 const MANEUVERING = ["Excellent","Good","Fair","Poor"];
 
 const schema = z.object({
@@ -68,13 +69,15 @@ export function VesselsTable() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["master-data-vessels", page, search, vesselType, status],
-    queryFn: () => vesselService.list({ page, page_size: pageSize, search: search || undefined, vessel_type: vesselType || undefined, status: status || undefined }),
+    queryFn: () => vesselService.list({ page, page_size: pageSize, search: search || undefined, vessel_type: vesselType || undefined, status: status || undefined, sort_by: "created_at", sort_order: "desc" }),
   });
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { vessel_type: "Container Vessel", status: "active" },
   });
+  const [customVesselType, setCustomVesselType] = useState("");
+  const selectedVesselType = watch("vessel_type");
 
   const isEdit = !!editItem;
   const nameVal = watch("vessel_name");
@@ -82,14 +85,22 @@ export function VesselsTable() {
   useEffect(() => {
     if (formOpen) {
       codeManual.current = false;
-      reset(editItem ? {
-        vessel_name: editItem.vessel_name, vessel_code: editItem.vessel_code,
-        vessel_type: editItem.vessel_type, imo_category: editItem.imo_category ?? "",
-        length: editItem.length ?? undefined, beam: editItem.beam ?? undefined,
-        draft: editItem.draft ?? undefined, max_speed: editItem.max_speed ?? undefined,
-        maneuverability_rating: editItem.maneuverability_rating ?? "",
-        description: editItem.description ?? "", status: editItem.status as "active"|"inactive",
-      } : { vessel_type: "Container Vessel", status: "active" });
+      if (editItem) {
+        const isKnownType = VESSEL_TYPES.filter(t => t !== CUSTOM_TYPE).includes(editItem.vessel_type);
+        const selectValue = isKnownType ? editItem.vessel_type : CUSTOM_TYPE;
+        setCustomVesselType(isKnownType ? "" : editItem.vessel_type);
+        reset({
+          vessel_name: editItem.vessel_name, vessel_code: editItem.vessel_code,
+          vessel_type: selectValue, imo_category: editItem.imo_category ?? "",
+          length: editItem.length ?? undefined, beam: editItem.beam ?? undefined,
+          draft: editItem.draft ?? undefined, max_speed: editItem.max_speed ?? undefined,
+          maneuverability_rating: editItem.maneuverability_rating ?? "",
+          description: editItem.description ?? "", status: editItem.status as "active"|"inactive",
+        });
+      } else {
+        setCustomVesselType("");
+        reset({ vessel_type: "Container Vessel", status: "active" });
+      }
     }
   }, [formOpen, editItem, reset]);
 
@@ -98,7 +109,10 @@ export function VesselsTable() {
   }, [nameVal, isEdit, setValue]);
 
   const saveMutation = useMutation({
-    mutationFn: (data: FormData) => isEdit ? vesselService.update(editItem!.uuid, data) : vesselService.create(data),
+    mutationFn: (data: FormData) => {
+      const resolved = { ...data, vessel_type: data.vessel_type === CUSTOM_TYPE ? (customVesselType.trim() || CUSTOM_TYPE) : data.vessel_type };
+      return isEdit ? vesselService.update(editItem!.uuid, resolved) : vesselService.create(resolved);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-data-vessels"] });
       toast({ variant: "success", title: isEdit ? "Vessel updated" : "Vessel created" });
@@ -175,6 +189,15 @@ export function VesselsTable() {
                 <select {...register("vessel_type")} className={inputClass}>
                   {VESSEL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
+                {selectedVesselType === CUSTOM_TYPE && (
+                  <input
+                    type="text"
+                    value={customVesselType}
+                    onChange={e => setCustomVesselType(e.target.value)}
+                    placeholder="Enter vessel type name..."
+                    className={cn(inputClass, "mt-2")}
+                  />
+                )}
               </Field>
               <Field label="IMO Category" error={errors.imo_category?.message}>
                 <input {...register("imo_category")} placeholder="e.g. Class I" className={inputClass} />

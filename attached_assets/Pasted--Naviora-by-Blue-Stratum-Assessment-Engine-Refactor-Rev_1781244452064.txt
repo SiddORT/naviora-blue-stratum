@@ -1,0 +1,420 @@
+# Naviora by Blue Stratum
+
+## Assessment Engine Refactor
+
+Review the existing Assessment Engine implementation and simplify the domain model.
+
+The platform is a Maritime Simulator Assessment Platform, not a traditional LMS.
+
+Current implementation contains concepts such as:
+
+* Assessment Categories
+* Assessment Templates
+* Assessment Rules
+
+These introduce unnecessary complexity and should be removed.
+
+Refactor the Assessment domain to a simpler model.
+
+---
+
+# New Assessment Architecture
+
+Exercise Management
+
+* Categories
+* Encounter Types
+* Exercises
+* Exercise Variants
+
+Assessment Management
+
+* Assessments
+* Assessment Participants
+* Assessment Scheduling
+* Assessment Results
+
+---
+
+# Core Principle
+
+An Assessment is simply a collection of Exercises with assessment settings.
+
+Example:
+
+Assessment:
+
+COLREG Level 1 Assessment
+
+Exercises:
+
+* Crossing Assessment
+* Head-On Assessment
+* Overtaking Assessment
+
+Assessment Settings:
+
+* Duration = 60 Minutes
+* Pass Score = 70%
+* Attempts = 3
+* Certificate Eligible = Yes
+
+No separate Assessment Template entity.
+
+No separate Assessment Rules entity.
+
+Assessment contains everything required.
+
+---
+
+# Remove
+
+Remove:
+
+assessment_categories
+
+assessment_templates
+
+assessment_rules
+
+assessment_versions
+
+associated APIs
+
+associated frontend pages
+
+associated services
+
+associated repositories
+
+associated menu items
+
+Refactor existing code where required.
+
+---
+
+# Create New Entity
+
+## assessments
+
+Fields:
+
+* id
+
+* uuid
+
+* assessment_name
+
+* assessment_code
+
+* description
+
+* instructions
+
+* assessment_type
+
+* duration_minutes
+
+* passing_score
+
+* max_attempts
+
+* randomize_exercise_order
+
+* randomize_variant_selection
+
+* certificate_eligible
+
+* certificate_validity_months
+
+* status
+
+* created_at
+
+* updated_at
+
+* created_by
+
+* updated_by
+
+* deleted_at
+
+* deleted_by
+
+Assessment Types:
+
+* Training
+* Evaluation
+* Certification
+* Practice
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+---
+
+# Assessment Exercises
+
+Create junction table:
+
+assessment_exercises
+
+Fields:
+
+* assessment_id
+
+* exercise_id
+
+* sequence_number
+
+* weightage
+
+* mandatory
+
+Example:
+
+Assessment:
+COLREG Level 1
+
+Exercises:
+
+Crossing Assessment
+
+Weightage:
+40%
+
+Head-On Assessment
+
+Weightage:
+30%
+
+Overtaking Assessment
+
+Weightage:
+30%
+
+---
+
+# Assessment Participants
+
+Create:
+
+assessment_participants
+
+Fields:
+
+* assessment_id
+
+* user_id
+
+* assignment_status
+
+* assigned_at
+
+* started_at
+
+* completed_at
+
+* attempt_count
+
+Status:
+
+* Assigned
+* In Progress
+* Completed
+* Passed
+* Failed
+* Expired
+
+This module will later support Organizations and Candidate Portal.
+
+---
+
+# Assessment Scheduling
+
+Fields:
+
+* assessment_id
+
+* start_date
+
+* end_date
+
+* timezone
+
+* duration_override
+
+Support:
+
+* Scheduled Assessments
+* Open Assessments
+* Future Assignment Engine
+
+---
+
+# Assessment Results Placeholder
+
+Create architecture only.
+
+Fields:
+
+* assessment_id
+
+* participant_id
+
+* total_score
+
+* result_status
+
+* simulator_session_id
+
+Result Status:
+
+* Passed
+* Failed
+* Pending
+
+Do not implement result calculations yet.
+
+This will be implemented in Simulator Session and Result Engine sprints.
+
+---
+
+# Assessment Builder
+
+Replace Assessment Template Wizard with Assessment Builder.
+
+Steps:
+
+Step 1
+
+Assessment Information
+
+* Name
+* Description
+* Type
+
+Step 2
+
+Select Exercises
+
+* Multi-select Exercises
+* Configure Weightage
+* Configure Sequence
+
+Step 3
+
+Assessment Settings
+
+* Duration
+* Pass Score
+* Attempts
+* Certificate Eligibility
+
+Step 4
+
+Scheduling
+
+* Start Date
+* End Date
+
+Step 5
+
+Review
+
+Step 6
+
+Save
+
+---
+
+# Assessment Listing
+
+Columns:
+
+* Assessment Name
+* Type
+* Exercises Count
+* Pass Score
+* Duration
+* Participants Count
+* Status
+* Created On
+
+Actions:
+
+* View
+* Edit
+* Assign Participants
+* Schedule
+* Archive
+
+---
+
+# Assessment Detail Page
+
+Show:
+
+Assessment Information
+
+Exercises Included
+
+Weightages
+
+Scheduling
+
+Participants
+
+Assessment History
+
+Future Results Section
+
+---
+
+# API Standards
+
+All endpoints must support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+Server-side implementation only.
+
+Use existing reusable DataTable components.
+
+---
+
+# Audit Logging
+
+Generate audit records for:
+
+* Create Assessment
+* Update Assessment
+* Archive Assessment
+* Assign Participants
+* Scheduling Changes
+
+Use existing audit framework.
+
+---
+
+# Future Compatibility
+
+The new Assessment model must support future modules without schema redesign:
+
+* Organizations
+* Candidate Portal
+* Simulator Sessions
+* Results Engine
+* AI Assessment
+* Certificates
+* Competency Tracking
+
+Keep the model simple, scalable and aligned with a simulator-based assessment platform.
+
+Refactor existing implementation accordingly and remove unnecessary complexity.

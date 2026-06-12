@@ -573,6 +573,10 @@ def _ep_response(e: EnvironmentProfile) -> EnvironmentProfileResponse:
 def _ep_list(e: EnvironmentProfile) -> EnvironmentProfileListResponse:
     return EnvironmentProfileListResponse(
         id=e.id, uuid=e.uuid, profile_name=e.profile_name,
+        weather_condition_id=e.weather_condition_id,
+        sea_state_id=e.sea_state_id,
+        visibility_condition_id=e.visibility_condition_id,
+        time_of_day_id=e.time_of_day_id,
         weather_condition_name=e.weather_condition.name if e.weather_condition else None,
         sea_state_name=e.sea_state.name if e.sea_state else None,
         visibility_condition_name=e.visibility_condition.name if e.visibility_condition else None,

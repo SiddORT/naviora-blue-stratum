@@ -234,6 +234,10 @@ class AssessmentTemplateService:
         items, total = await self.repo.get_paginated(page, page_size, search, status, category_id, sort_by, sort_order)
         return [_tmpl_list(t) for t in items], total
 
+    async def list_all_active(self):
+        items = await self.repo.get_all_active()
+        return [_tmpl_list(t) for t in items]
+
     async def get(self, uuid: str):
         t = await self.repo.get_by_uuid_full(uuid)
         return _tmpl_response(t) if t else None

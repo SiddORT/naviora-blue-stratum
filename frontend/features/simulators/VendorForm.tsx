@@ -75,8 +75,8 @@ export function VendorForm({ vendor }: Props) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      integration_type: "REST_API",
-      status: "active",
+      integration_type: vendor?.integration_type ?? "REST_API",
+      status: (vendor?.status as "active" | "inactive" | "deprecated") ?? "active",
       name: vendor?.name ?? "",
       code: vendor?.code ?? "",
       vendor_name: vendor?.vendor_name ?? "",

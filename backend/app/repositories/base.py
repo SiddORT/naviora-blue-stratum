@@ -87,6 +87,8 @@ class BaseRepository(Generic[ModelType]):
 
     async def activate(self, db_obj: ModelType, updated_by: str) -> ModelType:
         db_obj.is_active = True
+        if hasattr(db_obj, "status"):
+            db_obj.status = "active"
         db_obj.updated_by = updated_by
         db_obj.updated_at = datetime.now(timezone.utc)
         self.db.add(db_obj)
@@ -95,6 +97,8 @@ class BaseRepository(Generic[ModelType]):
 
     async def deactivate(self, db_obj: ModelType, updated_by: str) -> ModelType:
         db_obj.is_active = False
+        if hasattr(db_obj, "status"):
+            db_obj.status = "inactive"
         db_obj.updated_by = updated_by
         db_obj.updated_at = datetime.now(timezone.utc)
         self.db.add(db_obj)

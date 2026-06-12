@@ -59,10 +59,10 @@ export function EnvironmentProfilesTable() {
     queryFn: () => envProfileService.list({ page, page_size: pageSize, search: search || undefined, status: status || undefined }),
   });
 
-  const { data: wData } = useQuery({ queryKey: ["weather-all-active"], queryFn: () => weatherService.listAllActive(), enabled: formOpen });
-  const { data: ssData } = useQuery({ queryKey: ["sea-states-all-active"], queryFn: () => seaStateService.listAllActive(), enabled: formOpen });
-  const { data: vcData } = useQuery({ queryKey: ["visibility-all-active"], queryFn: () => visibilityService.listAllActive(), enabled: formOpen });
-  const { data: todData } = useQuery({ queryKey: ["time-of-day-all-active"], queryFn: () => timeOfDayService.listAllActive(), enabled: formOpen });
+  const { data: wData } = useQuery({ queryKey: ["weather-all-active"], queryFn: () => weatherService.listAllActive() });
+  const { data: ssData } = useQuery({ queryKey: ["sea-states-all-active"], queryFn: () => seaStateService.listAllActive() });
+  const { data: vcData } = useQuery({ queryKey: ["visibility-all-active"], queryFn: () => visibilityService.listAllActive() });
+  const { data: todData } = useQuery({ queryKey: ["time-of-day-all-active"], queryFn: () => timeOfDayService.listAllActive() });
 
   const weatherOptions = (wData?.data ?? []) as any[];
   const seaStateOptions = (ssData?.data ?? []) as any[];
@@ -74,19 +74,30 @@ export function EnvironmentProfilesTable() {
     defaultValues: { status: "active" },
   });
 
+  const buildEditValues = (ep: EnvironmentProfile) => ({
+    profile_name: ep.profile_name,
+    weather_condition_id: ep.weather_condition_id ?? undefined,
+    sea_state_id: ep.sea_state_id ?? undefined,
+    visibility_condition_id: ep.visibility_condition_id ?? undefined,
+    time_of_day_id: ep.time_of_day_id ?? undefined,
+    description: ep.description ?? "",
+    status: ep.status as "active" | "inactive",
+  });
+
   useEffect(() => {
     if (formOpen) {
-      reset(editItem ? {
-        profile_name: editItem.profile_name,
-        weather_condition_id: editItem.weather_condition_id ?? undefined,
-        sea_state_id: editItem.sea_state_id ?? undefined,
-        visibility_condition_id: editItem.visibility_condition_id ?? undefined,
-        time_of_day_id: editItem.time_of_day_id ?? undefined,
-        description: editItem.description ?? "",
-        status: editItem.status as "active"|"inactive",
-      } : { status: "active" });
+      reset(editItem ? buildEditValues(editItem) : { status: "active" });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formOpen, editItem, reset]);
+
+  const optionsReady = weatherOptions.length > 0 || seaStateOptions.length > 0 || visibilityOptions.length > 0 || timeOfDayOptions.length > 0;
+  useEffect(() => {
+    if (formOpen && editItem && optionsReady) {
+      reset(buildEditValues(editItem));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [optionsReady]);
 
   const saveMutation = useMutation({
     mutationFn: (data: FormData) => isEdit ? envProfileService.update(editItem!.uuid, data) : envProfileService.create(data),
