@@ -12,11 +12,10 @@ import { toast } from "@/hooks/use-toast";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { Vessel } from "@/types/master-data.types";
 
-const VESSEL_TYPES = [
+const BASE_VESSEL_TYPES = [
   "Container Vessel","Bulk Carrier","Oil Tanker","Chemical Tanker","LNG Carrier",
-  "Ferry","Tug","Fishing Vessel","Naval Vessel","Offshore Vessel","Custom",
+  "Ferry","Tug","Fishing Vessel","Naval Vessel","Offshore Vessel",
 ];
-const CUSTOM_TYPE = "Custom";
 const MANEUVERING = ["Excellent","Good","Fair","Poor"];
 
 const schema = z.object({
@@ -76,8 +75,11 @@ export function VesselsTable() {
     resolver: zodResolver(schema),
     defaultValues: { vessel_type: "Container Vessel", status: "active" },
   });
-  const [customVesselType, setCustomVesselType] = useState("");
-  const selectedVesselType = watch("vessel_type");
+  const [sessionTypes, setSessionTypes] = useState<string[]>([]);
+  const [addTypeOpen, setAddTypeOpen] = useState(false);
+  const [addTypeDraft, setAddTypeDraft] = useState("");
+
+  const allVesselTypes = [...BASE_VESSEL_TYPES, ...sessionTypes];
 
   const isEdit = !!editItem;
   const nameVal = watch("vessel_name");
@@ -85,34 +87,44 @@ export function VesselsTable() {
   useEffect(() => {
     if (formOpen) {
       codeManual.current = false;
+      setAddTypeOpen(false);
+      setAddTypeDraft("");
       if (editItem) {
-        const isKnownType = VESSEL_TYPES.filter(t => t !== CUSTOM_TYPE).includes(editItem.vessel_type);
-        const selectValue = isKnownType ? editItem.vessel_type : CUSTOM_TYPE;
-        setCustomVesselType(isKnownType ? "" : editItem.vessel_type);
+        if (!allVesselTypes.includes(editItem.vessel_type)) {
+          setSessionTypes(prev => prev.includes(editItem.vessel_type) ? prev : [...prev, editItem.vessel_type]);
+        }
         reset({
           vessel_name: editItem.vessel_name, vessel_code: editItem.vessel_code,
-          vessel_type: selectValue, imo_category: editItem.imo_category ?? "",
+          vessel_type: editItem.vessel_type, imo_category: editItem.imo_category ?? "",
           length: editItem.length ?? undefined, beam: editItem.beam ?? undefined,
           draft: editItem.draft ?? undefined, max_speed: editItem.max_speed ?? undefined,
           maneuverability_rating: editItem.maneuverability_rating ?? "",
           description: editItem.description ?? "", status: editItem.status as "active"|"inactive",
         });
       } else {
-        setCustomVesselType("");
         reset({ vessel_type: "Container Vessel", status: "active" });
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formOpen, editItem, reset]);
 
   useEffect(() => {
     if (!isEdit && !codeManual.current && nameVal) setValue("vessel_code", toCode(nameVal));
   }, [nameVal, isEdit, setValue]);
 
+  function confirmAddType() {
+    const name = addTypeDraft.trim();
+    if (!name) return;
+    if (!sessionTypes.includes(name) && !BASE_VESSEL_TYPES.includes(name)) {
+      setSessionTypes(prev => [...prev, name]);
+    }
+    setValue("vessel_type", name);
+    setAddTypeOpen(false);
+    setAddTypeDraft("");
+  }
+
   const saveMutation = useMutation({
-    mutationFn: (data: FormData) => {
-      const resolved = { ...data, vessel_type: data.vessel_type === CUSTOM_TYPE ? (customVesselType.trim() || CUSTOM_TYPE) : data.vessel_type };
-      return isEdit ? vesselService.update(editItem!.uuid, resolved) : vesselService.create(resolved);
-    },
+    mutationFn: (data: FormData) => isEdit ? vesselService.update(editItem!.uuid, data) : vesselService.create(data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["master-data-vessels"] });
       toast({ variant: "success", title: isEdit ? "Vessel updated" : "Vessel created" });
@@ -155,7 +167,7 @@ export function VesselsTable() {
         </div>
         <select value={vesselType} onChange={e => { setVesselType(e.target.value); setPage(1); }} className={filterInput}>
           <option value="">All Types</option>
-          {VESSEL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          {allVesselTypes.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
         <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} className={filterInput}>
           <option value="">All Statuses</option>
@@ -186,17 +198,35 @@ export function VesselsTable() {
                   onChange={e => { codeManual.current = true; setValue("vessel_code", e.target.value.toUpperCase()); }} />
               </Field>
               <Field label="Vessel Type" required error={errors.vessel_type?.message}>
-                <select {...register("vessel_type")} className={inputClass}>
-                  {VESSEL_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                {selectedVesselType === CUSTOM_TYPE && (
-                  <input
-                    type="text"
-                    value={customVesselType}
-                    onChange={e => setCustomVesselType(e.target.value)}
-                    placeholder="Enter vessel type name..."
-                    className={cn(inputClass, "mt-2")}
-                  />
+                <div className="flex gap-2">
+                  <select {...register("vessel_type")} className={cn(inputClass, "flex-1")}>
+                    {allVesselTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <button type="button" onClick={() => { setAddTypeOpen(v => !v); setAddTypeDraft(""); }}
+                    className="px-2.5 rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors" title="Add new vessel type">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                {addTypeOpen && (
+                  <div className="flex gap-2 mt-2">
+                    <input
+                      type="text"
+                      value={addTypeDraft}
+                      onChange={e => setAddTypeDraft(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); confirmAddType(); } if (e.key === "Escape") { setAddTypeOpen(false); setAddTypeDraft(""); } }}
+                      placeholder="Type new vessel type..."
+                      className={cn(inputClass, "flex-1")}
+                      autoFocus
+                    />
+                    <button type="button" onClick={confirmAddType}
+                      className="px-3 py-1.5 rounded-md gradient-gold text-black text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
+                      Add
+                    </button>
+                    <button type="button" onClick={() => { setAddTypeOpen(false); setAddTypeDraft(""); }}
+                      className="px-3 py-1.5 rounded-md border border-border text-xs text-muted-foreground hover:text-foreground transition-colors">
+                      Cancel
+                    </button>
+                  </div>
                 )}
               </Field>
               <Field label="IMO Category" error={errors.imo_category?.message}>

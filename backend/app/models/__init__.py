@@ -29,8 +29,8 @@ from app.models.exercise import Exercise  # noqa: F401
 from app.models.exercise_objective import ExerciseObjective  # noqa: F401
 from app.models.exercise_variant import ExerciseVariant  # noqa: F401
 from app.models.exercise_version import ExerciseVersion  # noqa: F401
-from app.models.assessment_category import AssessmentCategory  # noqa: F401
-from app.models.assessment_template import AssessmentTemplate  # noqa: F401
+from app.models.assessment import Assessment  # noqa: F401
 from app.models.assessment_exercise import AssessmentExercise  # noqa: F401
-from app.models.assessment_rule import AssessmentRule  # noqa: F401
-from app.models.assessment_version import AssessmentVersion  # noqa: F401
+from app.models.assessment_participant import AssessmentParticipant  # noqa: F401
+from app.models.assessment_schedule import AssessmentSchedule  # noqa: F401
+from app.models.assessment_result import AssessmentResult  # noqa: F401

@@ -1,14 +1,8 @@
-export interface AssessmentCategory {
-  id: number;
-  uuid: string;
-  category_name: string;
-  category_code: string;
-  description?: string | null;
-  status: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type AssessmentType = "Training" | "Evaluation" | "Certification" | "Practice";
+export type AssessmentStatus = "draft" | "active" | "archived";
+
+export const ASSESSMENT_TYPES: AssessmentType[] = ["Training", "Evaluation", "Certification", "Practice"];
+export const ASSESSMENT_STATUSES: AssessmentStatus[] = ["draft", "active", "archived"];
 
 export interface AssessmentExerciseItem {
   id: number;
@@ -21,64 +15,90 @@ export interface AssessmentExerciseItem {
   mandatory: boolean;
 }
 
-export interface AssessmentTemplate {
+export interface Assessment {
   id: number;
   uuid: string;
   assessment_name: string;
   assessment_code: string;
-  category_id?: number | null;
-  category_name?: string | null;
   description?: string | null;
   instructions?: string | null;
+  assessment_type: AssessmentType;
   duration_minutes?: number | null;
   passing_score?: number | null;
   max_attempts?: number | null;
-  variant_selection_mode: string;
   randomize_exercise_order: boolean;
   randomize_variant_selection: boolean;
-  status: string;
-  version_number: number;
-  exercises_count: number;
-  exercises: AssessmentExerciseItem[];
+  certificate_eligible: boolean;
+  certificate_validity_months?: number | null;
+  status: AssessmentStatus;
   is_active: boolean;
+  exercises: AssessmentExerciseItem[];
+  exercise_count: number;
+  participant_count: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface AssessmentRule {
+export interface AssessmentListItem {
   id: number;
   uuid: string;
-  assessment_id: number;
-  assessment_name?: string | null;
-  assessment_code?: string | null;
-  minimum_pass_score?: number | null;
+  assessment_name: string;
+  assessment_code: string;
+  assessment_type: AssessmentType;
+  duration_minutes?: number | null;
+  passing_score?: number | null;
   max_attempts?: number | null;
-  assessment_duration?: number | null;
-  allow_reassessment: boolean;
-  reassessment_wait_days?: number | null;
-  variant_selection_mode: string;
-  randomize_exercises: boolean;
-  randomize_variants: boolean;
-  auto_fail_on_collision: boolean;
-  auto_fail_on_major_violation: boolean;
+  certificate_eligible: boolean;
+  status: AssessmentStatus;
   is_active: boolean;
+  exercise_count: number;
+  participant_count: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface AssessmentVersion {
-  id: number;
-  assessment_id: number;
-  version_number: number;
-  change_summary?: string | null;
-  created_at: string;
-  created_by?: string | null;
-}
-
-export interface AssessmentPage<T> {
-  items: T[];
+export interface AssessmentPage {
+  items: AssessmentListItem[];
   page: number;
   page_size: number;
   total: number;
   total_pages: number;
 }
+
+export interface AssessmentSchedule {
+  id: number;
+  uuid: string;
+  assessment_id: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  timezone: string;
+  duration_override?: number | null;
+  is_open: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssessmentExerciseCreate {
+  exercise_id: number;
+  sequence_number: number;
+  weightage: number;
+  mandatory: boolean;
+}
+
+export interface AssessmentCreatePayload {
+  assessment_name: string;
+  assessment_code: string;
+  description?: string;
+  instructions?: string;
+  assessment_type: AssessmentType;
+  duration_minutes?: number;
+  passing_score?: number;
+  max_attempts?: number;
+  randomize_exercise_order: boolean;
+  randomize_variant_selection: boolean;
+  certificate_eligible: boolean;
+  certificate_validity_months?: number;
+  exercises: AssessmentExerciseCreate[];
+}
+
+export interface AssessmentUpdatePayload extends Partial<AssessmentCreatePayload> {}

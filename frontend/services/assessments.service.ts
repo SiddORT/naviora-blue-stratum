@@ -1,8 +1,10 @@
 import type {
-  AssessmentCategory,
-  AssessmentTemplate,
-  AssessmentRule,
+  Assessment,
+  AssessmentCreatePayload,
+  AssessmentListItem,
   AssessmentPage,
+  AssessmentSchedule,
+  AssessmentUpdatePayload,
 } from "@/types/assessment.types";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -23,62 +25,49 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   return json;
 }
 
-function buildQuery(params: Record<string, string | number | undefined>): string {
+function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
   const q = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => v !== undefined && q.set(k, String(v)));
   return q.toString();
 }
 
-function makeService<T, CreateT, UpdateT>(prefix: string) {
-  return {
-    list: (params: Record<string, string | number | undefined> = {}) =>
-      request<{ data: AssessmentPage<T> }>(`${BASE}/${prefix}?${buildQuery(params)}`),
-    listAllActive: () =>
-      request<{ data: T[] }>(`${BASE}/${prefix}/all-active`),
-    get: (uuid: string) =>
-      request<{ data: T }>(`${BASE}/${prefix}/${uuid}`),
-    create: (body: CreateT) =>
-      request<{ data: T }>(`${BASE}/${prefix}`, {
-        method: "POST",
-        body: JSON.stringify(body),
-      }),
-    update: (uuid: string, body: UpdateT) =>
-      request<{ data: T }>(`${BASE}/${prefix}/${uuid}`, {
-        method: "PUT",
-        body: JSON.stringify(body),
-      }),
-    delete: (uuid: string) =>
-      request<{ data: null }>(`${BASE}/${prefix}/${uuid}`, { method: "DELETE" }),
-    activate: (uuid: string) =>
-      request<{ data: T }>(`${BASE}/${prefix}/${uuid}/activate`, { method: "PATCH" }),
-    deactivate: (uuid: string) =>
-      request<{ data: T }>(`${BASE}/${prefix}/${uuid}/deactivate`, { method: "PATCH" }),
-  };
-}
+export const assessmentService = {
+  list: (params: Record<string, string | number | undefined> = {}) =>
+    request<{ data: AssessmentPage }>(`${BASE}?${buildQuery(params)}`),
 
-export const assessmentCategoryService = makeService<
-  AssessmentCategory,
-  Partial<AssessmentCategory>,
-  Partial<AssessmentCategory>
->("categories");
+  listAllActive: () =>
+    request<{ data: AssessmentListItem[] }>(`${BASE}/all-active`),
 
-export const assessmentRuleService = makeService<
-  AssessmentRule,
-  Partial<AssessmentRule>,
-  Partial<AssessmentRule>
->("rules");
+  get: (uuid: string) =>
+    request<{ data: Assessment }>(`${BASE}/${uuid}`),
 
-export const assessmentTemplateService = {
-  ...makeService<AssessmentTemplate, Partial<AssessmentTemplate>, Partial<AssessmentTemplate>>("templates"),
-  archive: (uuid: string) =>
-    request<{ data: AssessmentTemplate }>(`${BASE}/templates/${uuid}/archive`, { method: "PATCH" }),
-  clone: (uuid: string, body: { new_name: string; new_code?: string }) =>
-    request<{ data: AssessmentTemplate }>(`${BASE}/templates/${uuid}/clone`, {
+  create: (body: AssessmentCreatePayload) =>
+    request<{ data: Assessment }>(`${BASE}`, {
       method: "POST",
       body: JSON.stringify(body),
     }),
-  getVersions: (uuid: string) =>
-    request<{ data: unknown[] }>(`${BASE}/templates/${uuid}/versions`),
-  preview: (uuid: string) =>
-    request<{ data: AssessmentTemplate & { versions: unknown[] } }>(`${BASE}/preview/${uuid}`),
+
+  update: (uuid: string, body: AssessmentUpdatePayload) =>
+    request<{ data: Assessment }>(`${BASE}/${uuid}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+
+  delete: (uuid: string) =>
+    request<{ data: null }>(`${BASE}/${uuid}`, { method: "DELETE" }),
+
+  activate: (uuid: string) =>
+    request<{ data: Assessment }>(`${BASE}/${uuid}/activate`, { method: "PATCH" }),
+
+  archive: (uuid: string) =>
+    request<{ data: Assessment }>(`${BASE}/${uuid}/archive`, { method: "PATCH" }),
+
+  getSchedule: (uuid: string) =>
+    request<{ data: AssessmentSchedule | null }>(`${BASE}/${uuid}/schedule`),
+
+  upsertSchedule: (uuid: string, body: Partial<AssessmentSchedule>) =>
+    request<{ data: AssessmentSchedule }>(`${BASE}/${uuid}/schedule`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
 };

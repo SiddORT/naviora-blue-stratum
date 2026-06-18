@@ -48,16 +48,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
       { label: "Variants",             href: "/admin/exercises/variants",   icon: "Layers" },
     ],
   },
-  {
-    label: "Assessment Management",
-    href: "/admin/assessments",
-    icon: "ClipboardList",
-    children: [
-      { label: "Categories",         href: "/admin/assessments/categories", icon: "Tag" },
-      { label: "Templates",          href: "/admin/assessments/templates",  icon: "ClipboardList" },
-      { label: "Rules",              href: "/admin/assessments/rules",      icon: "ScrollText" },
-    ],
-  },
+  { label: "Assessment Management", href: "/admin/assessments", icon: "ClipboardList" },
   { label: "Maritime Knowledge Base",  href: "/admin/knowledge-base",icon: "Anchor" },
   { label: "AI Management",            href: "/admin/ai-management", icon: "Cpu" },
   { label: "Certificates",             href: "/admin/certificates",  icon: "Award" },

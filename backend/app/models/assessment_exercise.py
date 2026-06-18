@@ -1,4 +1,4 @@
-"""AssessmentExercise — junction table linking exercises to assessment templates."""
+"""AssessmentExercise — junction linking exercises to assessments."""
 from decimal import Decimal
 
 from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, UniqueConstraint
@@ -15,7 +15,7 @@ class AssessmentExercise(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     assessment_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("assessment_templates.id", ondelete="CASCADE"), nullable=False, index=True
+        Integer, ForeignKey("assessments.id", ondelete="CASCADE"), nullable=False, index=True
     )
     exercise_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("exercises.id", ondelete="CASCADE"), nullable=False, index=True
@@ -24,12 +24,10 @@ class AssessmentExercise(Base):
     weightage: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False, default=Decimal("0.00"))
     mandatory: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
-    assessment: Mapped["AssessmentTemplate"] = relationship(
-        "AssessmentTemplate", back_populates="assessment_exercises", lazy="noload"
+    assessment: Mapped["Assessment"] = relationship(
+        "Assessment", back_populates="assessment_exercises", lazy="noload"
     )
-    exercise: Mapped["Exercise"] = relationship(
-        "Exercise", lazy="noload"
-    )
+    exercise: Mapped["Exercise"] = relationship("Exercise", lazy="noload")
 
     def __repr__(self) -> str:
         return f"<AssessmentExercise assessment_id={self.assessment_id} exercise_id={self.exercise_id}>"

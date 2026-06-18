@@ -1,4 +1,4 @@
-"""Assessment Engine module — API endpoints."""
+"""Assessment module — API endpoints."""
 import math
 from typing import Optional
 
@@ -9,298 +9,201 @@ from app.db.session import get_db
 from app.dependencies.auth import CurrentUser
 from app.dependencies.permissions import check_permissions
 from app.schemas.assessments import (
-    AssessmentCategoryCreate,
-    AssessmentCategoryUpdate,
-    AssessmentCloneRequest,
-    AssessmentRuleCreate,
-    AssessmentRuleUpdate,
-    AssessmentTemplateCreate,
-    AssessmentTemplateUpdate,
+    AssessmentCreate,
+    AssessmentPage,
+    AssessmentParticipantCreate,
+    AssessmentParticipantResponse,
+    AssessmentResponse,
+    AssessmentScheduleResponse,
+    AssessmentScheduleUpsert,
+    AssessmentUpdate,
+    AssessmentListResponse,
 )
-from app.services.assessments import (
-    AssessmentCategoryService,
-    AssessmentRuleService,
-    AssessmentTemplateService,
-)
-from app.utils.responses import (
-    created_response,
-    error_response,
-    not_found_response,
-    success_response,
-)
+from app.schemas.common import SuccessResponse
+from app.services.assessments import AssessmentService
 
 router = APIRouter()
 
 
-def _paginate(items, total, page, page_size):
-    return {
-        "items": [i.model_dump() for i in items],
-        "page": page,
-        "page_size": page_size,
-        "total": total,
-        "total_pages": max(1, math.ceil(total / page_size)),
-    }
+def _svc(db: AsyncSession = Depends(get_db)) -> AssessmentService:
+    return AssessmentService(db)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Assessment Categories
-# ─────────────────────────────────────────────────────────────────────────────
+# ── List + Create ─────────────────────────────────────────────────────────────
 
-categories = APIRouter(prefix="/categories", tags=["Assessments — Categories"])
-
-
-@categories.get("", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def list_categories(
-    page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
-    search: Optional[str] = Query(None), status: Optional[str] = Query(None),
-    sort_by: str = Query("category_name"), sort_order: str = Query("asc"),
-    db: AsyncSession = Depends(get_db),
+@router.get("", response_model=SuccessResponse[AssessmentPage])
+async def list_assessments(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+    search: Optional[str] = Query(default=None),
+    status: Optional[str] = Query(default=None),
+    assessment_type: Optional[str] = Query(default=None),
+    sort_by: str = Query(default="created_at"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
 ):
-    items, total = await AssessmentCategoryService(db).list(page, page_size, search, status, sort_by, sort_order)
-    return success_response(data=_paginate(items, total, page, page_size))
+    data = await svc.list(
+        page=page, page_size=page_size, search=search,
+        status=status, assessment_type=assessment_type,
+        sort_by=sort_by, sort_order=sort_order,
+    )
+    return SuccessResponse(data=data)
 
 
-@categories.get("/all-active", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def list_categories_all_active(db: AsyncSession = Depends(get_db)):
-    items = await AssessmentCategoryService(db).list_all_active()
-    return success_response(data=[i.model_dump() for i in items])
-
-
-@categories.post("", dependencies=[Depends(check_permissions(["master_data.create"]))])
-async def create_category(body: AssessmentCategoryCreate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    try:
-        result = await AssessmentCategoryService(db).create(body, by=current_user.uuid)
-    except ValueError as e:
-        return error_response(str(e))
-    return created_response(data=result.model_dump(), message="Assessment category created")
-
-
-@categories.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def get_category(uuid: str, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentCategoryService(db).get(uuid)
-    if not result:
-        return not_found_response("Assessment category")
-    return success_response(data=result.model_dump())
-
-
-@categories.put("/{uuid}", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def update_category(uuid: str, body: AssessmentCategoryUpdate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    try:
-        result = await AssessmentCategoryService(db).update(uuid, body, by=current_user.uuid)
-    except ValueError as e:
-        return error_response(str(e))
-    if not result:
-        return not_found_response("Assessment category")
-    return success_response(data=result.model_dump(), message="Assessment category updated")
-
-
-@categories.delete("/{uuid}", dependencies=[Depends(check_permissions(["master_data.delete"]))])
-async def delete_category(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    ok = await AssessmentCategoryService(db).delete(uuid, by=current_user.uuid)
-    if not ok:
-        return not_found_response("Assessment category")
-    return success_response(message="Assessment category deleted")
-
-
-@categories.patch("/{uuid}/activate", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def activate_category(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentCategoryService(db).activate(uuid, by=current_user.uuid)
-    if not result:
-        return not_found_response("Assessment category")
-    return success_response(data=result.model_dump(), message="Assessment category activated")
-
-
-@categories.patch("/{uuid}/deactivate", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def deactivate_category(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentCategoryService(db).deactivate(uuid, by=current_user.uuid)
-    if not result:
-        return not_found_response("Assessment category")
-    return success_response(data=result.model_dump(), message="Assessment category deactivated")
-
-
-router.include_router(categories)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Assessment Templates
-# ─────────────────────────────────────────────────────────────────────────────
-
-templates = APIRouter(prefix="/templates", tags=["Assessments — Templates"])
-
-
-@templates.get("", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def list_templates(
-    page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
-    search: Optional[str] = Query(None), status: Optional[str] = Query(None),
-    category_id: Optional[int] = Query(None),
-    sort_by: str = Query("assessment_name"), sort_order: str = Query("asc"),
-    db: AsyncSession = Depends(get_db),
+@router.get("/all-active", response_model=SuccessResponse[list[AssessmentListResponse]])
+async def list_all_active(
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
 ):
-    items, total = await AssessmentTemplateService(db).list(page, page_size, search, status, category_id, sort_by, sort_order)
-    return success_response(data=_paginate(items, total, page, page_size))
+    data = await svc.list_all_active()
+    return SuccessResponse(data=data)
 
 
-@templates.post("", dependencies=[Depends(check_permissions(["master_data.create"]))])
-async def create_template(body: AssessmentTemplateCreate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    try:
-        result = await AssessmentTemplateService(db).create(body, by=current_user.uuid)
-    except ValueError as e:
-        return error_response(str(e))
-    return created_response(data=result.model_dump(), message="Assessment template created")
-
-
-@templates.get("/all-active", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def list_templates_all_active(db: AsyncSession = Depends(get_db)):
-    items = await AssessmentTemplateService(db).list_all_active()
-    return success_response(data=[i.model_dump() for i in items])
-
-
-@templates.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def get_template(uuid: str, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentTemplateService(db).get(uuid)
-    if not result:
-        return not_found_response("Assessment template")
-    return success_response(data=result.model_dump())
-
-
-@templates.put("/{uuid}", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def update_template(uuid: str, body: AssessmentTemplateUpdate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    try:
-        result = await AssessmentTemplateService(db).update(uuid, body, by=current_user.uuid)
-    except ValueError as e:
-        return error_response(str(e))
-    if not result:
-        return not_found_response("Assessment template")
-    return success_response(data=result.model_dump(), message="Assessment template updated")
-
-
-@templates.delete("/{uuid}", dependencies=[Depends(check_permissions(["master_data.delete"]))])
-async def delete_template(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    ok = await AssessmentTemplateService(db).delete(uuid, by=current_user.uuid)
-    if not ok:
-        return not_found_response("Assessment template")
-    return success_response(message="Assessment template deleted")
-
-
-@templates.patch("/{uuid}/activate", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def activate_template(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentTemplateService(db).activate(uuid, by=current_user.uuid)
-    if not result:
-        return not_found_response("Assessment template")
-    return success_response(data=result.model_dump(), message="Assessment template activated")
-
-
-@templates.patch("/{uuid}/deactivate", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def deactivate_template(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentTemplateService(db).deactivate(uuid, by=current_user.uuid)
-    if not result:
-        return not_found_response("Assessment template")
-    return success_response(data=result.model_dump(), message="Assessment template deactivated")
-
-
-@templates.patch("/{uuid}/archive", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def archive_template(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentTemplateService(db).archive(uuid, by=current_user.uuid)
-    if not result:
-        return not_found_response("Assessment template")
-    return success_response(data=result.model_dump(), message="Assessment template archived")
-
-
-@templates.post("/{uuid}/clone", dependencies=[Depends(check_permissions(["master_data.create"]))])
-async def clone_template(uuid: str, body: AssessmentCloneRequest, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    try:
-        result = await AssessmentTemplateService(db).clone(uuid, body, by=current_user.uuid)
-    except ValueError as e:
-        return error_response(str(e))
-    if not result:
-        return not_found_response("Assessment template")
-    return created_response(data=result.model_dump(), message="Assessment template cloned")
-
-
-@templates.get("/{uuid}/versions", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def get_template_versions(uuid: str, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentTemplateService(db).get_versions(uuid)
-    if result is None:
-        return not_found_response("Assessment template")
-    return success_response(data=[v.model_dump() for v in result])
-
-
-router.include_router(templates)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Assessment Rules
-# ─────────────────────────────────────────────────────────────────────────────
-
-rules = APIRouter(prefix="/rules", tags=["Assessments — Rules"])
-
-
-@rules.get("", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def list_rules(
-    page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),
-    search: Optional[str] = Query(None),
-    sort_by: str = Query("id"), sort_order: str = Query("asc"),
-    db: AsyncSession = Depends(get_db),
+@router.post("", response_model=SuccessResponse[AssessmentResponse], status_code=201)
+async def create_assessment(
+    body: AssessmentCreate,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
 ):
-    items, total = await AssessmentRuleService(db).list(page, page_size, search, sort_by, sort_order)
-    return success_response(data=_paginate(items, total, page, page_size))
-
-
-@rules.post("", dependencies=[Depends(check_permissions(["master_data.create"]))])
-async def create_rule(body: AssessmentRuleCreate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
     try:
-        result = await AssessmentRuleService(db).create(body, by=current_user.uuid)
+        data = await svc.create(body, by=current_user.get("uuid"))
+        return SuccessResponse(data=data, message="Assessment created")
     except ValueError as e:
-        return error_response(str(e))
-    return created_response(data=result.model_dump(), message="Assessment rule created")
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@rules.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def get_rule(uuid: str, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentRuleService(db).get(uuid)
-    if not result:
-        return not_found_response("Assessment rule")
-    return success_response(data=result.model_dump())
+# ── Single assessment ─────────────────────────────────────────────────────────
+
+@router.get("/{uuid}", response_model=SuccessResponse[AssessmentResponse])
+async def get_assessment(
+    uuid: str,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.get(uuid)
+        return SuccessResponse(data=data)
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-@rules.put("/{uuid}", dependencies=[Depends(check_permissions(["master_data.edit"]))])
-async def update_rule(uuid: str, body: AssessmentRuleUpdate, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    result = await AssessmentRuleService(db).update(uuid, body, by=current_user.uuid)
-    if not result:
-        return not_found_response("Assessment rule")
-    return success_response(data=result.model_dump(), message="Assessment rule updated")
+@router.put("/{uuid}", response_model=SuccessResponse[AssessmentResponse])
+async def update_assessment(
+    uuid: str,
+    body: AssessmentUpdate,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.update(uuid, body, by=current_user.get("uuid"))
+        return SuccessResponse(data=data, message="Assessment updated")
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@rules.delete("/{uuid}", dependencies=[Depends(check_permissions(["master_data.delete"]))])
-async def delete_rule(uuid: str, current_user: CurrentUser, db: AsyncSession = Depends(get_db)):
-    ok = await AssessmentRuleService(db).delete(uuid, by=current_user.uuid)
-    if not ok:
-        return not_found_response("Assessment rule")
-    return success_response(message="Assessment rule deleted")
+@router.delete("/{uuid}", response_model=SuccessResponse[None])
+async def delete_assessment(
+    uuid: str,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        await svc.delete(uuid, by=current_user.get("uuid"))
+        return SuccessResponse(data=None, message="Assessment deleted")
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-router.include_router(rules)
+@router.patch("/{uuid}/activate", response_model=SuccessResponse[AssessmentResponse])
+async def activate_assessment(
+    uuid: str,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.activate(uuid, by=current_user.get("uuid"))
+        return SuccessResponse(data=data, message="Assessment activated")
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Assessment Preview
-# ─────────────────────────────────────────────────────────────────────────────
-
-preview = APIRouter(prefix="/preview", tags=["Assessments — Preview"])
-
-
-@preview.get("/{uuid}", dependencies=[Depends(check_permissions(["master_data.view"]))])
-async def preview_assessment(uuid: str, db: AsyncSession = Depends(get_db)):
-    svc = AssessmentTemplateService(db)
-    result = await svc.get(uuid)
-    if not result:
-        return not_found_response("Assessment template")
-    versions = await svc.get_versions(uuid)
-    preview_data = {
-        **result.model_dump(),
-        "versions": [v.model_dump() for v in (versions or [])],
-    }
-    return success_response(data=preview_data)
+@router.patch("/{uuid}/archive", response_model=SuccessResponse[AssessmentResponse])
+async def archive_assessment(
+    uuid: str,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.archive(uuid, by=current_user.get("uuid"))
+        return SuccessResponse(data=data, message="Assessment archived")
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
 
 
-router.include_router(preview)
+# ── Schedule ──────────────────────────────────────────────────────────────────
+
+@router.get("/{uuid}/schedule", response_model=SuccessResponse[Optional[AssessmentScheduleResponse]])
+async def get_schedule(
+    uuid: str,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.get_schedule(uuid)
+        return SuccessResponse(data=data)
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.put("/{uuid}/schedule", response_model=SuccessResponse[AssessmentScheduleResponse])
+async def upsert_schedule(
+    uuid: str,
+    body: AssessmentScheduleUpsert,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.upsert_schedule(uuid, body, by=current_user.get("uuid"))
+        return SuccessResponse(data=data, message="Schedule saved")
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+# ── Participants ──────────────────────────────────────────────────────────────
+
+@router.get("/{uuid}/participants", response_model=SuccessResponse[list[AssessmentParticipantResponse]])
+async def get_participants(
+    uuid: str,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.get_participants(uuid)
+        return SuccessResponse(data=data)
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/{uuid}/participants", response_model=SuccessResponse[AssessmentParticipantResponse], status_code=201)
+async def add_participant(
+    uuid: str,
+    body: AssessmentParticipantCreate,
+    current_user: dict = Depends(CurrentUser),
+    svc: AssessmentService = Depends(_svc),
+):
+    try:
+        data = await svc.add_participant(uuid, body, by=current_user.get("uuid"))
+        return SuccessResponse(data=data, message="Participant added")
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
