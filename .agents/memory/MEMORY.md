@@ -1,5 +1,5 @@
 - [asyncpg-ssl](asyncpg-ssl.md) — asyncpg requires ?ssl= not ?sslmode= in DATABASE_URL; must convert at config layer.
 - [fastapi-annotated-depends](fastapi-annotated-depends.md) — Annotated[T, Depends()] params must NOT have a default value; wrapping in Depends() again causes 422 args/kwargs at runtime.
 - [pase-compass-stack](pase-compass-stack.md) — key decisions and seed credentials for the PASE Compass foundation.
-- [encryption-service](encryption-service.md) — AES-256-GCM field-level encryption for sensitive fields; key must never rotate after data is written.
 - [assessment-engine](assessment-engine.md) — Sprint 2.4 Assessment Engine: models, migration, seed, API routes, and frontend conventions.
+- [sidebar-nav-keys](sidebar-nav-keys.md) — Sidebar uses href as React key; sibling nav items sharing the same href cause duplicate-key warnings. Fix: key=`${href}::${label}`.

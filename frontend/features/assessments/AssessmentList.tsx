@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   Plus, Search, Edit, Trash2, ChevronLeft, ChevronRight,
-  CheckCircle, Archive, AlertCircle, Filter,
+  CheckCircle, Archive, AlertCircle, Filter, Settings2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -155,7 +155,7 @@ export function AssessmentList() {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Exercises</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Participants</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide w-40">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide w-48">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -192,6 +192,16 @@ export function AssessmentList() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
+                        {item.status === "active" && (
+                          <button
+                            onClick={() => router.push(`/admin/assessments/${item.uuid}/participants`)}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary/10 hover:bg-secondary/20 transition-colors text-secondary text-xs font-medium"
+                            title="Manage participants, schedule & progress"
+                          >
+                            <Settings2 className="w-3 h-3" />
+                            Manage
+                          </button>
+                        )}
                         <button
                           onClick={() => router.push(`/admin/assessments/builder?uuid=${item.uuid}`)}
                           className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"

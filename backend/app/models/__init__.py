@@ -33,4 +33,5 @@ from app.models.assessment import Assessment  # noqa: F401
 from app.models.assessment_exercise import AssessmentExercise  # noqa: F401
 from app.models.assessment_participant import AssessmentParticipant  # noqa: F401
 from app.models.assessment_schedule import AssessmentSchedule  # noqa: F401
+from app.models.assessment_attempt import AssessmentAttempt  # noqa: F401
 from app.models.assessment_result import AssessmentResult  # noqa: F401

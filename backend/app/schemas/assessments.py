@@ -9,7 +9,11 @@ from app.schemas.common import BaseSchema
 
 ASSESSMENT_TYPES = ["Training", "Evaluation", "Certification", "Practice"]
 ASSESSMENT_STATUSES = ["draft", "active", "archived"]
-PARTICIPANT_STATUSES = ["Assigned", "In Progress", "Completed", "Passed", "Failed", "Expired"]
+ASSIGNMENT_STATUSES = ["Assigned", "In Progress", "Completed", "Passed", "Failed", "Expired", "Cancelled"]
+RESULT_STATUSES = ["Pending", "Passed", "Failed"]
+SCHEDULE_TYPES = ["Always Open", "Scheduled Window"]
+SCHEDULE_STATUSES = ["Draft", "Active", "Archived"]
+ATTEMPT_RESULT_STATUSES = ["Pending", "Passed", "Failed", "Abandoned"]
 
 
 # ── Exercise item within an assessment ───────────────────────────────────────
@@ -143,21 +147,43 @@ class AssessmentPage(BaseSchema):
 # ── Schedule ──────────────────────────────────────────────────────────────────
 
 class AssessmentScheduleUpsert(BaseSchema):
+    schedule_type: str = Field(default="Always Open")
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     timezone: str = Field(default="UTC", max_length=100)
     duration_override: Optional[int] = Field(default=None, ge=1)
+    allow_late_start: bool = False
+    grace_period_minutes: Optional[int] = Field(default=None, ge=0)
+    schedule_status: str = Field(default="Draft")
     is_open: bool = False
+
+    @field_validator("schedule_type")
+    @classmethod
+    def validate_schedule_type(cls, v: str) -> str:
+        if v not in SCHEDULE_TYPES:
+            raise ValueError(f"schedule_type must be one of {SCHEDULE_TYPES}")
+        return v
+
+    @field_validator("schedule_status")
+    @classmethod
+    def validate_schedule_status(cls, v: str) -> str:
+        if v not in SCHEDULE_STATUSES:
+            raise ValueError(f"schedule_status must be one of {SCHEDULE_STATUSES}")
+        return v
 
 
 class AssessmentScheduleResponse(BaseSchema):
     id: int
     uuid: str
     assessment_id: int
+    schedule_type: str
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
     timezone: str
     duration_override: Optional[int] = None
+    allow_late_start: bool
+    grace_period_minutes: Optional[int] = None
+    schedule_status: str
     is_open: bool
     created_at: datetime
     updated_at: datetime
@@ -166,8 +192,29 @@ class AssessmentScheduleResponse(BaseSchema):
 # ── Participant ───────────────────────────────────────────────────────────────
 
 class AssessmentParticipantCreate(BaseSchema):
-    user_id: Optional[int] = None
-    assignment_status: str = Field(default="Assigned")
+    user_id: int
+    max_attempts_override: Optional[int] = Field(default=None, ge=1)
+    remarks: Optional[str] = None
+
+
+class AssessmentParticipantUpdate(BaseSchema):
+    assignment_status: Optional[str] = None
+    max_attempts_override: Optional[int] = Field(default=None, ge=1)
+    result_status: Optional[str] = None
+    remarks: Optional[str] = None
+
+    @field_validator("assignment_status")
+    @classmethod
+    def validate_status(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in ASSIGNMENT_STATUSES:
+            raise ValueError(f"assignment_status must be one of {ASSIGNMENT_STATUSES}")
+        return v
+
+
+class AssessmentParticipantBulkAssign(BaseSchema):
+    user_ids: List[int] = Field(min_length=1)
+    max_attempts_override: Optional[int] = Field(default=None, ge=1)
+    remarks: Optional[str] = None
 
 
 class AssessmentParticipantResponse(BaseSchema):
@@ -175,10 +222,60 @@ class AssessmentParticipantResponse(BaseSchema):
     uuid: str
     assessment_id: int
     user_id: Optional[int] = None
+    assigned_by: Optional[str] = None
     assignment_status: str
     assigned_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     attempt_count: int
+    max_attempts_override: Optional[int] = None
+    result_status: str
+    remarks: Optional[str] = None
+    user_full_name: Optional[str] = None
+    user_email: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
+
+class AssessmentParticipantPage(BaseSchema):
+    items: List[AssessmentParticipantResponse]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+
+
+class BulkAssignResult(BaseSchema):
+    assigned: int
+    skipped: int
+    skipped_user_ids: List[int] = Field(default_factory=list)
+
+
+# ── Attempt ───────────────────────────────────────────────────────────────────
+
+class AssessmentAttemptResponse(BaseSchema):
+    id: int
+    uuid: str
+    assessment_participant_id: int
+    attempt_number: int
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    simulator_session_id: Optional[int] = None
+    score: Optional[Decimal] = None
+    result_status: str
+    remarks: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+# ── Progress summary ──────────────────────────────────────────────────────────
+
+class AssessmentProgressSummary(BaseSchema):
+    total_participants: int
+    not_started: int
+    in_progress: int
+    completed: int
+    passed: int
+    failed: int
+    expired: int
+    cancelled: int

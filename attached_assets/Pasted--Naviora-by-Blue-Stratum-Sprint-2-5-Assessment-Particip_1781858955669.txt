@@ -1,0 +1,634 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.5 – Assessment Participants & Scheduling
+
+Build Sprint 2.5 for Naviora.
+
+This sprint enables Assessments to become operational by allowing Admin users to assign assessments to candidates, schedule assessment windows, track attempts and monitor progress.
+
+Follow all existing platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* TanStack Query
+* React Hook Form
+* Zod
+
+Use existing architecture:
+
+* Repository Pattern
+* Service Layer
+* Audit Logging
+* Soft Deletes
+* Encryption Framework
+* JWT Authentication
+* DataTable Standards
+* API Response Standards
+* Search / Filters / Pagination
+
+Do not create placeholder code.
+
+Generate production-ready implementation.
+
+---
+
+# Business Context
+
+Current flow:
+
+Categories
+↓
+Encounter Types
+↓
+Exercises
+↓
+Exercise Variants
+↓
+Assessments
+
+This sprint adds:
+
+Assessments
+↓
+Participants
+↓
+Scheduling
+↓
+Simulator Sessions
+
+An Assessment cannot be launched until participants have been assigned and scheduling rules have been defined.
+
+---
+
+# Navigation
+
+Create:
+
+Assessment Management
+
+├── Assessments
+├── Participants
+├── Scheduling
+└── Progress Dashboard
+
+Integrate into existing Admin sidebar.
+
+---
+
+# Core Concepts
+
+Assessment
+
+A collection of Exercises with evaluation settings.
+
+Participant
+
+A user assigned to an Assessment.
+
+Schedule
+
+Defines when an Assessment can be accessed.
+
+Attempt
+
+Tracks each participant's execution history.
+
+---
+
+# Database Design
+
+## assessment_participants
+
+Purpose:
+
+Assign users to assessments.
+
+Fields:
+
+* id
+
+* uuid
+
+* assessment_id
+
+* user_id
+
+* assignment_status
+
+* assigned_at
+
+* assigned_by
+
+* started_at
+
+* completed_at
+
+* attempt_count
+
+* max_attempts_override
+
+* result_status
+
+* remarks
+
+* created_at
+
+* updated_at
+
+* created_by
+
+* updated_by
+
+* deleted_at
+
+* deleted_by
+
+Assignment Status Enum:
+
+* Assigned
+* In Progress
+* Completed
+* Passed
+* Failed
+* Expired
+* Cancelled
+
+Result Status Enum:
+
+* Pending
+* Passed
+* Failed
+
+Rules:
+
+* One user can only have one active assignment per assessment.
+* Prevent duplicate assignments.
+* attempt_count starts at 0.
+* max_attempts_override is optional.
+* If override is null, inherit assessment max_attempts.
+
+Indexes:
+
+* assessment_id
+* user_id
+* assignment_status
+
+Searchable:
+
+* user_name
+* user_email
+
+Filterable:
+
+* assignment_status
+* result_status
+
+Sortable:
+
+* assigned_at
+* started_at
+* completed_at
+
+---
+
+## assessment_schedules
+
+Purpose:
+
+Define assessment availability windows.
+
+Fields:
+
+* id
+
+* uuid
+
+* assessment_id
+
+* schedule_type
+
+* start_date
+
+* end_date
+
+* timezone
+
+* duration_override_minutes
+
+* allow_late_start
+
+* grace_period_minutes
+
+* status
+
+* created_at
+
+* updated_at
+
+* created_by
+
+* updated_by
+
+* deleted_at
+
+* deleted_by
+
+Schedule Type Enum:
+
+* Always Open
+* Scheduled Window
+
+Status Enum:
+
+* Draft
+* Active
+* Archived
+
+Rules:
+
+* Only one active schedule per assessment.
+* end_date must be greater than start_date.
+* duration_override is optional.
+* If null, inherit assessment duration.
+
+---
+
+## assessment_attempts
+
+Purpose:
+
+Track participant assessment attempts.
+
+Fields:
+
+* id
+
+* uuid
+
+* assessment_participant_id
+
+* attempt_number
+
+* started_at
+
+* completed_at
+
+* simulator_session_id
+
+* score
+
+* result_status
+
+* remarks
+
+* created_at
+
+* updated_at
+
+Result Status Enum:
+
+* Pending
+* Passed
+* Failed
+* Abandoned
+
+Rules:
+
+* Attempt numbers increment automatically.
+* Maximum attempts enforced.
+* One simulator session per attempt.
+* Results will be populated in future sprints.
+
+Indexes:
+
+* assessment_participant_id
+* simulator_session_id
+
+---
+
+# Backend Deliverables
+
+Generate:
+
+* SQLAlchemy Models
+* Alembic Migrations
+* Pydantic Schemas
+* Repository Layer
+* Service Layer
+* Validators
+* API Routes
+
+Follow existing folder structure.
+
+No business logic inside routes.
+
+---
+
+# API Endpoints
+
+## Assessment Participants
+
+GET
+
+```text
+/api/v1/assessments/{assessment_id}/participants
+```
+
+POST
+
+```text
+/api/v1/assessments/{assessment_id}/participants
+```
+
+PUT
+
+```text
+/api/v1/assessments/{assessment_id}/participants/{participant_id}
+```
+
+DELETE
+
+```text
+/api/v1/assessments/{assessment_id}/participants/{participant_id}
+```
+
+POST
+
+```text
+/api/v1/assessments/{assessment_id}/participants/bulk-assign
+```
+
+---
+
+## Assessment Scheduling
+
+GET
+
+```text
+/api/v1/assessments/{assessment_id}/schedule
+```
+
+POST
+
+```text
+/api/v1/assessments/{assessment_id}/schedule
+```
+
+PUT
+
+```text
+/api/v1/assessments/{assessment_id}/schedule/{schedule_id}
+```
+
+---
+
+## Assessment Attempts
+
+GET
+
+```text
+/api/v1/participants/{participant_id}/attempts
+```
+
+GET
+
+```text
+/api/v1/attempts/{attempt_id}
+```
+
+---
+
+# Business Rules
+
+When assigning participants:
+
+* Validate assessment status is Active.
+* Validate participant is active.
+* Prevent duplicate assignments.
+* Initialize attempt_count to 0.
+
+When scheduling:
+
+* Validate date ranges.
+* Validate timezone.
+* Validate duration rules.
+
+When creating attempts:
+
+* Enforce maximum attempts.
+* Increment attempt_count automatically.
+* Create audit logs.
+
+---
+
+# Frontend Deliverables
+
+Create pages:
+
+```text
+/administration/assessments/[id]/participants
+
+/administration/assessments/[id]/schedule
+
+/administration/assessments/[id]/progress
+```
+
+Use existing Admin Layout.
+
+Use reusable DataTable components.
+
+---
+
+# Participants Page
+
+Columns:
+
+* Candidate Name
+* Email
+* Assignment Status
+* Attempts Used
+* Assigned On
+* Started On
+* Completed On
+
+Actions:
+
+* View
+* Edit
+* Remove
+* View Attempts
+
+Features:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+* Bulk Assignment
+
+---
+
+# Bulk Assignment
+
+Support:
+
+* Multi-select users
+* Upload CSV architecture placeholder
+* Future organization assignment support
+
+Do not implement organization assignment yet.
+
+Keep schema ready.
+
+---
+
+# Schedule Page
+
+Fields:
+
+* Schedule Type
+* Start Date
+* End Date
+* Timezone
+* Duration Override
+* Allow Late Start
+* Grace Period
+
+Display assessment default settings.
+
+Allow overrides.
+
+---
+
+# Progress Dashboard
+
+Show:
+
+Assessment Summary
+
+* Total Participants
+* Not Started
+* In Progress
+* Completed
+* Passed
+* Failed
+
+Progress Table:
+
+* Participant
+* Status
+* Attempts
+* Last Activity
+* Result
+
+Use existing dashboard components.
+
+---
+
+# DataTable Standards
+
+Every grid must support:
+
+* Server-side Pagination
+* Search
+* Filters
+* Sorting
+* Empty States
+* Loading States
+
+Use existing reusable DataTable component.
+
+---
+
+# API Response Standards
+
+Success:
+
+```json
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {}
+}
+```
+
+Paginated:
+
+```json
+{
+  "success": true,
+  "data": {
+    "items": [],
+    "page": 1,
+    "page_size": 20,
+    "total": 100,
+    "total_pages": 5
+  }
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": []
+}
+```
+
+---
+
+# Audit Logging
+
+Generate audit records for:
+
+* Participant Assignment
+* Bulk Assignment
+* Participant Removal
+* Schedule Creation
+* Schedule Modification
+* Attempt Creation
+* Status Changes
+
+Use existing audit framework.
+
+---
+
+# Security
+
+Protect all APIs using existing JWT implementation.
+
+Apply authorization placeholders for future RBAC.
+
+Validate assessment ownership rules for future multi-tenancy.
+
+---
+
+# Future Compatibility
+
+Design the architecture to support:
+
+* Organizations
+* Candidate Portal
+* Simulator Sessions
+* Result Engine
+* AI Assessment
+* Email Notifications
+* Certificates
+* Competency Tracking
+
+Do not hardcode organization logic.
+
+Do not implement notifications yet.
+
+Create extension points only.
+
+Build Sprint 2.5 as a production-ready Assessment Assignment, Scheduling and Participant Management module for Naviora by Blue Stratum.

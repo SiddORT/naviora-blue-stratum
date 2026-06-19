@@ -8,6 +8,7 @@ import {
   BarChart3, FileText, Settings, ChevronLeft, ChevronRight,
   Server, Sliders, PlayCircle, ScrollText, ChevronDown,
   Database, Ship, Cloud, Waves, Eye, Clock, Layers, Tag, Map, Library, Target,
+  UserCheck, CalendarDays,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ const iconMap: Record<string, React.ElementType> = {
   BarChart3, FileText, Settings,
   Server, Sliders, PlayCircle, ScrollText,
   Database, Ship, Cloud, Waves, Eye, Clock, Layers, Tag, Map, Library, Target,
+  UserCheck, CalendarDays,
 };
 
 export function Sidebar() {
@@ -105,7 +107,7 @@ export function Sidebar() {
               style={{ borderLeft: `1px solid ${t.borderColor}`, background: t.childBg }}
             >
               {item.children!.map((child) => (
-                <NavLink key={child.href} item={child} indent />
+                <NavLink key={`${child.href}::${child.label}`} item={child} indent />
               ))}
             </div>
           )}
@@ -174,7 +176,7 @@ export function Sidebar() {
       {/* ── Navigation ───────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5">
         {ADMIN_NAV_ITEMS.map((item) => (
-          <NavLink key={item.href} item={item} />
+          <NavLink key={`${item.href}::${item.label}`} item={item} />
         ))}
       </nav>
 
