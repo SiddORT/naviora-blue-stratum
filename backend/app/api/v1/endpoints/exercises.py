@@ -292,6 +292,12 @@ router.include_router(scenarios)
 library = APIRouter(prefix="/library", tags=["Exercises — Library"])
 
 
+@library.get("/all-active", dependencies=[Depends(check_permissions(["master_data.view"]))])
+async def list_exercises_all_active(db: AsyncSession = Depends(get_db)):
+    items = await ExerciseService(db).list_all_active()
+    return success_response(data=[i.model_dump() for i in items])
+
+
 @library.get("", dependencies=[Depends(check_permissions(["master_data.view"]))])
 async def list_exercises(
     page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=100),

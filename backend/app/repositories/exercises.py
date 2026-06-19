@@ -1,5 +1,5 @@
 """Repositories for the Exercise Builder module."""
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -204,6 +204,16 @@ class ExerciseRepository(BaseRepository[Exercise]):
         ).order_by(col.desc() if sort_order == "desc" else col.asc())
         q = q.offset((page - 1) * page_size).limit(page_size)
         return list((await self.db.execute(q)).scalars().all()), total
+
+    async def get_all_active(self) -> List[Exercise]:
+        q = select(Exercise).where(
+            and_(Exercise.deleted_at.is_(None), Exercise.status == "active")
+        ).options(
+            selectinload(Exercise.category),
+            selectinload(Exercise.scenario),
+            selectinload(Exercise.variants),
+        ).order_by(Exercise.exercise_name.asc())
+        return list((await self.db.execute(q)).scalars().all())
 
     async def get_by_uuid(self, uuid: str, include_deleted: bool = False) -> Optional[Exercise]:
         q = select(Exercise).where(Exercise.uuid == uuid).options(

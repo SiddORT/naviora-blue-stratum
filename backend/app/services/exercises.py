@@ -2,7 +2,7 @@
 import logging
 import uuid as _uuid
 from decimal import Decimal
-from typing import Optional
+from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -329,6 +329,10 @@ class ExerciseService:
             page, page_size, search, category_id, scenario_id, difficulty, status, sort_by, sort_order
         )
         return [_ex_list(e) for e in items], total
+
+    async def list_all_active(self) -> List[ExerciseListResponse]:
+        items = await self.repo.get_all_active()
+        return [_ex_list(e) for e in items]
 
     async def get(self, uuid: str) -> Optional[ExerciseResponse]:
         e = await self.repo.get_by_uuid(uuid)
