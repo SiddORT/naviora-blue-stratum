@@ -101,9 +101,9 @@ export function ConfigurationFormDrawer({ open, onClose, config, onSuccess }: Pr
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative ml-auto w-full max-w-md h-full bg-card border-l border-border shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 bg-card flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-base font-semibold text-foreground">
             {isEdit ? "Edit Configuration" : "Add Configuration"}
@@ -113,7 +113,7 @@ export function ConfigurationFormDrawer({ open, onClose, config, onSuccess }: Pr
           </button>
         </div>
 
-        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="flex-1 overflow-y-auto"><div className="max-w-5xl mx-auto px-10 py-8 space-y-5">
           {mutation.isError && (
             <div className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
               {(mutation.error as Error)?.message ?? "An error occurred"}
@@ -180,7 +180,7 @@ export function ConfigurationFormDrawer({ open, onClose, config, onSuccess }: Pr
               <option value="inactive">Inactive</option>
             </select>
           </Field>
-        </form>
+        </div></form>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
           <button onClick={onClose} type="button"

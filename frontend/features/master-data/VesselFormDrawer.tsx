@@ -96,10 +96,10 @@ export function VesselFormDrawer({ open, onClose, item, onSuccess }: Props) {
   });
 
   return (
-    <div className={cn("fixed inset-0 z-50 flex justify-end", !open && "pointer-events-none")}>
+    <div className={cn("fixed inset-0 z-50", !open && "pointer-events-none")}>
       {open && <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />}
       <div className={cn(
-        "relative h-full w-full max-w-xl bg-card border-l border-border shadow-2xl transition-transform duration-300 flex flex-col overflow-hidden",
+        "absolute inset-0 bg-card flex flex-col overflow-hidden transition-transform duration-300",
         open ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-card">
@@ -107,7 +107,7 @@ export function VesselFormDrawer({ open, onClose, item, onSuccess }: Props) {
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors"><X className="w-5 h-5" /></button>
         </div>
 
-        <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="flex-1 overflow-y-auto"><div className="max-w-5xl mx-auto px-10 py-8 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <Field label="Vessel Name" required error={errors.vessel_name?.message}>
@@ -168,7 +168,7 @@ export function VesselFormDrawer({ open, onClose, item, onSuccess }: Props) {
               {isEdit ? "Save Changes" : "Create Vessel"}
             </button>
           </div>
-        </form>
+        </div></form>
       </div>
     </div>
   );

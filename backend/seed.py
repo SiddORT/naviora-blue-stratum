@@ -24,7 +24,7 @@ from app.models.role import Role
 from app.models.role_permission import RolePermission
 from app.models.user import User
 from app.models.user_role import UserRole
-from app.models.assessment_category import AssessmentCategory
+from app.models.assessment import Assessment
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("seed")
@@ -130,23 +130,67 @@ async def seed_super_admin(session: AsyncSession, role_map: dict[str, Role]) -> 
     log.info("Super admin created: %s", settings.SUPER_ADMIN_EMAIL)
 
 
-async def seed_assessment_categories(session: AsyncSession) -> None:
-    existing = (await session.execute(select(AssessmentCategory))).scalars().all()
+async def seed_assessments(session: AsyncSession) -> None:
+    existing = (await session.execute(select(Assessment))).scalars().all()
     if existing:
-        log.info("Assessment categories already seeded (%d found)", len(existing))
+        log.info("Assessments already seeded (%d found)", len(existing))
         return
-    cats = [
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="COLREG & Navigation",        category_code="COLREG",    description="Rules of the road, collision regulations, and navigation.", status="active"),
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Port Operations",             category_code="PORT_OPS",  description="Port entry, exit, pilotage, and berthing procedures.", status="active"),
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Emergency Response",          category_code="EMRG",      description="Man overboard, fire-fighting, engine failure, and crisis management.", status="active"),
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Traffic Separation Schemes",  category_code="TSS",       description="Navigation in and around traffic separation schemes.", status="active"),
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Restricted Visibility",       category_code="RESTR_VIS", description="Operating in fog, rain, and other restricted-visibility conditions.", status="active"),
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Manoeuvring & Shiphandling",  category_code="MANOEUVRE", description="Ship control, propulsion response, and close-quarters manoeuvring.", status="active"),
-        AssessmentCategory(uuid=str(uuid.uuid4()), category_name="Bridge Resource Management",  category_code="BRM",       description="Crew coordination, communication, and situational awareness.", status="active"),
+    assessments = [
+        Assessment(
+            uuid=str(uuid.uuid4()), assessment_code="COLREG-2026-001",
+            assessment_name="COLREG Rules of the Road — Annual Evaluation",
+            assessment_type="Evaluation", status="active",
+            description="Comprehensive evaluation covering the International Regulations for Preventing Collisions at Sea (COLREGs), including vessel lighting, sound signals, and traffic separation schemes.",
+            passing_score=80.0, max_attempts=3, duration_minutes=90,
+            instructions="Candidates must score 80% or above. Each section must be completed within the allotted time. Calculators are not permitted.",
+        ),
+        Assessment(
+            uuid=str(uuid.uuid4()), assessment_code="EMRG-2026-001",
+            assessment_name="Emergency Response Procedures — Certification",
+            assessment_type="Certification", status="active",
+            description="Certification assessment for emergency response aboard maritime vessels. Covers man overboard, fire-fighting procedures, engine failure, and crisis communication.",
+            passing_score=85.0, max_attempts=2, duration_minutes=120,
+            certificate_eligible=True, certificate_validity_months=24,
+            instructions="This is a proctored certification assessment. All scenarios must be completed sequentially. Retakes require a 30-day waiting period.",
+        ),
+        Assessment(
+            uuid=str(uuid.uuid4()), assessment_code="BRM-2026-001",
+            assessment_name="Bridge Resource Management — Training Assessment",
+            assessment_type="Training", status="active",
+            description="Training assessment for bridge resource management, covering crew coordination, situational awareness, communication protocols, and decision-making under stress.",
+            passing_score=75.0, max_attempts=5, duration_minutes=60,
+            randomize_exercise_order=True,
+            instructions="This is a formative training assessment. Candidates are encouraged to review feedback after each attempt to improve their bridge resource management skills.",
+        ),
+        Assessment(
+            uuid=str(uuid.uuid4()), assessment_code="PORT-2026-001",
+            assessment_name="Port Operations & Pilotage — Practice Set",
+            assessment_type="Practice", status="active",
+            description="Practice scenarios for port entry, exit, pilotage, and berthing procedures. Suitable for officers preparing for the Port Operations certification.",
+            passing_score=70.0, max_attempts=10, duration_minutes=45,
+            instructions="No time limit enforced for practice. Review all scenario outcomes before proceeding to the certification assessment.",
+        ),
+        Assessment(
+            uuid=str(uuid.uuid4()), assessment_code="MANOEUVRE-2026-001",
+            assessment_name="Shiphandling & Manoeuvring — Advanced Evaluation",
+            assessment_type="Evaluation", status="draft",
+            description="Advanced evaluation of ship control, propulsion response, and close-quarters manoeuvring in restricted waters. Includes confined channel navigation and deadweight scenarios.",
+            passing_score=82.0, max_attempts=2, duration_minutes=75,
+            randomize_exercise_order=True, randomize_variant_selection=True,
+            instructions="Evaluation is conducted in the high-fidelity ship simulator. Candidates are assessed on both technical accuracy and decision timing.",
+        ),
+        Assessment(
+            uuid=str(uuid.uuid4()), assessment_code="TSS-2026-001",
+            assessment_name="Traffic Separation Schemes — Navigation Competency",
+            assessment_type="Training", status="archived",
+            description="Navigation competency assessment covering traffic separation schemes, vessel routeing measures, and associated COLREGs requirements in high-traffic waterways.",
+            passing_score=78.0, max_attempts=3, duration_minutes=50,
+            instructions="Archived — superseded by COLREG-2026-001. Retained for historical reference only.",
+        ),
     ]
-    session.add_all(cats)
+    session.add_all(assessments)
     await session.flush()
-    log.info("Seeded %d assessment categories", len(cats))
+    log.info("Seeded %d assessments", len(assessments))
 
 
 async def main() -> None:
@@ -157,7 +201,7 @@ async def main() -> None:
             perm_map = await seed_permissions(session)
             role_map = await seed_roles(session, perm_map)
             await seed_super_admin(session, role_map)
-            await seed_assessment_categories(session)
+            await seed_assessments(session)
     log.info("Seed complete.")
 
 

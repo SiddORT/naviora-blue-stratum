@@ -6,24 +6,29 @@ import { AlertTriangle, X } from "lucide-react";
 interface Props {
   open: boolean;
   title?: string;
-  message: string;
+  message?: string;
+  description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
   danger?: boolean;
+  variant?: "destructive" | "default";
 }
 
 export function ConfirmModal({
   open,
   title = "Confirm Action",
   message,
+  description,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   onConfirm,
   onCancel,
-  danger = true,
+  danger,
+  variant,
 }: Props) {
+  const isDanger = danger !== undefined ? danger : (variant === "destructive" || variant === undefined);
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -42,7 +47,7 @@ export function ConfirmModal({
       <div className="relative w-full max-w-sm bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-          {danger && (
+          {isDanger && (
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4 text-destructive" />
             </div>
@@ -58,7 +63,7 @@ export function ConfirmModal({
 
         {/* Body */}
         <div className="px-5 py-4">
-          <p className="text-sm text-muted-foreground leading-relaxed">{message}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{description ?? message}</p>
         </div>
 
         {/* Footer */}
@@ -72,7 +77,7 @@ export function ConfirmModal({
           <button
             onClick={onConfirm}
             className={
-              danger
+              isDanger
                 ? "px-4 py-2 text-sm font-semibold bg-destructive text-destructive-foreground rounded-md hover:opacity-90 transition-opacity"
                 : "px-4 py-2 text-sm font-semibold gradient-gold text-black rounded-md hover:opacity-90 transition-opacity"
             }

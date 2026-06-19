@@ -10,6 +10,7 @@ import { cn, formatDate } from "@/lib/utils";
 import { variantService, exerciseService } from "@/services/exercises.service";
 import { vesselService, portService, envProfileService } from "@/services/master-data.service";
 import { toast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/auth.store";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { ExerciseVariant, Exercise } from "@/types/exercise.types";
 

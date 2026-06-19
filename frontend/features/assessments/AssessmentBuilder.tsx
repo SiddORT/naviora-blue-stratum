@@ -266,7 +266,7 @@ export function AssessmentBuilder() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Step indicator */}
       <div className="flex items-center gap-0">
         {STEPS.map((s, i) => {
