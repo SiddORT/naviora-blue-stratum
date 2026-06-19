@@ -33,6 +33,7 @@ def _svc(db: AsyncSession = Depends(get_db)) -> AssessmentService:
 
 @router.get("", response_model=SuccessResponse[AssessmentPage])
 async def list_assessments(
+    current_user: CurrentUser,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     search: Optional[str] = Query(default=None),
@@ -40,7 +41,6 @@ async def list_assessments(
     assessment_type: Optional[str] = Query(default=None),
     sort_by: str = Query(default="created_at"),
     sort_order: str = Query(default="desc", pattern="^(asc|desc)$"),
-    current_user: dict = Depends(CurrentUser),
     svc: AssessmentService = Depends(_svc),
 ):
     data = await svc.list(
@@ -53,7 +53,7 @@ async def list_assessments(
 
 @router.get("/all-active", response_model=SuccessResponse[list[AssessmentListResponse]])
 async def list_all_active(
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     data = await svc.list_all_active()
@@ -63,11 +63,11 @@ async def list_all_active(
 @router.post("", response_model=SuccessResponse[AssessmentResponse], status_code=201)
 async def create_assessment(
     body: AssessmentCreate,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        data = await svc.create(body, by=current_user.get("uuid"))
+        data = await svc.create(body, by=current_user.uuid)
         return SuccessResponse(data=data, message="Assessment created")
     except ValueError as e:
         from fastapi import HTTPException
@@ -79,7 +79,7 @@ async def create_assessment(
 @router.get("/{uuid}", response_model=SuccessResponse[AssessmentResponse])
 async def get_assessment(
     uuid: str,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
@@ -94,11 +94,11 @@ async def get_assessment(
 async def update_assessment(
     uuid: str,
     body: AssessmentUpdate,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        data = await svc.update(uuid, body, by=current_user.get("uuid"))
+        data = await svc.update(uuid, body, by=current_user.uuid)
         return SuccessResponse(data=data, message="Assessment updated")
     except ValueError as e:
         from fastapi import HTTPException
@@ -108,11 +108,11 @@ async def update_assessment(
 @router.delete("/{uuid}", response_model=SuccessResponse[None])
 async def delete_assessment(
     uuid: str,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        await svc.delete(uuid, by=current_user.get("uuid"))
+        await svc.delete(uuid, by=current_user.uuid)
         return SuccessResponse(data=None, message="Assessment deleted")
     except ValueError as e:
         from fastapi import HTTPException
@@ -122,11 +122,11 @@ async def delete_assessment(
 @router.patch("/{uuid}/activate", response_model=SuccessResponse[AssessmentResponse])
 async def activate_assessment(
     uuid: str,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        data = await svc.activate(uuid, by=current_user.get("uuid"))
+        data = await svc.activate(uuid, by=current_user.uuid)
         return SuccessResponse(data=data, message="Assessment activated")
     except ValueError as e:
         from fastapi import HTTPException
@@ -136,11 +136,11 @@ async def activate_assessment(
 @router.patch("/{uuid}/archive", response_model=SuccessResponse[AssessmentResponse])
 async def archive_assessment(
     uuid: str,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        data = await svc.archive(uuid, by=current_user.get("uuid"))
+        data = await svc.archive(uuid, by=current_user.uuid)
         return SuccessResponse(data=data, message="Assessment archived")
     except ValueError as e:
         from fastapi import HTTPException
@@ -152,7 +152,7 @@ async def archive_assessment(
 @router.get("/{uuid}/schedule", response_model=SuccessResponse[Optional[AssessmentScheduleResponse]])
 async def get_schedule(
     uuid: str,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
@@ -167,11 +167,11 @@ async def get_schedule(
 async def upsert_schedule(
     uuid: str,
     body: AssessmentScheduleUpsert,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        data = await svc.upsert_schedule(uuid, body, by=current_user.get("uuid"))
+        data = await svc.upsert_schedule(uuid, body, by=current_user.uuid)
         return SuccessResponse(data=data, message="Schedule saved")
     except ValueError as e:
         from fastapi import HTTPException
@@ -183,7 +183,7 @@ async def upsert_schedule(
 @router.get("/{uuid}/participants", response_model=SuccessResponse[list[AssessmentParticipantResponse]])
 async def get_participants(
     uuid: str,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
@@ -198,11 +198,11 @@ async def get_participants(
 async def add_participant(
     uuid: str,
     body: AssessmentParticipantCreate,
-    current_user: dict = Depends(CurrentUser),
+    current_user: CurrentUser,
     svc: AssessmentService = Depends(_svc),
 ):
     try:
-        data = await svc.add_participant(uuid, body, by=current_user.get("uuid"))
+        data = await svc.add_participant(uuid, body, by=current_user.uuid)
         return SuccessResponse(data=data, message="Participant added")
     except ValueError as e:
         from fastapi import HTTPException

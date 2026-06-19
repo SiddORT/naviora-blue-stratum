@@ -180,7 +180,8 @@ export function ConfigurationFormDrawer({ open, onClose, config, onSuccess }: Pr
               <option value="inactive">Inactive</option>
             </select>
           </Field>
-        </div></form>
+        </div>
+        </form>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
           <button onClick={onClose} type="button"

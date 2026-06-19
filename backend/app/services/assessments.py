@@ -1,6 +1,4 @@
 """Services for the Assessment module."""
-from __future__ import annotations
-
 import logging
 import math
 import uuid as _uuid
