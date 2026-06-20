@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/providers/Providers";
 
@@ -38,18 +37,7 @@ export default function RootLayout({
           Reads the Zustand-persisted value from localStorage synchronously.
           Falls back to system preference if nothing is stored.
         */}
-        <Script id="theme-init" strategy="beforeInteractive">{`
-          (function() {
-            try {
-              var s = localStorage.getItem('pase-theme');
-              var theme = s ? JSON.parse(s).state?.theme : null;
-              if (!theme) {
-                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-              }
-              if (theme === 'dark') document.documentElement.classList.add('dark');
-            } catch(e) {}
-          })();
-        `}</Script>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('pase-theme');var t=s?JSON.parse(s).state?.theme:null;if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}})();` }} />
         <Providers>{children}</Providers>
       </body>
     </html>
