@@ -29,6 +29,12 @@ from app.models.exercise import Exercise  # noqa: F401
 from app.models.exercise_objective import ExerciseObjective  # noqa: F401
 from app.models.exercise_variant import ExerciseVariant  # noqa: F401
 from app.models.exercise_version import ExerciseVersion  # noqa: F401
+from app.models.feature import Feature  # noqa: F401
+from app.models.plan_feature import PlanFeature  # noqa: F401
+from app.models.plan_exercise import PlanExercise  # noqa: F401
+from app.models.plan_simulator import PlanSimulator  # noqa: F401
+from app.models.organization_subscription import OrganizationSubscription  # noqa: F401
+from app.models.organization_usage import OrganizationUsage  # noqa: F401
 from app.models.assessment import Assessment  # noqa: F401
 from app.models.assessment_exercise import AssessmentExercise  # noqa: F401
 from app.models.assessment_participant import AssessmentParticipant  # noqa: F401

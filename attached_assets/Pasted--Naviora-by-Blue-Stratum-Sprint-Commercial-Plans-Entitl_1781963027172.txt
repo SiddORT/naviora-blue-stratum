@@ -1,0 +1,557 @@
+# Naviora by Blue Stratum
+
+## Sprint – Commercial Plans & Entitlements
+
+Build the Plans & Entitlements module.
+
+This module manages commercial subscriptions, feature access and content licensing for organizations.
+
+The purpose is to dynamically control:
+
+* Features
+* Simulator Access
+* Exercise Access
+* Assessment Limits
+* User Limits
+* Storage Limits
+* Offline Access
+* AI Features
+
+Follow existing platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* Audit Logging
+* Soft Delete
+* Search
+* Filters
+* Pagination
+
+Generate production-ready code.
+
+Do not use hardcoded plan logic.
+
+All plan behavior must be database driven.
+
+---
+
+# Business Concept
+
+A Plan defines what an Organization can access.
+
+Example:
+
+Starter Plan
+
+* 50 Candidates
+* 10 Assessments per Month
+* COLREG Exercises Only
+
+Enterprise Plan
+
+* Unlimited Candidates
+* Unlimited Assessments
+* All Exercises
+* AI Reporting
+
+Organizations subscribe to Plans.
+
+Plans can be changed without code changes.
+
+---
+
+# Navigation
+
+Create:
+
+Plans & Licensing
+
+├── Plans
+├── Features
+├── Plan Features
+├── Plan Exercises
+├── Organization Subscriptions
+└── Usage Dashboard
+
+---
+
+# Features Master
+
+Purpose:
+
+Create reusable features.
+
+Database Table:
+
+features
+
+Fields:
+
+* id
+
+* uuid
+
+* feature_name
+
+* feature_code
+
+* description
+
+* category
+
+* status
+
+Feature Categories:
+
+* Simulator
+* Assessment
+* Reporting
+* AI
+* User Management
+* Offline
+* Integration
+
+Examples:
+
+* AI_REPORTING
+* OFFLINE_MODE
+* MULTI_SIMULATOR
+* CERTIFICATES
+* CUSTOM_EXERCISES
+* API_ACCESS
+* ADVANCED_ANALYTICS
+
+Rules:
+
+* feature_code must be unique
+
+---
+
+# Plans
+
+Database Table:
+
+plans
+
+Fields:
+
+* id
+
+* uuid
+
+* plan_name
+
+* plan_code
+
+* description
+
+* monthly_price
+
+* yearly_price
+
+* billing_cycle
+
+* max_users
+
+* max_candidates
+
+* max_assessments_per_month
+
+* max_storage_gb
+
+* max_simulators
+
+* certificate_enabled
+
+* ai_enabled
+
+* offline_enabled
+
+* custom_exercises_enabled
+
+* status
+
+* is_public
+
+* display_order
+
+* created_at
+
+* updated_at
+
+* created_by
+
+* updated_by
+
+* deleted_at
+
+* deleted_by
+
+Billing Cycles:
+
+* Monthly
+* Yearly
+* Custom
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+Rules:
+
+* plan_code unique
+
+---
+
+# Plan Features
+
+Purpose:
+
+Assign features dynamically.
+
+Database Table:
+
+plan_features
+
+Fields:
+
+* plan_id
+
+* feature_id
+
+* is_enabled
+
+* configuration_json
+
+Examples:
+
+configuration_json:
+
+{
+"max_reports_per_month": 100
+}
+
+---
+
+# Plan Exercise Access
+
+Purpose:
+
+Control which exercises are available.
+
+Database Table:
+
+plan_exercises
+
+Fields:
+
+* plan_id
+
+* exercise_id
+
+* is_enabled
+
+Rules:
+
+One Plan can access many Exercises.
+
+Examples:
+
+Starter Plan
+
+* Basic Crossing Assessment
+* Basic Head-On Assessment
+
+Enterprise Plan
+
+* All Exercises
+
+Support future access by:
+
+* Exercise Category
+* Encounter Type
+
+Create extension points.
+
+---
+
+# Plan Simulator Access
+
+Database Table:
+
+plan_simulators
+
+Fields:
+
+* plan_id
+
+* simulator_vendor_id
+
+* is_enabled
+
+Examples:
+
+Starter
+
+* PASE Only
+
+Enterprise
+
+* PASE
+* Kongsberg
+* Transas
+
+---
+
+# Organization Subscriptions
+
+Database Table:
+
+organization_subscriptions
+
+Fields:
+
+* organization_id
+
+* plan_id
+
+* start_date
+
+* end_date
+
+* subscription_status
+
+* billing_cycle
+
+* auto_renew
+
+* custom_limits_json
+
+Subscription Status:
+
+* Trial
+* Active
+* Expired
+* Suspended
+* Cancelled
+
+Rules:
+
+One organization can have only one active subscription.
+
+custom_limits_json overrides plan limits.
+
+Example:
+
+{
+"max_candidates": 500
+}
+
+---
+
+# Usage Tracking
+
+Database Table:
+
+organization_usage
+
+Fields:
+
+* organization_id
+
+* current_users
+
+* current_candidates
+
+* assessments_this_month
+
+* storage_used_gb
+
+* active_simulators
+
+Track usage automatically.
+
+Update during business operations.
+
+---
+
+# Access Control Service
+
+Create:
+
+EntitlementService
+
+Methods:
+
+can_access_feature()
+
+can_access_exercise()
+
+can_access_simulator()
+
+has_available_candidate_slots()
+
+has_available_assessment_quota()
+
+get_organization_limits()
+
+Business logic must use EntitlementService.
+
+Never hardcode:
+
+if plan == "Enterprise"
+
+---
+
+# Backend Deliverables
+
+Generate:
+
+* Models
+* Migrations
+* Schemas
+* Repositories
+* Services
+* Validators
+* API Routes
+
+Support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+---
+
+# Frontend Deliverables
+
+Pages:
+
+/administration/plans
+
+/administration/features
+
+/administration/plans/[id]/features
+
+/administration/plans/[id]/exercises
+
+/administration/plans/[id]/simulators
+
+/administration/subscriptions
+
+/administration/usage
+
+---
+
+# Plans Grid
+
+Columns:
+
+* Plan Name
+* Monthly Price
+* Candidates Limit
+* Assessments Limit
+* Simulators
+* Status
+
+Actions:
+
+* View
+* Edit
+* Clone
+* Archive
+
+---
+
+# Plan Builder
+
+Step 1
+
+Basic Information
+
+* Name
+* Description
+* Pricing
+
+Step 2
+
+Limits
+
+* Users
+* Candidates
+* Assessments
+* Storage
+
+Step 3
+
+Features
+
+Select enabled features.
+
+Step 4
+
+Exercises
+
+Select available exercises.
+
+Step 5
+
+Simulators
+
+Select available simulators.
+
+Step 6
+
+Review & Save
+
+---
+
+# Organization Experience
+
+Organizations should only see:
+
+* Exercises included in their plan
+* Simulators included in their plan
+* Features included in their plan
+
+Hide inaccessible modules.
+
+Do not show disabled functionality.
+
+---
+
+# Audit Logging
+
+Track:
+
+* Plan Creation
+* Plan Updates
+* Subscription Changes
+* Feature Changes
+* Exercise Assignments
+* Simulator Assignments
+
+Use existing audit framework.
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* Stripe Integration
+* Custom Enterprise Contracts
+* Promo Codes
+* Usage-Based Billing
+* Trial Plans
+* Marketplace Add-ons
+
+Build this module as a dynamic licensing and entitlement engine for Naviora by Blue Stratum.

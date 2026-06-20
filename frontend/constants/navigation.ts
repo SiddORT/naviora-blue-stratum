@@ -10,7 +10,19 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Organizations",         href: "/admin/organizations",  icon: "Building2" },
   { label: "Users",                 href: "/admin/users",          icon: "Users" },
   { label: "Roles & Permissions",   href: "/admin/roles",          icon: "ShieldCheck" },
-  { label: "Plans & Subscriptions", href: "/admin/plans",          icon: "CreditCard" },
+  {
+    label: "Plans & Licensing",
+    href: "/admin/plans",
+    icon: "CreditCard",
+    children: [
+      { label: "Plans",                    href: "/admin/plans",             icon: "CreditCard" },
+      { label: "Features",                 href: "/admin/features",          icon: "Puzzle" },
+      { label: "Plan Features",            href: "/admin/plan-features",     icon: "ToggleLeft" },
+      { label: "Plan Exercises",           href: "/admin/plan-exercises",    icon: "BookOpen" },
+      { label: "Organization Subscriptions", href: "/admin/subscriptions",  icon: "Building2" },
+      { label: "Usage Dashboard",          href: "/admin/usage",             icon: "BarChart2" },
+    ],
+  },
   {
     label: "Simulator Management",
     href: "/admin/simulator",

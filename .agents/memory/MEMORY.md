@@ -3,3 +3,4 @@
 - [pase-compass-stack](pase-compass-stack.md) — key decisions and seed credentials for the PASE Compass foundation.
 - [assessment-engine](assessment-engine.md) — Sprint 2.4 Assessment Engine: models, migration, seed, API routes, and frontend conventions.
 - [sidebar-nav-keys](sidebar-nav-keys.md) — Sidebar uses href as React key; sibling nav items sharing the same href cause duplicate-key warnings. Fix: key=`${href}::${label}`.
+- [frontend-service-auth](frontend-service-auth.md) — All frontend services must use the `api` axios instance (services/api.ts), not raw fetch. Bearer token is stored in Zustand, attached by the axios request interceptor. Raw fetch with credentials:include does not work.
