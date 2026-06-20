@@ -53,10 +53,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     href: "/admin/assessments",
     icon: "ClipboardList",
     children: [
-      { label: "Assessments",        href: "/admin/assessments",             icon: "ClipboardList" },
-      { label: "Participants",       href: "/admin/assessments",             icon: "UserCheck" },
-      { label: "Scheduling",        href: "/admin/assessments",             icon: "CalendarDays" },
-      { label: "Progress Dashboard", href: "/admin/assessments",             icon: "BarChart3" },
+      { label: "All Assessments", href: "/admin/assessments", icon: "ClipboardList" },
     ],
   },
   { label: "Maritime Knowledge Base",  href: "/admin/knowledge-base",icon: "Anchor" },
