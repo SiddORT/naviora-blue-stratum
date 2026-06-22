@@ -22,6 +22,7 @@ class Organization(TimestampMixin):
 
     # Relationships
     users: Mapped[list["User"]] = relationship("User", back_populates="organization", lazy="select")  # type: ignore[name-defined]
+    candidates: Mapped[list["Candidate"]] = relationship("Candidate", back_populates="organization", lazy="select")  # type: ignore[name-defined]
     plan: Mapped["Plan | None"] = relationship("Plan", back_populates="organizations", lazy="select")  # type: ignore[name-defined]
 
     def __repr__(self) -> str:

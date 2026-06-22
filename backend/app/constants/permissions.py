@@ -80,6 +80,11 @@ ALL_PERMISSIONS: list[PermissionDef] = [
     PermissionDef("master_data.create", "master_data", "create", "Create master data records"),
     PermissionDef("master_data.edit",   "master_data", "edit",   "Edit master data records"),
     PermissionDef("master_data.delete", "master_data", "delete", "Delete master data records"),
+    # Candidates
+    PermissionDef("candidates.view",   "candidates", "view",   "View candidates"),
+    PermissionDef("candidates.create", "candidates", "create", "Create candidates"),
+    PermissionDef("candidates.edit",   "candidates", "edit",   "Edit candidates"),
+    PermissionDef("candidates.delete", "candidates", "delete", "Delete candidates"),
 ]
 
 PERMISSION_SLUGS = {p.name for p in ALL_PERMISSIONS}

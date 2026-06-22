@@ -9,6 +9,7 @@ import {
   Server, Sliders, PlayCircle, ScrollText, ChevronDown,
   Database, Ship, Cloud, Waves, Eye, Clock, Layers, Tag, Map, Library, Target,
   UserCheck, CalendarDays, Inbox, MessageSquare, Puzzle, ToggleLeft, BarChart2,
+  GraduationCap,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ const iconMap: Record<string, React.ElementType> = {
   Server, Sliders, PlayCircle, ScrollText,
   Database, Ship, Cloud, Waves, Eye, Clock, Layers, Tag, Map, Library, Target,
   UserCheck, CalendarDays, Inbox, MessageSquare, Puzzle, ToggleLeft, BarChart2,
+  GraduationCap,
 };
 
 export function Sidebar() {

@@ -15,7 +15,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
       { label: "Enquiries",              href: "/admin/crm/enquiries",      icon: "MessageSquare" },
       { label: "Registration Requests",  href: "/admin/crm/registrations",  icon: "ClipboardList" },
       { label: "Organizations",          href: "/admin/organizations",      icon: "Building2" },
-      { label: "Candidates",             href: "/admin/users",              icon: "Users" },
+      { label: "Candidates",             href: "/admin/candidates",         icon: "GraduationCap" },
       { label: "Consent Records",        href: "/admin/crm/consents",       icon: "ShieldCheck" },
     ],
   },

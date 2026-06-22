@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.models.assessment import Assessment
     from app.models.assessment_attempt import AssessmentAttempt
     from app.models.user import User
+    from app.models.candidate import Candidate
 
 
 ASSIGNMENT_STATUSES = ["Assigned", "In Progress", "Completed", "Passed", "Failed", "Expired", "Cancelled"]
@@ -25,6 +26,9 @@ class AssessmentParticipant(TimestampMixin):
     )
     user_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    candidate_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("candidates.id", ondelete="SET NULL"), nullable=True, index=True
     )
     assigned_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
     assignment_status: Mapped[str] = mapped_column(
@@ -46,6 +50,7 @@ class AssessmentParticipant(TimestampMixin):
         "Assessment", back_populates="participants", lazy="noload"
     )
     user: Mapped["User | None"] = relationship("User", lazy="noload")
+    candidate: Mapped["Candidate | None"] = relationship("Candidate", back_populates="participants", lazy="noload")
     attempts: Mapped[list["AssessmentAttempt"]] = relationship(
         "AssessmentAttempt", back_populates="participant",
         cascade="all, delete-orphan", lazy="noload",

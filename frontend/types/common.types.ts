@@ -113,6 +113,27 @@ export interface ConsentRecord {
   accepted_at: string;
 }
 
+export interface Candidate {
+  id: number;
+  uuid: string;
+  email: string;
+  full_name: string;
+  username: string | null;
+  phone: string | null;
+  organization_id: number | null;
+  date_of_birth: string | null;
+  nationality: string | null;
+  rank_or_designation: string | null;
+  seafarer_id: string | null;
+  avatar_url: string | null;
+  status: string;
+  is_active: boolean;
+  last_login: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DashboardStats {
   total_organizations: number;
   active_organizations: number;
