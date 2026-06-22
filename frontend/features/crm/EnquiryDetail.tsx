@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, User, Building2, Mail, Phone, Globe, FileText,
+  ArrowLeft, User, Building2, Mail, Globe, FileText,
   MessageSquare, Shield, Clock, AlertTriangle, CheckCircle,
-  XCircle, RefreshCw, Plus, Send,
+  XCircle, RefreshCw, Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { enquiriesService } from "@/services/enquiries.service";
@@ -31,7 +31,7 @@ function formatDateTime(d: string) {
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex gap-4 py-2.5 border-b border-border/50 last:border-0">
-      <span className="text-xs font-medium text-muted-foreground w-36 shrink-0 pt-0.5">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground w-36 shrink-0 pt-0.5 uppercase tracking-wide">{label}</span>
       <span className="text-sm text-foreground">{value || "—"}</span>
     </div>
   );
@@ -47,6 +47,15 @@ function ConsentPill({ checked, label }: { checked: boolean; label: string }) {
     )}>
       {checked ? <CheckCircle className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
       {label}
+    </div>
+  );
+}
+
+function SectionTitle({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-4 pb-2 border-b border-border">
+      <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
     </div>
   );
 }
@@ -72,12 +81,12 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
 
   const approve = useMutation({
     mutationFn: () => enquiriesService.approve(uuid, { notes: approveNotes || undefined }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["enquiry", uuid] }); setShowApprove(false); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["enquiry", uuid] }); setShowApprove(false); setApproveNotes(""); },
   });
 
   const reject = useMutation({
     mutationFn: () => enquiriesService.reject(uuid, rejectReason || undefined),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["enquiry", uuid] }); setShowReject(false); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["enquiry", uuid] }); setShowReject(false); setRejectReason(""); },
   });
 
   const convert = useMutation({
@@ -93,8 +102,8 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
   if (isLoading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-8 w-48 bg-[#1E2430] rounded" />
-        <div className="h-64 bg-[#141821] rounded-xl" />
+        <div className="h-8 w-48 bg-muted rounded" />
+        <div className="h-64 bg-card rounded-xl border border-border" />
       </div>
     );
   }
@@ -103,9 +112,7 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
     return (
       <div className="text-center py-16 text-muted-foreground">
         <p>Enquiry not found.</p>
-        <button onClick={() => router.back()} className="mt-4 text-sm text-primary underline">
-          Go back
-        </button>
+        <button onClick={() => router.back()} className="mt-4 text-sm text-primary underline">Go back</button>
       </div>
     );
   }
@@ -114,20 +121,22 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
   const c = enq.consent;
   const actionable = !["REJECTED", "CONVERTED"].includes(enq.status);
 
-  const cardCls = "rounded-xl border border-border bg-[#141821] p-5 space-y-1";
-  const sectionTitle = "text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3";
+  const inputCls = "w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none";
+  const cardCls = "rounded-xl border border-border bg-card shadow-sm p-5";
 
   return (
     <div className="space-y-6 max-w-5xl">
+
       {/* Header */}
       <div className="flex items-start gap-4">
         <button
           onClick={() => router.push("/admin/crm/enquiries")}
-          className="mt-1 p-1.5 rounded-md hover:bg-[#1E2430] text-muted-foreground transition-colors"
+          className="mt-1 p-1.5 rounded-md hover:bg-muted text-muted-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex-1">
+
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-semibold text-foreground">
               {enq.first_name} {enq.last_name}
@@ -143,18 +152,18 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            {enq.enquiry_type.replace(/_/g, " ")} — submitted {formatDateTime(enq.created_at)}
+            {enq.enquiry_type.replace(/_/g, " ")} &mdash; submitted {formatDateTime(enq.created_at)}
           </p>
         </div>
 
         {/* Action buttons */}
         {actionable && (
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
             {enq.status === "NEW" && (
               <button
                 onClick={() => updateStatus.mutate("CONTACTED")}
                 disabled={updateStatus.isPending}
-                className="px-3 py-1.5 rounded-md bg-[#1E2430] border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="px-3 py-1.5 rounded-lg border border-border bg-card text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50"
               >
                 Mark Contacted
               </button>
@@ -163,7 +172,7 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
               <button
                 onClick={() => updateStatus.mutate("QUALIFIED")}
                 disabled={updateStatus.isPending}
-                className="px-3 py-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-sm text-purple-400 hover:text-purple-300 transition-colors disabled:opacity-50"
               >
                 Mark Qualified
               </button>
@@ -171,7 +180,7 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
             {enq.status !== "APPROVED" && (
               <button
                 onClick={() => setShowApprove(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-green-500/10 border border-green-500/20 text-sm text-green-400 hover:text-green-300 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-sm text-green-400 hover:text-green-300 transition-colors"
               >
                 <CheckCircle className="w-4 h-4" />
                 Approve
@@ -181,16 +190,16 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
               <button
                 onClick={() => convert.mutate()}
                 disabled={convert.isPending}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold text-black transition-opacity"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold text-black disabled:opacity-50 transition-opacity"
                 style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}
               >
                 <RefreshCw className="w-4 h-4" />
-                Convert
+                {convert.isPending ? "Converting..." : "Convert"}
               </button>
             )}
             <button
               onClick={() => setShowReject(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:text-red-300 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:text-red-300 transition-colors"
             >
               <XCircle className="w-4 h-4" />
               Reject
@@ -200,14 +209,13 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
+
         {/* Left — contact info + submission data */}
         <div className="lg:col-span-2 space-y-5">
+
           {/* Contact Information */}
           <div className={cardCls}>
-            <p className={sectionTitle}>
-              <User className="w-3.5 h-3.5 inline mr-1.5" />
-              Contact Information
-            </p>
+            <SectionTitle icon={User} label="Contact Information" />
             <InfoRow label="Full Name"    value={`${enq.first_name} ${enq.last_name}`} />
             <InfoRow label="Email"        value={enq.email} />
             <InfoRow label="Phone"        value={enq.phone} />
@@ -216,13 +224,10 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
             <InfoRow label="Source Page"  value={enq.source_page} />
           </div>
 
-          {/* Form Submission Data */}
+          {/* Message */}
           {enq.message && (
             <div className={cardCls}>
-              <p className={sectionTitle}>
-                <FileText className="w-3.5 h-3.5 inline mr-1.5" />
-                Message
-              </p>
+              <SectionTitle icon={FileText} label="Message" />
               <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{enq.message}</p>
             </div>
           )}
@@ -230,37 +235,31 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
           {/* GDPR Consent */}
           {c && (
             <div className={cardCls}>
-              <p className={sectionTitle}>
-                <Shield className="w-3.5 h-3.5 inline mr-1.5" />
-                Consent Records (GDPR)
-              </p>
-              <div className="flex flex-wrap gap-2 mb-3">
+              <SectionTitle icon={Shield} label="Consent Records (GDPR)" />
+              <div className="flex flex-wrap gap-2 mb-4">
                 <ConsentPill checked={c.privacy_accepted}         label="Privacy Policy" />
                 <ConsentPill checked={c.terms_accepted}           label="Terms of Service" />
                 <ConsentPill checked={c.data_processing_accepted} label="Data Processing" />
                 <ConsentPill checked={c.marketing_accepted}       label="Marketing" />
               </div>
-              <div className="text-xs text-muted-foreground space-y-0.5">
-                <p>Version: {c.consent_version ?? "—"}</p>
-                <p>IP: {c.ip_address ?? "—"}</p>
-                <p>Recorded: {formatDateTime(c.accepted_at)}</p>
+              <div className="space-y-1">
+                <InfoRow label="Consent Version" value={c.consent_version ?? "—"} />
+                <InfoRow label="IP Address"      value={c.ip_address ?? "—"} />
+                <InfoRow label="Recorded At"     value={formatDateTime(c.accepted_at)} />
               </div>
             </div>
           )}
 
-          {/* Notes */}
+          {/* Internal Notes */}
           <div className={cardCls}>
-            <p className={sectionTitle}>
-              <MessageSquare className="w-3.5 h-3.5 inline mr-1.5" />
-              Internal Notes
-            </p>
+            <SectionTitle icon={MessageSquare} label="Internal Notes" />
             {(enq.notes ?? []).length === 0 ? (
               <p className="text-sm text-muted-foreground">No notes yet.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4 mb-4">
                 {enq.notes.map((n) => (
                   <div key={n.id} className="flex gap-3 text-sm">
-                    <div className="w-7 h-7 rounded-full bg-[#1E2430] flex items-center justify-center shrink-0 text-xs font-semibold text-muted-foreground">
+                    <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center shrink-0 text-xs font-semibold text-muted-foreground">
                       {n.note_by?.charAt(0).toUpperCase() ?? "?"}
                     </div>
                     <div className="flex-1">
@@ -280,12 +279,12 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Add an internal note..."
-                className="flex-1 bg-[#0B0B0F] border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                className={inputCls}
               />
               <button
                 onClick={() => { if (note.trim()) addNote.mutate(note.trim()); }}
                 disabled={!note.trim() || addNote.isPending}
-                className="self-end flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold text-black disabled:opacity-50 transition-opacity"
+                className="self-end flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-black disabled:opacity-50 transition-opacity"
                 style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}
               >
                 <Send className="w-3.5 h-3.5" />
@@ -297,11 +296,9 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
 
         {/* Right — meta */}
         <div className="space-y-5">
+
           <div className={cardCls}>
-            <p className={sectionTitle}>
-              <Clock className="w-3.5 h-3.5 inline mr-1.5" />
-              Timeline
-            </p>
+            <SectionTitle icon={Clock} label="Timeline" />
             <InfoRow label="Created"  value={formatDateTime(enq.created_at)} />
             <InfoRow label="Updated"  value={formatDateTime(enq.updated_at)} />
             <InfoRow label="Assigned" value={enq.assigned_to ?? "Unassigned"} />
@@ -309,49 +306,79 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
 
           {enq.selected_plan_name && (
             <div className={cardCls}>
-              <p className={sectionTitle}>
-                <Building2 className="w-3.5 h-3.5 inline mr-1.5" />
-                Selected Plan
-              </p>
+              <SectionTitle icon={Building2} label="Selected Plan" />
               <p className="text-sm font-medium text-foreground">{enq.selected_plan_name}</p>
             </div>
           )}
 
           {enq.ip_address && (
             <div className={cardCls}>
-              <p className={sectionTitle}>
-                <Globe className="w-3.5 h-3.5 inline mr-1.5" />
-                Submission Metadata
-              </p>
+              <SectionTitle icon={Globe} label="Submission Metadata" />
               <InfoRow label="IP Address" value={enq.ip_address} />
             </div>
           )}
+
+          {/* Status pipeline reference */}
+          <div className={cardCls}>
+            <SectionTitle icon={RefreshCw} label="Status Pipeline" />
+            <div className="space-y-1.5">
+              {(["NEW","CONTACTED","QUALIFIED","APPROVED","CONVERTED"] as EnquiryStatus[]).map((s) => (
+                <div key={s} className="flex items-center gap-2">
+                  <div className={cn(
+                    "w-2 h-2 rounded-full shrink-0",
+                    enq.status === s ? "bg-primary" : "bg-muted-foreground/30"
+                  )} />
+                  <span className={cn(
+                    "text-xs capitalize",
+                    enq.status === s ? "text-foreground font-medium" : "text-muted-foreground"
+                  )}>
+                    {s.toLowerCase()}
+                  </span>
+                  {enq.status === s && (
+                    <span className="ml-auto text-[10px] text-primary font-semibold">current</span>
+                  )}
+                </div>
+              ))}
+              {enq.status === "REJECTED" && (
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />
+                  <span className="text-xs text-red-400 font-medium">rejected</span>
+                  <span className="ml-auto text-[10px] text-red-400 font-semibold">current</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Approve modal */}
       {showApprove && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-xl border border-border bg-[#141821] p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Approve Enquiry</h3>
-            <p className="text-sm text-muted-foreground">
-              This will create an onboarding request. Add an optional note.
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowApprove(false)}>
+          <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-xl p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Approve Enquiry</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                This will create an onboarding registration request for this lead. You can optionally add a note.
+              </p>
+            </div>
             <textarea
               rows={3}
               value={approveNotes}
               onChange={(e) => setApproveNotes(e.target.value)}
               placeholder="Internal approval notes (optional)..."
-              className="w-full bg-[#0B0B0F] border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+              className={inputCls}
             />
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowApprove(false)} className="px-4 py-2 rounded-md border border-border text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={() => setShowApprove(false)}
+                className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
                 Cancel
               </button>
               <button
                 onClick={() => approve.mutate()}
                 disabled={approve.isPending}
-                className="px-4 py-2 rounded-md text-sm font-semibold text-black disabled:opacity-50 transition-opacity"
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-black disabled:opacity-50 transition-opacity"
                 style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}
               >
                 {approve.isPending ? "Approving..." : "Confirm Approve"}
@@ -363,24 +390,32 @@ export function EnquiryDetail({ uuid }: { uuid: string }) {
 
       {/* Reject modal */}
       {showReject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-xl border border-border bg-[#141821] p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-foreground">Reject Enquiry</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowReject(false)}>
+          <div className="w-full max-w-md rounded-xl border border-border bg-card shadow-xl p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Reject Enquiry</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                This will close the lead. The reason will be recorded as an internal note.
+              </p>
+            </div>
             <textarea
               rows={3}
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Reason for rejection (optional — recorded as a note)..."
-              className="w-full bg-[#0B0B0F] border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+              placeholder="Reason for rejection (optional)..."
+              className={inputCls}
             />
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowReject(false)} className="px-4 py-2 rounded-md border border-border text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={() => setShowReject(false)}
+                className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
                 Cancel
               </button>
               <button
                 onClick={() => reject.mutate()}
                 disabled={reject.isPending}
-                className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
+                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-sm font-semibold text-white disabled:opacity-50 transition-colors"
               >
                 {reject.isPending ? "Rejecting..." : "Confirm Reject"}
               </button>
