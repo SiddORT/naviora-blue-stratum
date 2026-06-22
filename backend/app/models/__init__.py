@@ -41,3 +41,6 @@ from app.models.assessment_participant import AssessmentParticipant  # noqa: F40
 from app.models.assessment_schedule import AssessmentSchedule  # noqa: F401
 from app.models.assessment_attempt import AssessmentAttempt  # noqa: F401
 from app.models.assessment_result import AssessmentResult  # noqa: F401
+from app.models.enquiry import Enquiry, EnquiryNote  # noqa: F401
+from app.models.enquiry_consent import EnquiryConsent  # noqa: F401
+from app.models.onboarding_request import OnboardingRequest  # noqa: F401

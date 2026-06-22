@@ -44,10 +44,25 @@ export function ContactSection() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/v1/contact", {
+      const res = await fetch("/api/v1/enquiries/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, consent_privacy: true, consent_marketing: consent.marketing }),
+        body: JSON.stringify({
+          first_name: form.first_name,
+          last_name:  form.last_name,
+          email:      form.email,
+          organization: form.organization,
+          role:       form.role,
+          message:    form.message,
+          source_page: "/contact",
+          consent: {
+            privacy_accepted:         consent.privacy,
+            terms_accepted:           consent.privacy,
+            data_processing_accepted: consent.privacy,
+            marketing_accepted:       consent.marketing,
+            consent_version:          "1.0",
+          },
+        }),
       });
       if (!res.ok) throw new Error("Submission failed. Please try again.");
       setSuccess(true);

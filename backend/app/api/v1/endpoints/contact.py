@@ -1,39 +1,46 @@
-"""Public contact / demo-request endpoint."""
-import logging
-from datetime import datetime, timezone
+"""
+Public contact / demo-request endpoint.
 
-from fastapi import APIRouter
-from pydantic import BaseModel, EmailStr
+Submissions are now persisted to the enquiries table via EnquiryService.
+The old log-only implementation is superseded by the CRM module.
+This thin wrapper keeps backward compatibility for the /contact URL.
+"""
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.common import SuccessResponse
+from app.db.session import get_db
+from app.schemas.enquiry import ContactEnquiryCreate, ConsentPayload
+from app.services.enquiry import EnquiryService
+from app.utils.responses import created_response, error_response
 
-logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-class ContactRequest(BaseModel):
-    first_name: str
-    last_name: str
-    email: EmailStr
-    organization: str
-    role: str = ""
-    message: str = ""
-
-
-@router.post("/contact", response_model=SuccessResponse[None])
-async def submit_contact(payload: ContactRequest):
+@router.post("/contact", tags=["Public"])
+async def submit_contact(
+    payload: ContactEnquiryCreate,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
     """
-    Public endpoint — no auth required.
-    Logs the demo request and returns 200.
-    In production, integrate with CRM / email provider here.
+    Public contact / demo-request form.
+    Persists to enquiries table with enquiry_type=CONTACT.
+    No authentication required.
     """
-    logger.info(
-        "Demo request received | name=%s %s | email=%s | org=%s | role=%s | ts=%s",
-        payload.first_name,
-        payload.last_name,
-        payload.email,
-        payload.organization,
-        payload.role,
-        datetime.now(timezone.utc).isoformat(),
+    ip = None
+    fwd = request.headers.get("X-Forwarded-For")
+    if fwd:
+        ip = fwd.split(",")[0].strip()
+    elif request.client:
+        ip = request.client.host
+    ua = request.headers.get("User-Agent")
+
+    svc = EnquiryService(db)
+    try:
+        result = await svc.submit_contact(payload, ip=ip, ua=ua)
+    except Exception as exc:
+        return error_response(message=str(exc))
+    return created_response(
+        data={"uuid": result.uuid},
+        message="Demo request received. We will be in touch shortly.",
     )
-    return SuccessResponse(data=None, message="Demo request received. We will be in touch shortly.")

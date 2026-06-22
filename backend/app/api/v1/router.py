@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, users, organizations, roles, dashboard, files,
     audit_logs, simulators, master_data, exercises, assessments, plans, contact,
+    enquiries,
 )
 
 api_router = APIRouter()
@@ -21,3 +22,4 @@ api_router.include_router(exercises.router,     prefix="/exercises",     tags=["
 api_router.include_router(assessments.router,   prefix="/assessments",   tags=["Assessment Management"])
 api_router.include_router(plans.router,         prefix="",               tags=["Plans & Entitlements"])
 api_router.include_router(contact.router,       prefix="",               tags=["Public"])
+api_router.include_router(enquiries.router,     prefix="",               tags=["CRM"])

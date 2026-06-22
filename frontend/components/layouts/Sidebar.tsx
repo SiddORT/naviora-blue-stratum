@@ -8,7 +8,7 @@ import {
   BarChart3, FileText, Settings, ChevronLeft, ChevronRight,
   Server, Sliders, PlayCircle, ScrollText, ChevronDown,
   Database, Ship, Cloud, Waves, Eye, Clock, Layers, Tag, Map, Library, Target,
-  UserCheck, CalendarDays,
+  UserCheck, CalendarDays, Inbox, MessageSquare, Puzzle, ToggleLeft, BarChart2,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ const iconMap: Record<string, React.ElementType> = {
   BarChart3, FileText, Settings,
   Server, Sliders, PlayCircle, ScrollText,
   Database, Ship, Cloud, Waves, Eye, Clock, Layers, Tag, Map, Library, Target,
-  UserCheck, CalendarDays,
+  UserCheck, CalendarDays, Inbox, MessageSquare, Puzzle, ToggleLeft, BarChart2,
 };
 
 export function Sidebar() {

@@ -1,0 +1,332 @@
+# Naviora by Blue Stratum
+
+## Sprint – Lead Management, Enquiries & Onboarding Pipeline
+
+Build the Lead Management and Onboarding module.
+
+This module receives all public enquiries and registration requests from:
+
+* Landing Page
+* Contact Forms
+* Plan Enquiries
+* Organization Registration
+* Candidate Registration
+
+No accounts should be created directly from public forms.
+
+All requests must go through an approval workflow.
+
+Follow existing platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* GDPR Compliance
+* Audit Logging
+* Encryption Framework
+
+Generate production-ready code.
+
+---
+
+# Public Forms
+
+Accept submissions from:
+
+* /contact
+* /register
+* /plans
+
+Create:
+
+* Contact Enquiry
+* Custom Plan Enquiry
+* Organization Registration Request
+* Candidate Registration Request
+
+---
+
+# Database Tables
+
+## enquiries
+
+Fields:
+
+* id
+
+* uuid
+
+* enquiry_type
+
+* first_name
+
+* last_name
+
+* email
+
+* phone
+
+* company_name
+
+* country
+
+* selected_plan_id
+
+* message
+
+* source_page
+
+* status
+
+* assigned_to
+
+* created_at
+
+* updated_at
+
+Enquiry Types:
+
+* CONTACT
+* CUSTOM_PLAN
+* ORGANIZATION_REGISTRATION
+* CANDIDATE_REGISTRATION
+
+Status:
+
+* New
+* Contacted
+* Qualified
+* Approved
+* Rejected
+* Converted
+
+---
+
+## enquiry_notes
+
+Fields:
+
+* enquiry_id
+
+* note
+
+* created_by
+
+* created_at
+
+Support internal communication.
+
+---
+
+## onboarding_requests
+
+Fields:
+
+* id
+
+* uuid
+
+* enquiry_id
+
+* onboarding_type
+
+* organization_id
+
+* user_id
+
+* onboarding_status
+
+* approved_by
+
+* approved_at
+
+Onboarding Types:
+
+* ORGANIZATION
+* CANDIDATE
+
+Status:
+
+* Pending
+* Approved
+* Rejected
+* Converted
+
+---
+
+# Conversion Workflow
+
+Organization Flow:
+
+Enquiry
+↓
+Admin Review
+↓
+Select Plan
+↓
+Create Organization
+↓
+Create Organization Admin
+↓
+Assign Subscription
+↓
+Mark Converted
+
+Candidate Flow:
+
+Enquiry
+↓
+Admin Review
+↓
+Select Organization
+↓
+Create Candidate User
+↓
+Mark Converted
+
+---
+
+# Admin Navigation
+
+CRM & Onboarding
+
+├── Enquiries
+├── Registration Requests
+├── Organizations
+├── Candidates
+└── Consent Records
+
+---
+
+# Enquiries Grid
+
+Columns:
+
+* Name
+* Type
+* Organization
+* Selected Plan
+* Country
+* Status
+* Created On
+
+Actions:
+
+* View
+* Add Note
+* Approve
+* Reject
+* Convert
+
+Support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+---
+
+# Enquiry Detail Page
+
+Show:
+
+* Contact Information
+* Form Submission Data
+* Consent Records
+* Internal Notes
+* Activity Timeline
+
+---
+
+# Duplicate Prevention
+
+Before creating records:
+
+Check:
+
+* Email
+* Phone
+* Organization Name
+
+Warn administrators about duplicates.
+
+Do not auto-merge.
+
+---
+
+# GDPR Requirements
+
+Link every enquiry to consent records.
+
+Store:
+
+* Terms Acceptance
+* Privacy Acceptance
+* Data Processing Consent
+* Marketing Consent
+
+Track:
+
+* Consent Version
+* IP Address
+* User Agent
+* Timestamp
+
+Support consent withdrawal.
+
+Never delete consent history.
+
+---
+
+# APIs
+
+Create APIs for:
+
+* Public Enquiry Submission
+* Registration Requests
+* Admin Review
+* Approve
+* Reject
+* Convert
+
+Support:
+
+* Search
+* Filters
+* Pagination
+* Sorting
+
+---
+
+# Audit Logging
+
+Track:
+
+* Enquiry Creation
+* Status Changes
+* Notes Added
+* Approvals
+* Rejections
+* Conversions
+
+Use existing audit framework.
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* Email Automation
+* CRM Integration
+* Sales Pipeline
+* Lead Scoring
+* Marketing Campaigns
+
+Build this as the onboarding gateway for all future organizations and candidates in Naviora.
