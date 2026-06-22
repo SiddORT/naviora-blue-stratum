@@ -64,7 +64,7 @@ export function ConsentRecordsTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["Name / Email", "Type", "Privacy", "Terms", "Data Processing", "Marketing", "Version", "IP", "Accepted At"].map((h) => (
+                {["#", "Name / Email", "Type", "Privacy", "Terms", "Data Processing", "Marketing", "Version", "IP", "Accepted At"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -75,19 +75,20 @@ export function ConsentRecordsTable() {
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 9 }).map((_, j) => (
+                    {Array.from({ length: 10 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={10} className="px-4 py-14 text-center text-muted-foreground">
                     {marketingOnly ? "No records with marketing consent." : "No consent records found."}
                   </td>
                 </tr>
-              ) : items.map((c) => (
+              ) : items.map((c, idx) => (
                 <tr key={c.id} className="hover:bg-accent/40 transition-colors">
+                  <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground">{c.enquiry_name ?? "—"}</div>
                     <div className="text-xs text-muted-foreground">{c.enquiry_email ?? ""}</div>

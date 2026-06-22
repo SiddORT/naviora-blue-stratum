@@ -90,7 +90,7 @@ export function PlansTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["Plan Name", "Code", "Monthly", "Candidates", "Assessments/mo", "Simulators", "Flags", "Status", ""].map((h) => (
+                {["#", "Plan Name", "Code", "Monthly", "Candidates", "Assessments/mo", "Simulators", "Flags", "Status", ""].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -101,19 +101,20 @@ export function PlansTable() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 9 }).map((_, j) => (
+                    {Array.from({ length: 10 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : plans.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={10} className="px-4 py-14 text-center text-muted-foreground">
                     {search || statusFilter ? "No plans match your filters." : "No plans yet. Click \"New Plan\" to create one."}
                   </td>
                 </tr>
-              ) : plans.map((plan) => (
+              ) : plans.map((plan, idx) => (
                 <tr key={plan.uuid} className="hover:bg-accent/40 transition-colors">
+                  <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                   <td className="px-4 py-3 font-medium text-foreground">{plan.plan_name}</td>
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{plan.plan_code}</td>
                   <td className="px-4 py-3 text-foreground">{fmtPrice(plan.monthly_price)}</td>

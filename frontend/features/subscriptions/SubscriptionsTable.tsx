@@ -79,7 +79,7 @@ export function SubscriptionsTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["Organization", "Plan", "Billing", "Start", "End", "Auto Renew", "Status", ""].map((h) => (
+                {["#", "Organization", "Plan", "Billing", "Start", "End", "Auto Renew", "Status", ""].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -90,19 +90,20 @@ export function SubscriptionsTable() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 9 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : subs.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-4 py-14 text-center text-muted-foreground">
                     {search || statusFilter ? "No subscriptions match your filters." : "No subscriptions yet. Click \"New Subscription\" to create one."}
                   </td>
                 </tr>
-              ) : subs.map((s) => (
+              ) : subs.map((s, idx) => (
                 <tr key={s.uuid} className="hover:bg-accent/40 transition-colors">
+                  <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                   <td className="px-4 py-3 font-medium text-foreground">{s.organization_name ?? `Org #${s.organization_id}`}</td>
                   <td className="px-4 py-3">
                     <div className="text-foreground">{s.plan_name ?? "—"}</div>

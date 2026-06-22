@@ -83,7 +83,7 @@ export function RegistrationsTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["Applicant", "Type", "Status", "Approved By", "Approved", "Created", "Actions"].map((h) => (
+                {["#", "Applicant", "Type", "Status", "Approved By", "Approved", "Created", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -94,19 +94,20 @@ export function RegistrationsTable() {
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
                     {search || typeFilter || statusFilter ? "No registration requests match your filters." : "No registration requests yet."}
                   </td>
                 </tr>
-              ) : items.map((req) => (
+              ) : items.map((req, idx) => (
                 <tr key={req.uuid} className="hover:bg-accent/40 transition-colors">
+                  <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground">{req.enquiry_name ?? "—"}</div>
                     <div className="text-xs text-muted-foreground">{req.enquiry_email ?? ""}</div>

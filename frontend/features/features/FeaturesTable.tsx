@@ -85,7 +85,7 @@ export function FeaturesTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["Feature Name", "Code", "Category", "Status", ""].map((h) => (
+                {["#", "Feature Name", "Code", "Category", "Status", ""].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -96,19 +96,20 @@ export function FeaturesTable() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 5 }).map((_, j) => (
+                    {Array.from({ length: 6 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : features.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-14 text-center text-muted-foreground">
                     {search || categoryFilter ? "No features match your filters." : "No features yet. Click \"New Feature\" to create one."}
                   </td>
                 </tr>
-              ) : features.map((f) => (
+              ) : features.map((f, idx) => (
                 <tr key={f.uuid} className="hover:bg-accent/40 transition-colors">
+                  <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-foreground">{f.feature_name}</div>
                     {f.description && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{f.description}</div>}

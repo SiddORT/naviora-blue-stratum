@@ -70,7 +70,7 @@ export function UsersTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["User", "Roles", "Status", "Last Login", "Created"].map((h) => (
+                {["#", "User", "Roles", "Status", "Last Login", "Created"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -81,20 +81,21 @@ export function UsersTable() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 5 }).map((_, j) => (
+                    {Array.from({ length: 6 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-24" /></td>
                     ))}
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-14 text-center text-muted-foreground">
                     {search || statusFilter ? "No users match your filters." : "No users found."}
                   </td>
                 </tr>
               ) : (
-                filtered.map((user) => (
+                filtered.map((user, idx) => (
                   <tr key={user.uuid} className="hover:bg-accent/40 transition-colors">
+                    <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full gradient-gold flex items-center justify-center text-black text-xs font-bold flex-shrink-0">

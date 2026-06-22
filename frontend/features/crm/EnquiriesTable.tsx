@@ -113,7 +113,7 @@ export function EnquiriesTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["Name", "Type", "Organization", "Plan", "Country", "Status", "Created", "Actions"].map((h) => (
+                {["#", "Name", "Type", "Organization", "Plan", "Country", "Status", "Created", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -124,19 +124,20 @@ export function EnquiriesTable() {
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 9 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-4 py-14 text-center text-muted-foreground">
                     {search || typeFilter || statusFilter ? "No enquiries match your filters." : "No enquiries yet."}
                   </td>
                 </tr>
-              ) : items.map((enq) => (
+              ) : items.map((enq, idx) => (
                 <tr key={enq.uuid} className="hover:bg-accent/40 transition-colors">
+                  <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div>
