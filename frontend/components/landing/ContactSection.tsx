@@ -17,8 +17,14 @@ const INITIAL: FormState = {
   organization: "", role: "", message: "",
 };
 
+interface ConsentState {
+  privacy: boolean;
+  marketing: boolean;
+}
+
 export function ContactSection() {
   const [form, setForm]       = useState<FormState>(INITIAL);
+  const [consent, setConsent] = useState<ConsentState>({ privacy: false, marketing: false });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError]     = useState<string | null>(null);
@@ -26,19 +32,27 @@ export function ContactSection() {
   const set = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const toggleConsent = (k: keyof ConsentState) =>
+    setConsent((c) => ({ ...c, [k]: !c[k] }));
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consent.privacy) {
+      setError("You must agree to the Privacy Policy to continue.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/v1/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, consent_privacy: true, consent_marketing: consent.marketing }),
       });
       if (!res.ok) throw new Error("Submission failed. Please try again.");
       setSuccess(true);
       setForm(INITIAL);
+      setConsent({ privacy: false, marketing: false });
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -179,20 +193,87 @@ export function ContactSection() {
                   </p>
                 )}
 
+                {/* GDPR consent checkboxes */}
+                <div className="space-y-3 pt-1">
+                  {/* Required — privacy policy */}
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative mt-0.5 shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={consent.privacy}
+                        onChange={() => toggleConsent("privacy")}
+                        className="sr-only"
+                      />
+                      <div
+                        className="w-4 h-4 rounded flex items-center justify-center border transition-all"
+                        style={{
+                          background: consent.privacy ? "#D4A63A" : "transparent",
+                          borderColor: consent.privacy ? "#D4A63A" : "rgba(255,255,255,0.25)",
+                        }}
+                      >
+                        {consent.privacy && (
+                          <svg className="w-2.5 h-2.5 text-black" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs leading-relaxed" style={{ color: "#94a3b8" }}>
+                      I have read and agree to the{" "}
+                      <a href="/privacy-policy" className="underline hover:text-white transition-colors" style={{ color: "#D4A63A" }}>
+                        Privacy Policy
+                      </a>{" "}
+                      and consent to Blue Stratum processing my personal data to respond to this demo request.{" "}
+                      <span style={{ color: "#ef4444" }}>*</span>
+                    </span>
+                  </label>
+
+                  {/* Optional — marketing */}
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative mt-0.5 shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={consent.marketing}
+                        onChange={() => toggleConsent("marketing")}
+                        className="sr-only"
+                      />
+                      <div
+                        className="w-4 h-4 rounded flex items-center justify-center border transition-all"
+                        style={{
+                          background: consent.marketing ? "#2EA8FF" : "transparent",
+                          borderColor: consent.marketing ? "#2EA8FF" : "rgba(255,255,255,0.25)",
+                        }}
+                      >
+                        {consent.marketing && (
+                          <svg className="w-2.5 h-2.5 text-black" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4l3 3 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-xs leading-relaxed" style={{ color: "#94a3b8" }}>
+                      I agree to receive product updates and marketing communications from Blue Stratum.
+                      I can withdraw this consent at any time. <span style={{ color: "#475569" }}>(Optional)</span>
+                    </span>
+                  </label>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-3 rounded-lg text-sm font-bold text-black transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
+                  disabled={loading || !consent.privacy}
+                  className="w-full py-3 rounded-lg text-sm font-bold text-black transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {loading ? "Sending..." : "Request Demo"}
                 </button>
 
-                <p className="text-xs text-center" style={{ color: "#475569" }}>
-                  By submitting you agree to our{" "}
-                  <a href="/privacy-policy" className="underline hover:text-white transition-colors">Privacy Policy</a>.
-                  No spam. Unsubscribe any time.
+                <p className="text-xs text-center" style={{ color: "#334155" }}>
+                  Your data is processed under GDPR Art. 6(1)(a) — consent.
+                  You may withdraw consent or request deletion at any time by contacting{" "}
+                  <a href="mailto:privacy@bluestratum.com" className="underline hover:text-white transition-colors">
+                    privacy@bluestratum.com
+                  </a>.
                 </p>
               </form>
             )}
