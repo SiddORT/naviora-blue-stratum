@@ -83,7 +83,7 @@ export function RegistrationsTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["#", "Applicant", "Type", "Status", "Approved By", "Approved", "Created", "Actions"].map((h) => (
+                {["#", "Applicant", "Type", "Status", "Created", "Actions"].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -94,14 +94,14 @@ export function RegistrationsTable() {
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 6 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-20" /></td>
                     ))}
                   </tr>
                 ))
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-14 text-center text-muted-foreground">
                     {search || typeFilter || statusFilter ? "No registration requests match your filters." : "No registration requests yet."}
                   </td>
                 </tr>
@@ -117,12 +117,6 @@ export function RegistrationsTable() {
                     <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize", STATUS_COLORS[req.onboarding_status])}>
                       {req.onboarding_status.toLowerCase()}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                    {req.approved_by ? req.approved_by.slice(0, 8) + "…" : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
-                    {req.approved_at ? formatDate(req.approved_at) : "—"}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
                     {formatDate(req.created_at)}
