@@ -123,7 +123,7 @@ export function RegistrationsTable() {
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => router.push(`/admin/crm/enquiries/${req.enquiry_id}`)}
+                      onClick={() => router.push(`/admin/crm/enquiries/${req.enquiry_uuid}`)}
                       title="View enquiry"
                       className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                     >

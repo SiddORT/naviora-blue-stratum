@@ -102,6 +102,7 @@ def _onb_response(o: OnboardingRequest) -> OnboardingResponse:
     )
     return OnboardingResponse(
         id=o.id, uuid=o.uuid, enquiry_id=o.enquiry_id,
+        enquiry_uuid=o.enquiry.uuid if o.enquiry else None,
         enquiry_email=enq_email, enquiry_name=enq_name,
         onboarding_type=o.onboarding_type, onboarding_status=o.onboarding_status,
         organization_id=o.organization_id, user_id=o.user_id,

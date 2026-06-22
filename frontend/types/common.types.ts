@@ -82,6 +82,7 @@ export interface OnboardingRequest {
   id: number;
   uuid: string;
   enquiry_id: number;
+  enquiry_uuid: string | null;
   enquiry_email: string | null;
   enquiry_name: string | null;
   onboarding_type: OnboardingType;

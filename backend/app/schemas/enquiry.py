@@ -189,6 +189,7 @@ class OnboardingResponse(BaseSchema):
     id: int
     uuid: str
     enquiry_id: int
+    enquiry_uuid: Optional[str] = None
     enquiry_email: Optional[str] = None
     enquiry_name: Optional[str] = None
     onboarding_type: str
