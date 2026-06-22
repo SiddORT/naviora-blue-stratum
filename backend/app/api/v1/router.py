@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth, users, organizations, roles, dashboard, files,
-    audit_logs, simulators, master_data, exercises, assessments, plans,
+    audit_logs, simulators, master_data, exercises, assessments, plans, contact,
 )
 
 api_router = APIRouter()
@@ -20,3 +20,4 @@ api_router.include_router(master_data.router,   prefix="/master-data",   tags=["
 api_router.include_router(exercises.router,     prefix="/exercises",     tags=["Exercise Management"])
 api_router.include_router(assessments.router,   prefix="/assessments",   tags=["Assessment Management"])
 api_router.include_router(plans.router,         prefix="",               tags=["Plans & Entitlements"])
+api_router.include_router(contact.router,       prefix="",               tags=["Public"])
