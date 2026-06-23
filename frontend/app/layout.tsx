@@ -37,7 +37,7 @@ export default function RootLayout({
           Reads the Zustand-persisted value from localStorage synchronously.
           Falls back to system preference if nothing is stored.
         */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('pase-theme');var t=s?JSON.parse(s).state?.theme:null;if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var s=localStorage.getItem('naviora-theme');var t=s?JSON.parse(s).state?.theme:null;if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}})();` }} />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -1,5 +1,5 @@
 """
-Base mixin applied to every entity in PASE Compass.
+Base mixin applied to every entity in Naviora.
 
 Columns provided:
   id           — integer primary key (internal)

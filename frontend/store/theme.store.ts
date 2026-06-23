@@ -19,7 +19,7 @@ export const useThemeStore = create<ThemeState>()(
       toggleTheme: () => set({ theme: get().theme === "dark" ? "light" : "dark" }),
     }),
     {
-      name: "pase-theme",
+      name: "naviora-theme",
       storage: createJSONStorage(() => {
         if (typeof window === "undefined") {
           return {

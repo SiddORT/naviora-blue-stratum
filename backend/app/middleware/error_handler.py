@@ -6,7 +6,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-logger = logging.getLogger("pase.errors")
+logger = logging.getLogger("naviora.errors")
 
 
 class ErrorHandlerMiddleware(BaseHTTPMiddleware):

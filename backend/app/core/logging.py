@@ -1,4 +1,4 @@
-"""Centralized logging configuration for PASE Compass."""
+"""Centralized logging configuration for Naviora."""
 import logging
 import sys
 from typing import Optional

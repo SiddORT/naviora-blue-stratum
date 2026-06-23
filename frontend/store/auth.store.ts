@@ -49,7 +49,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "pase-auth",
+      name: "naviora-auth",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,

@@ -1,4 +1,4 @@
-"""PASE Compass by Blue Stratum — FastAPI Application Entry Point."""
+"""Naviora by Blue Stratum — FastAPI Application Entry Point."""
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -37,7 +37,7 @@ def create_application() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
         version=settings.APP_VERSION,
-        description="PASE Compass — Maritime Assessment & Simulation Platform by Blue Stratum",
+        description="Naviora — Maritime Assessment & Simulation Platform by Blue Stratum",
         docs_url="/api/docs",
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
