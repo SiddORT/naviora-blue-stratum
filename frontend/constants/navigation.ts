@@ -14,12 +14,18 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     children: [
       { label: "Enquiries",              href: "/admin/crm/enquiries",      icon: "MessageSquare" },
       { label: "Registration Requests",  href: "/admin/crm/registrations",  icon: "ClipboardList" },
-      { label: "Organizations",          href: "/admin/organizations",      icon: "Building2" },
-      { label: "Candidates",             href: "/admin/candidates",         icon: "GraduationCap" },
       { label: "Consent Records",        href: "/admin/crm/consents",       icon: "ShieldCheck" },
     ],
   },
-  { label: "Organizations",         href: "/admin/organizations",  icon: "Building2" },
+  {
+    label: "Organization",
+    href: "/admin/organizations",
+    icon: "Building2",
+    children: [
+      { label: "Organizations",  href: "/admin/organizations", icon: "Building2"    },
+      { label: "Candidates",     href: "/admin/candidates",    icon: "GraduationCap" },
+    ],
+  },
   { label: "Users",                 href: "/admin/users",          icon: "Users" },
   { label: "Roles & Permissions",   href: "/admin/roles",          icon: "ShieldCheck" },
   {
