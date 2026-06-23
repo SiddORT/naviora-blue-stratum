@@ -222,10 +222,12 @@ export function CandidateCheckinWizard({ assignmentUuid }: Props) {
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                [confirmSelf, setConfirmSelf, "I confirm I am the authorized participant for this assessment"],
-                [confirmReqs, setConfirmReqs, "I understand and accept the assessment requirements"],
-              ].map(([checked, setter, label]: [boolean, (v: boolean) => void, string], i) => (
+              {(
+                [
+                  { checked: confirmSelf, setter: setConfirmSelf, label: "I confirm I am the authorized participant for this assessment" },
+                  { checked: confirmReqs, setter: setConfirmReqs, label: "I understand and accept the assessment requirements" },
+                ] as { checked: boolean; setter: React.Dispatch<React.SetStateAction<boolean>>; label: string }[]
+              ).map(({ checked, setter, label }, i) => (
                 <label key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", padding: "12px 16px", background: "#0B0B0F", borderRadius: 8, border: `1px solid ${checked ? "#D4A63A40" : "#1E2430"}` }}>
                   <input type="checkbox" checked={checked} onChange={(e) => setter(e.target.checked)} style={{ marginTop: 2, accentColor: "#D4A63A", width: 16, height: 16 }} />
                   <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.5 }}>{label}</span>
@@ -258,11 +260,13 @@ export function CandidateCheckinWizard({ assignmentUuid }: Props) {
               ))}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                [ruleNoAssist, setRuleNoAssist, "I confirm I will complete this assessment without external assistance"],
-                [ruleIntegrity, setRuleIntegrity, "I declare this assessment will reflect my own knowledge and capability"],
-                [ruleCompliance, setRuleCompliance, "I agree to comply with all assessment integrity and conduct rules"],
-              ].map(([checked, setter, label]: [boolean, (v: boolean) => void, string], i) => (
+              {(
+                [
+                  { checked: ruleNoAssist,   setter: setRuleNoAssist,   label: "I confirm I will complete this assessment without external assistance" },
+                  { checked: ruleIntegrity,  setter: setRuleIntegrity,  label: "I declare this assessment will reflect my own knowledge and capability" },
+                  { checked: ruleCompliance, setter: setRuleCompliance, label: "I agree to comply with all assessment integrity and conduct rules" },
+                ] as { checked: boolean; setter: React.Dispatch<React.SetStateAction<boolean>>; label: string }[]
+              ).map(({ checked, setter, label }, i) => (
                 <label key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", padding: "12px 16px", background: "#0B0B0F", borderRadius: 8, border: `1px solid ${checked ? "#D4A63A40" : "#1E2430"}` }}>
                   <input type="checkbox" checked={checked} onChange={(e) => setter(e.target.checked)} style={{ marginTop: 2, accentColor: "#D4A63A", width: 16, height: 16 }} />
                   <span style={{ fontSize: 13, color: "#D1D5DB", lineHeight: 1.5 }}>{label}</span>
