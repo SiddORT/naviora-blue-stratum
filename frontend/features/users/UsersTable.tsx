@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, MoreHorizontal, UserCog, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,17 +19,34 @@ const statusColors: Record<string, string> = {
 
 const inputClass = "bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors";
 
+interface MenuState {
+  uuid: string;
+  user: User;
+  x: number;
+  y: number;
+}
+
+const isSuperAdmin = (user: User) =>
+  user.roles.includes("super_admin") || user.roles.includes("superadmin");
+
 export function UsersTable() {
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [userTypeFilter, setUserTypeFilter] = useState("");
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menu, setMenu] = useState<MenuState | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [assignUser, setAssignUser] = useState<User | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const pageSize = 20;
+
+  const closeMenu = useCallback(() => setMenu(null), []);
+
+  const openMenuFor = useCallback((e: React.MouseEvent<HTMLButtonElement>, user: User) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenu({ uuid: user.uuid, user, x: rect.right, y: rect.bottom + 4 });
+  }, []);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page, search, statusFilter, userTypeFilter],
@@ -54,16 +71,16 @@ export function UsersTable() {
   });
 
   const handleDelete = (user: User) => {
+    closeMenu();
     if (confirm(`Delete user "${user.full_name}"? This cannot be undone.`)) {
       deleteMutation.mutate(user.uuid);
     }
-    setOpenMenu(null);
   };
 
   const handleStatusToggle = (user: User) => {
     const newStatus = user.status === "active" ? "inactive" : "active";
     statusMutation.mutate({ uuid: user.uuid, status: newStatus });
-    setOpenMenu(null);
+    closeMenu();
   };
 
   return (
@@ -170,48 +187,15 @@ export function UsersTable() {
                     <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
                       {formatDate(user.created_at)}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="relative">
+                    <td className="px-4 py-3 text-right">
+                      {!isSuperAdmin(user) && (
                         <button
-                          onClick={() => setOpenMenu(openMenu === user.uuid ? null : user.uuid)}
+                          onClick={(e) => openMenuFor(e, user)}
                           className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
-                        {openMenu === user.uuid && (
-                          <>
-                            <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
-                            <div className="absolute right-0 top-8 z-20 w-48 rounded-lg border border-border bg-card shadow-lg py-1">
-                              <button
-                                onClick={() => { setEditUser(user); setOpenMenu(null); }}
-                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-                              >
-                                <UserCog className="w-3.5 h-3.5" /> Edit User
-                              </button>
-                              <button
-                                onClick={() => { setAssignUser(user); setOpenMenu(null); }}
-                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-                              >
-                                <ShieldCheck className="w-3.5 h-3.5" /> Assign Roles
-                              </button>
-                              <button
-                                onClick={() => handleStatusToggle(user)}
-                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
-                              >
-                                <RefreshCw className="w-3.5 h-3.5" />
-                                {user.status === "active" ? "Deactivate" : "Activate"}
-                              </button>
-                              <div className="border-t border-border my-1" />
-                              <button
-                                onClick={() => handleDelete(user)}
-                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" /> Delete
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -232,6 +216,44 @@ export function UsersTable() {
           </div>
         </div>
       </div>
+
+      {/* Fixed-position dropdown — escapes overflow:hidden/auto clipping */}
+      {menu && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={closeMenu} />
+          <div
+            className="fixed z-50 w-48 rounded-lg border border-border bg-card shadow-xl py-1"
+            style={{ top: menu.y, right: `calc(100vw - ${menu.x}px)` }}
+          >
+            <button
+              onClick={() => { setEditUser(menu.user); closeMenu(); }}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+            >
+              <UserCog className="w-3.5 h-3.5" /> Edit User
+            </button>
+            <button
+              onClick={() => { setAssignUser(menu.user); closeMenu(); }}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" /> Assign Roles
+            </button>
+            <button
+              onClick={() => handleStatusToggle(menu.user)}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              {menu.user.status === "active" ? "Deactivate" : "Activate"}
+            </button>
+            <div className="border-t border-border my-1" />
+            <button
+              onClick={() => handleDelete(menu.user)}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete
+            </button>
+          </div>
+        </>
+      )}
 
       {showCreate && (
         <UserFormDialog

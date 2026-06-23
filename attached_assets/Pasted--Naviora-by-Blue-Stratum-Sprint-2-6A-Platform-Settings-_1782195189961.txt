@@ -1,0 +1,540 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.6A – Platform Settings, Communication Center & Email Templates
+
+Build the Platform Settings and Communication Center module.
+
+This module will serve as the central configuration hub for Naviora.
+
+All future modules must consume settings from this module instead of using hardcoded values.
+
+Examples:
+
+* Company Information
+* Branding
+* Email Configuration
+* Email Templates
+* Currency Settings
+* Timezone Settings
+* Invoice Settings
+* Notification Settings
+* Portal URLs
+
+Follow platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Next.js 15
+* TypeScript
+* Audit Logging
+* Encryption Framework
+* Search
+* Filters
+* Pagination
+
+Generate production-ready implementation.
+
+---
+
+# Navigation
+
+Administration
+
+├── Platform Settings
+├── Communication Settings
+├── Email Templates
+├── Notification Settings
+├── Branding Settings
+├── Invoice Settings
+└── System Preferences
+
+---
+
+# Platform Settings
+
+Create:
+
+platform_settings
+
+Store global company information.
+
+Fields:
+
+* company_name
+
+* legal_name
+
+* company_email
+
+* support_email
+
+* billing_email
+
+* company_phone
+
+* website_url
+
+* address_line_1
+
+* address_line_2
+
+* city
+
+* state
+
+* country
+
+* postal_code
+
+* company_logo_path
+
+* favicon_path
+
+* default_timezone
+
+* default_currency
+
+* default_language
+
+* date_format
+
+* time_format
+
+Rules:
+
+* Single active record
+* File uploads through Storage Helper
+* Store file paths only
+
+---
+
+# Branding Settings
+
+Fields:
+
+* platform_name
+
+* platform_tagline
+
+* primary_color
+
+* secondary_color
+
+* accent_color
+
+* login_background_path
+
+* email_header_logo_path
+
+* report_logo_path
+
+Future-ready for:
+
+* White Labeling
+* Organization Branding
+
+---
+
+# Communication Settings
+
+Create:
+
+communication_settings
+
+Purpose:
+
+Configure outbound communication channels.
+
+Fields:
+
+* smtp_host
+
+* smtp_port
+
+* smtp_username
+
+* smtp_password
+
+* smtp_encryption
+
+* sender_name
+
+* sender_email
+
+* reply_to_email
+
+* test_email_address
+
+Encryption:
+
+* Encrypt passwords at rest
+* Never expose decrypted passwords in UI
+
+SMTP Encryption:
+
+* NONE
+* SSL
+* TLS
+
+Features:
+
+* Send Test Email
+* Validate SMTP Connection
+
+---
+
+# Notification Settings
+
+Fields:
+
+Email Notifications
+
+* enable_email_notifications
+
+System Notifications
+
+* enable_system_notifications
+
+Future:
+
+* SMS
+* WhatsApp
+* Teams
+* Slack
+
+Create extension points.
+
+---
+
+# Invoice Settings
+
+Create:
+
+invoice_settings
+
+Fields:
+
+* invoice_prefix
+
+* invoice_start_number
+
+* quotation_prefix
+
+* quotation_start_number
+
+* currency_code
+
+* currency_symbol
+
+* tax_name
+
+* tax_percentage
+
+* invoice_footer
+
+Examples:
+
+INV-000001
+
+QTN-000001
+
+Support future billing modules.
+
+---
+
+# System Preferences
+
+Fields:
+
+* default_timezone
+
+* default_currency
+
+* default_language
+
+* session_timeout_minutes
+
+* password_expiry_days
+
+* max_login_attempts
+
+* lockout_duration_minutes
+
+Future-ready.
+
+---
+
+# Email Template Engine
+
+Create:
+
+email_templates
+
+Fields:
+
+* id
+
+* uuid
+
+* template_name
+
+* template_code
+
+* subject
+
+* html_content
+
+* plain_text_content
+
+* available_variables
+
+* status
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+Rules:
+
+* template_code unique
+
+Use rich text editor.
+
+Store HTML templates.
+
+---
+
+# Template Variables
+
+Support dynamic placeholders.
+
+Examples:
+
+{{user_name}}
+
+{{organization_name}}
+
+{{temporary_password}}
+
+{{activation_link}}
+
+{{assessment_name}}
+
+{{candidate_name}}
+
+{{platform_name}}
+
+{{support_email}}
+
+Build reusable variable engine.
+
+---
+
+# Seed Default Templates
+
+Create and seed:
+
+1.
+
+ADMIN_USER_INVITATION
+
+Purpose:
+
+Invite admin users.
+
+---
+
+2.
+
+ORGANIZATION_ADMIN_INVITATION
+
+Purpose:
+
+Organization onboarding.
+
+---
+
+3.
+
+CANDIDATE_INVITATION
+
+Purpose:
+
+Candidate onboarding.
+
+---
+
+4.
+
+PASSWORD_RESET
+
+Purpose:
+
+Password reset.
+
+---
+
+5.
+
+ORGANIZATION_APPROVED
+
+Purpose:
+
+Organization approved.
+
+---
+
+6.
+
+REGISTRATION_RECEIVED
+
+Purpose:
+
+Public registration acknowledgement.
+
+---
+
+7.
+
+ASSESSMENT_ASSIGNED
+
+Purpose:
+
+Assessment assignment notification.
+
+---
+
+# Email Preview
+
+Allow administrators to:
+
+* Preview Template
+* Test Variables
+* Send Test Email
+
+---
+
+# Portal URL Settings
+
+Create:
+
+portal_settings
+
+Fields:
+
+* public_url
+
+* admin_url
+
+* organization_url
+
+* candidate_url
+
+Default:
+
+/
+
+/admin/login
+
+/org/login
+
+/candidate/login
+
+Future:
+
+Custom domains.
+
+---
+
+# APIs
+
+Create APIs for:
+
+Platform Settings
+
+Communication Settings
+
+Email Templates
+
+Invoice Settings
+
+System Preferences
+
+Branding
+
+Portal Settings
+
+Support:
+
+* Search
+* Filters
+* Pagination
+
+---
+
+# Security
+
+Encrypt:
+
+* SMTP Passwords
+* API Keys
+* Secrets
+
+Store encrypted values only.
+
+Use existing Encryption Service.
+
+---
+
+# Frontend Pages
+
+Create:
+
+/admin/settings/platform
+
+/admin/settings/branding
+
+/admin/settings/communication
+
+/admin/settings/email-templates
+
+/admin/settings/invoice
+
+/admin/settings/system
+
+/admin/settings/portal
+
+---
+
+# Audit Logging
+
+Track:
+
+* Settings Changes
+* SMTP Updates
+* Template Updates
+* Branding Updates
+* Invoice Settings Updates
+
+Use existing audit framework.
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* SendGrid
+* Mailgun
+* Microsoft 365
+* AWS SES
+* Twilio
+* WhatsApp
+* Slack
+* Teams
+
+Build this module as the centralized configuration and communication foundation for Naviora by Blue Stratum.
