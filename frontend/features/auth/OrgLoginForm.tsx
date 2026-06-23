@@ -5,9 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, Loader2, Users, BarChart3, ClipboardList } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { useOrgAuthStore } from "@/store/org-auth.store";
+import { orgLogin, getOrgMe } from "@/services/org-portal.service";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -22,24 +24,38 @@ const HIGHLIGHTS = [
 ];
 
 export function OrgLoginForm() {
-  const { login, isLoggingIn } = useAuth();
+  const router = useRouter();
+  const { setTokens, setUser } = useOrgAuthStore();
   const [showPass, setShowPass] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setApiError(null);
-    login(data, {
-      onError: (err: unknown) => {
-        const msg =
-          (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-          "Login failed. Please check your credentials.";
-        setApiError(msg);
-      },
-    });
+    setLoading(true);
+    try {
+      const res = await orgLogin(data.email, data.password);
+      if (!res?.data?.access_token) {
+        setApiError(res?.message ?? "Login failed. Check your credentials.");
+        return;
+      }
+      const { access_token, refresh_token } = res.data;
+      setTokens(access_token, refresh_token);
+      const me = await getOrgMe(access_token);
+      setUser(me);
+      router.replace("/org/dashboard");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        "Login failed. Please check your credentials.";
+      setApiError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputBase = cn(
@@ -59,7 +75,6 @@ export function OrgLoginForm() {
         <div className="absolute right-0 top-[10%] bottom-[10%] w-px"
           style={{ background: "linear-gradient(to bottom, transparent, rgba(46,168,255,0.3) 30%, rgba(46,168,255,0.3) 70%, transparent)" }} />
 
-        {/* Logo mark */}
         <div className="mb-8">
           <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16">
             <path d="M24 6C13.954 6 6 13.954 6 24C6 34.046 13.954 42 24 42" stroke="#2EA8FF" strokeWidth="3.5" strokeLinecap="round"/>
@@ -175,13 +190,13 @@ export function OrgLoginForm() {
               {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isLoggingIn}
+            <button type="submit" disabled={loading}
               className="w-full flex items-center justify-center gap-2 mt-1 font-semibold text-sm rounded-xl py-3 px-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-white"
               style={{
                 background: "linear-gradient(135deg,#2EA8FF 0%,#0A6DCC 100%)",
                 boxShadow: "0 4px 20px rgba(46,168,255,0.28)",
               }}>
-              {isLoggingIn ? <><Loader2 className="w-4 h-4 animate-spin" />Signing in...</> : "Sign in"}
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Signing in...</> : "Sign in"}
             </button>
           </form>
 

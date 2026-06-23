@@ -30,3 +30,14 @@ api_router.include_router(candidates.router,        prefix="/candidates",       
 
 from app.api.v1.endpoints import settings as settings_ep
 api_router.include_router(settings_ep.router, prefix="/settings", tags=["Platform Settings"])
+
+from app.api.v1.endpoints import (
+    org_auth, org_dashboard, org_users, org_candidates, org_subscription, org_settings, org_profile,
+)
+api_router.include_router(org_auth.router,         prefix="/org/auth",         tags=["Org Portal — Auth"])
+api_router.include_router(org_dashboard.router,    prefix="/org/dashboard",    tags=["Org Portal — Dashboard"])
+api_router.include_router(org_users.router,        prefix="/org/users",        tags=["Org Portal — Users"])
+api_router.include_router(org_candidates.router,   prefix="/org/candidates",   tags=["Org Portal — Candidates"])
+api_router.include_router(org_subscription.router, prefix="/org/subscription", tags=["Org Portal — Subscription"])
+api_router.include_router(org_settings.router,     prefix="/org/settings",     tags=["Org Portal — Settings"])
+api_router.include_router(org_profile.router,      prefix="/org/profile",      tags=["Org Portal — Profile"])

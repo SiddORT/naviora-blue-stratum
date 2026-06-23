@@ -27,6 +27,13 @@ Seed data: `cd backend && python seed.py`
 ## Default Credentials
 
 Super Admin: admin@naviora.com / Admin@2026!
+Org Admin (Blue Stratum Demo): orgadmin@naviora.app / OrgAdmin@2026!
+
+## Portals
+
+- Admin Portal: `/login` (ADMIN user_type)
+- Organization Portal: `/org/login` (ORG_ADMIN / INSTRUCTOR / ASSESSOR user_type)
+- Candidate Portal: `/candidate/login` (candidates)
 
 ## User Preferences
 
