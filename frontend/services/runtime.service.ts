@@ -57,6 +57,7 @@ export interface SessionDetail extends RuntimeSession {
   cancelled_at: string | null;
   updated_at: string;
   logs: SessionLog[];
+  vendor_name?: string | null;
 }
 
 export interface DesktopAgent {

@@ -19,7 +19,7 @@ const schema = z.object({
   feature_name: z.string().min(1),
   feature_code: z.string().min(1).regex(/^[A-Z0-9_]+$/, "SCREAMING_SNAKE_CASE only"),
   description: z.string().optional(),
-  category: z.string().min(1),
+  category: z.enum(["Simulator", "Assessment", "Reporting", "AI", "User Management", "Offline", "Integration", "General"] as const),
   status: z.enum(["active", "inactive"]),
 });
 type FormValues = z.infer<typeof schema>;
@@ -73,7 +73,7 @@ export function FeatureFormDialog({ open, onClose, feature }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>Category</Label>
-              <Select value={watch("category")} onValueChange={(v) => setValue("category", v)}>
+              <Select value={watch("category")} onValueChange={(v) => setValue("category", v as FormValues["category"])}>
                 <SelectTrigger className="bg-background border-border"><SelectValue /></SelectTrigger>
                 <SelectContent className="bg-surface border-border">
                   {FEATURE_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}

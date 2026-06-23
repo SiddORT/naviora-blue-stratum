@@ -145,7 +145,9 @@ export function EnquiriesTable() {
                         <div className="text-xs text-muted-foreground">{enq.email}</div>
                       </div>
                       {enq.duplicate_flag && (
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" title="Possible duplicate" />
+                        <span title="Possible duplicate">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        </span>
                       )}
                     </div>
                   </td>

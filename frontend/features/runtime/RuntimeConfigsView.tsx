@@ -31,7 +31,7 @@ export function RuntimeConfigsView() {
 
   const loadVendors = useCallback(async () => {
     const res = await simulatorsService.listVendors({ page: 1, page_size: 100 });
-    if (res.success) setVendors(res.data?.items?.map((v: Record<string, unknown>) => ({ id: v.id as number, name: v.name as string, code: v.code as string })) ?? []);
+    if (res.success) setVendors(res.data?.items?.map((v) => ({ id: v.id as number, name: v.name as string, code: v.code as string })) ?? []);
   }, []);
 
   useEffect(() => { load(); loadVendors(); }, [load, loadVendors]);

@@ -64,6 +64,7 @@ export interface OrgCandidateListItem {
   organization_id?: number | null;
   rank_or_designation?: string | null;
   seafarer_id?: string | null;
+  nationality?: string | null;
   status: string;
   is_active: boolean;
   last_login?: string | null;
