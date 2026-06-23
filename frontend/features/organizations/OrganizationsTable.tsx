@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, Pencil, X } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { organizationsService } from "@/services/organizations.service";
 import { planService } from "@/services/plans.service";
@@ -26,9 +27,8 @@ const EMPTY_ADDRESS: AddressValue = {
   country: "India", state: "", city: "", district: "",
 };
 
-type FormState = {
+type EditFormState = {
   name: string;
-  code: string;
   email: string;
   phone: string;
   phone_dial: string;
@@ -36,13 +36,13 @@ type FormState = {
   plan_id: string;
   max_users: string;
   address: AddressValue;
+  subscription_status: string;
 };
 
-const EMPTY_FORM: FormState = {
-  name: "", code: "", email: "",
-  phone: "", phone_dial: "+91",
+const EMPTY_EDIT: EditFormState = {
+  name: "", email: "", phone: "", phone_dial: "+91",
   website: "", plan_id: "", max_users: "10",
-  address: EMPTY_ADDRESS,
+  address: EMPTY_ADDRESS, subscription_status: "active",
 };
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -53,13 +53,14 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide">
         {label}{required && <span className="text-destructive ml-1">*</span>}
       </label>
       {children}
+      {hint && <p className="text-[11px] text-muted-foreground mt-1">{hint}</p>}
     </div>
   );
 }
@@ -71,9 +72,9 @@ export function OrganizationsTable() {
   const [statusFilter, setStatusFilter] = useState("");
   const pageSize = 20;
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [editOrg, setEditOrg] = useState<Organization | null>(null);
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [form, setForm] = useState<EditFormState>(EMPTY_EDIT);
   const [error, setError] = useState("");
 
   const { data, isLoading } = useQuery({
@@ -97,37 +98,24 @@ export function OrganizationsTable() {
   const fromRow = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const toRow = Math.min(page * pageSize, total);
 
-  const createMutation = useMutation({
-    mutationFn: (body: object) => organizationsService.create(body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["organizations"] }); closeModal(); },
-    onError: (e: any) => setError(e?.response?.data?.message ?? "Failed to create organization."),
-  });
-
   const updateMutation = useMutation({
     mutationFn: ({ uuid, body }: { uuid: string; body: object }) => organizationsService.update(uuid, body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["organizations"] }); closeModal(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["organizations"] }); closeEditModal(); },
     onError: (e: any) => setError(e?.response?.data?.message ?? "Failed to update organization."),
   });
-
-  function openAdd() {
-    setEditOrg(null);
-    setForm(EMPTY_FORM);
-    setError("");
-    setModalOpen(true);
-  }
 
   function openEdit(org: Organization) {
     const o = org as any;
     setEditOrg(org);
     setForm({
       name: org.name,
-      code: org.code,
       email: org.email ?? "",
       phone: o.phone ?? "",
       phone_dial: o.phone_country_code ?? "+91",
       website: o.website ?? "",
       plan_id: o.plan_id ? String(o.plan_id) : "",
       max_users: String(org.max_users),
+      subscription_status: org.subscription_status,
       address: {
         address_line1: o.address_line1 ?? "",
         address_line2: o.address_line2 ?? "",
@@ -139,56 +127,49 @@ export function OrganizationsTable() {
       },
     });
     setError("");
-    setModalOpen(true);
+    setEditModalOpen(true);
   }
 
-  function closeModal() {
-    setModalOpen(false);
+  function closeEditModal() {
+    setEditModalOpen(false);
     setEditOrg(null);
-    setForm(EMPTY_FORM);
+    setForm(EMPTY_EDIT);
     setError("");
   }
 
-  function setF(field: keyof Omit<FormState, "address">, value: string) {
+  function setF(field: keyof Omit<EditFormState, "address">, value: string) {
     setForm(f => ({ ...f, [field]: value }));
     setError("");
   }
 
-  function handleSubmit() {
+  function handleUpdate() {
     if (!form.name.trim()) { setError("Name is required."); return; }
-    if (!editOrg && !form.code.trim()) { setError("Code is required."); return; }
-    if (!editOrg && !/^[A-Z0-9_-]+$/.test(form.code.trim())) {
-      setError("Code must be uppercase letters, numbers, underscores or hyphens only.");
-      return;
-    }
     const maxUsers = parseInt(form.max_users, 10);
     if (isNaN(maxUsers) || maxUsers < 1) { setError("Max users must be at least 1."); return; }
 
-    const body: Record<string, unknown> = {
-      name: form.name.trim(),
-      max_users: maxUsers,
-      ...(form.email.trim() && { email: form.email.trim() }),
-      ...(form.phone.trim() && { phone: form.phone.trim() }),
-      phone_country_code: form.phone_dial || null,
-      ...(form.website.trim() && { website: form.website.trim() }),
-      ...(form.plan_id && { plan_id: parseInt(form.plan_id, 10) }),
-      address_line1: form.address.address_line1 || null,
-      address_line2: form.address.address_line2 || null,
-      pincode: form.address.pincode || null,
-      country: form.address.country || null,
-      state: form.address.state || null,
-      city: form.address.city || null,
-      district: form.address.district || null,
-    };
-
-    if (editOrg) {
-      updateMutation.mutate({ uuid: editOrg.uuid, body });
-    } else {
-      createMutation.mutate({ ...body, code: form.code.trim().toUpperCase() });
-    }
+    updateMutation.mutate({
+      uuid: editOrg!.uuid,
+      body: {
+        name: form.name.trim(),
+        max_users: maxUsers,
+        ...(form.email.trim() && { email: form.email.trim() }),
+        ...(form.phone.trim() && { phone: form.phone.trim() }),
+        phone_country_code: form.phone_dial || null,
+        ...(form.website.trim() && { website: form.website.trim() }),
+        ...(form.plan_id && { plan_id: parseInt(form.plan_id, 10) }),
+        subscription_status: form.subscription_status,
+        address_line1: form.address.address_line1 || null,
+        address_line2: form.address.address_line2 || null,
+        pincode: form.address.pincode || null,
+        country: form.address.country || null,
+        state: form.address.state || null,
+        city: form.address.city || null,
+        district: form.address.district || null,
+      },
+    });
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const isPending = updateMutation.isPending;
 
   return (
     <div className="space-y-4">
@@ -212,13 +193,13 @@ export function OrganizationsTable() {
           <option value="suspended">Suspended</option>
           <option value="expired">Expired</option>
         </select>
-        <button
-          onClick={openAdd}
+        <Link
+          href="/admin/organizations/new"
           className="ml-auto flex items-center gap-2 gradient-gold text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" />
           Add Organization
-        </button>
+        </Link>
       </div>
 
       {/* Table card */}
@@ -304,12 +285,12 @@ export function OrganizationsTable() {
         </div>
       </div>
 
-      {/* Add / Edit Modal */}
-      {modalOpen && (
+      {/* Edit Modal */}
+      {editModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-start justify-center pt-8 pb-6 px-4"
           style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
-          onClick={closeModal}
+          onClick={closeEditModal}
         >
           <div
             className="w-full max-w-xl rounded-xl border border-border bg-card shadow-2xl flex flex-col max-h-[90vh]"
@@ -317,10 +298,11 @@ export function OrganizationsTable() {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-              <h3 className="text-base font-semibold text-foreground">
-                {editOrg ? "Edit Organization" : "New Organization"}
-              </h3>
-              <button onClick={closeModal} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <div>
+                <h3 className="text-base font-semibold text-foreground">Edit Organization</h3>
+                {editOrg && <p className="text-xs text-muted-foreground mt-0.5 font-mono">{editOrg.code}</p>}
+              </div>
+              <button onClick={closeEditModal} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -333,50 +315,36 @@ export function OrganizationsTable() {
                 </div>
               )}
 
-              {/* Section: Basic Info */}
+              {/* Basic */}
               <div>
                 <SectionLabel>Basic Information</SectionLabel>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
                     <Field label="Organization Name" required>
-                      <input
-                        type="text"
-                        value={form.name}
-                        onChange={(e) => setF("name", e.target.value)}
-                        placeholder="e.g. Acme Maritime Ltd"
-                        className={cn(inputClass, "w-full")}
-                      />
+                      <input type="text" value={form.name} onChange={e => setF("name", e.target.value)}
+                        placeholder="Organization name" className={cn(inputClass, "w-full")} />
                     </Field>
                   </div>
-
-                  {!editOrg && (
-                    <Field label="Code" required>
-                      <input
-                        type="text"
-                        value={form.code}
-                        onChange={(e) => setF("code", e.target.value.toUpperCase())}
-                        placeholder="e.g. ACME"
-                        className={cn(inputClass, "w-full font-mono")}
-                      />
-                      <p className="text-[11px] text-muted-foreground mt-1">Uppercase, numbers, _ or - only. Cannot be changed later.</p>
-                    </Field>
-                  )}
-
                   <Field label="Max Users">
-                    <input
-                      type="number"
-                      min={1}
-                      value={form.max_users}
-                      onChange={(e) => setF("max_users", e.target.value)}
-                      className={cn(inputClass, "w-full")}
-                    />
+                    <input type="number" min={1} value={form.max_users}
+                      onChange={e => setF("max_users", e.target.value)} className={cn(inputClass, "w-full")} />
                   </Field>
-
+                  <Field label="Status">
+                    <select value={form.subscription_status} onChange={e => setF("subscription_status", e.target.value)}
+                      className={cn(inputClass, "w-full")}>
+                      <option value="active">Active</option>
+                      <option value="trial">Trial</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="suspended">Suspended</option>
+                      <option value="expired">Expired</option>
+                    </select>
+                  </Field>
                   <div className="col-span-2">
                     <Field label="Plan">
-                      <select value={form.plan_id} onChange={(e) => setF("plan_id", e.target.value)} className={cn(inputClass, "w-full")}>
+                      <select value={form.plan_id} onChange={e => setF("plan_id", e.target.value)}
+                        className={cn(inputClass, "w-full")}>
                         <option value="">No plan assigned</option>
-                        {plans.map((p) => (
+                        {plans.map(p => (
                           <option key={p.id} value={p.id}>{p.plan_name} ({p.plan_code})</option>
                         ))}
                       </select>
@@ -385,49 +353,34 @@ export function OrganizationsTable() {
                 </div>
               </div>
 
-              {/* Section: Contact */}
+              {/* Contact */}
               <div>
                 <SectionLabel>Contact</SectionLabel>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
                     <Field label="Email">
-                      <input
-                        type="email"
-                        value={form.email}
-                        onChange={(e) => setF("email", e.target.value)}
-                        placeholder="contact@example.com"
-                        className={cn(inputClass, "w-full")}
-                      />
+                      <input type="email" value={form.email} onChange={e => setF("email", e.target.value)}
+                        placeholder="contact@example.com" className={cn(inputClass, "w-full")} />
                     </Field>
                   </div>
                   <div className="col-span-2">
                     <Field label="Phone">
-                      <div className="relative">
-                        <PhoneInput
-                          value={form.phone}
-                          dialCode={form.phone_dial}
-                          onValueChange={v => setForm(f => ({ ...f, phone: v }))}
-                          onDialCodeChange={v => setForm(f => ({ ...f, phone_dial: v }))}
-                          placeholder="Phone number"
-                        />
-                      </div>
+                      <PhoneInput value={form.phone} dialCode={form.phone_dial}
+                        onValueChange={v => setForm(f => ({ ...f, phone: v }))}
+                        onDialCodeChange={v => setForm(f => ({ ...f, phone_dial: v }))}
+                        placeholder="Phone number" />
                     </Field>
                   </div>
                   <div className="col-span-2">
                     <Field label="Website">
-                      <input
-                        type="text"
-                        value={form.website}
-                        onChange={(e) => setF("website", e.target.value)}
-                        placeholder="https://example.com"
-                        className={cn(inputClass, "w-full")}
-                      />
+                      <input type="text" value={form.website} onChange={e => setF("website", e.target.value)}
+                        placeholder="https://example.com" className={cn(inputClass, "w-full")} />
                     </Field>
                   </div>
                 </div>
               </div>
 
-              {/* Section: Address */}
+              {/* Address */}
               <div>
                 <SectionLabel>Address</SectionLabel>
                 <AddressFields
@@ -440,19 +393,14 @@ export function OrganizationsTable() {
 
             {/* Footer */}
             <div className="flex justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              >
+              <button onClick={closeEditModal}
+                className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                 Cancel
               </button>
-              <button
-                onClick={handleSubmit}
-                disabled={isPending}
+              <button onClick={handleUpdate} disabled={isPending}
                 className="px-4 py-2 rounded-lg text-sm font-semibold text-black disabled:opacity-50 transition-opacity hover:opacity-90"
-                style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}
-              >
-                {isPending ? "Saving..." : editOrg ? "Save Changes" : "Create Organization"}
+                style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}>
+                {isPending ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
