@@ -31,9 +31,11 @@ api_router.include_router(candidates.router,        prefix="/candidates",       
 from app.api.v1.endpoints import settings as settings_ep
 api_router.include_router(settings_ep.router, prefix="/settings", tags=["Platform Settings"])
 
+# ── Org Portal ────────────────────────────────────────────────────────────────
 from app.api.v1.endpoints import (
     org_auth, org_dashboard, org_users, org_candidates, org_subscription, org_settings, org_profile,
     org_campaigns, org_portal_assignments, org_progress, org_calendar,
+    org_sessions,
 )
 api_router.include_router(org_auth.router,                prefix="/org/auth",         tags=["Org Portal — Auth"])
 api_router.include_router(org_dashboard.router,           prefix="/org/dashboard",    tags=["Org Portal — Dashboard"])
@@ -46,3 +48,21 @@ api_router.include_router(org_campaigns.router,           prefix="/org/campaigns
 api_router.include_router(org_portal_assignments.router,  prefix="/org",              tags=["Org Portal — Assignments"])
 api_router.include_router(org_progress.router,            prefix="/org/progress",     tags=["Org Portal — Progress"])
 api_router.include_router(org_calendar.router,            prefix="/org/calendar",     tags=["Org Portal — Calendar"])
+api_router.include_router(org_sessions.router,            prefix="/org/sessions",     tags=["Org Portal — Sessions"])
+
+# ── Admin Runtime ─────────────────────────────────────────────────────────────
+from app.api.v1.endpoints import (
+    runtime_configs, sim_sessions, desktop_agents, runtime_dashboard,
+)
+api_router.include_router(runtime_dashboard.router,  prefix="/runtime/dashboard",  tags=["Runtime — Dashboard"])
+api_router.include_router(runtime_configs.router,    prefix="/runtime/configs",    tags=["Runtime — Configurations"])
+api_router.include_router(sim_sessions.router,       prefix="/runtime/sessions",   tags=["Runtime — Sessions"])
+api_router.include_router(desktop_agents.router,     prefix="/runtime/agents",     tags=["Runtime — Desktop Agents"])
+
+# ── Candidate Portal ──────────────────────────────────────────────────────────
+from app.api.v1.endpoints import (
+    candidate_auth, candidate_assessments, candidate_sessions,
+)
+api_router.include_router(candidate_auth.router,         prefix="/candidate/auth",        tags=["Candidate Portal — Auth"])
+api_router.include_router(candidate_assessments.router,  prefix="/candidate/assignments", tags=["Candidate Portal — Assignments"])
+api_router.include_router(candidate_sessions.router,     prefix="/candidate/sessions",    tags=["Candidate Portal — Sessions"])

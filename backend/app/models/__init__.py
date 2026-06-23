@@ -58,3 +58,8 @@ from app.models.invoice_settings import InvoiceSettings  # noqa: F401
 from app.models.system_preferences import SystemPreferences  # noqa: F401
 from app.models.email_template import EmailTemplate  # noqa: F401
 from app.models.portal_settings import PortalSettings  # noqa: F401
+from app.models.runtime_configuration import RuntimeConfiguration  # noqa: F401
+from app.models.session_log import SessionLog  # noqa: F401
+from app.models.session_attempt import SessionAttempt  # noqa: F401
+from app.models.desktop_agent import DesktopAgent  # noqa: F401
+from app.models.exercise_variant_simulator_mapping import ExerciseVariantSimulatorMapping  # noqa: F401

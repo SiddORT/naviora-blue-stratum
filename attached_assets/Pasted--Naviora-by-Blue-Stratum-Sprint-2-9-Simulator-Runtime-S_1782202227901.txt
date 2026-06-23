@@ -1,0 +1,787 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.9 – Simulator Runtime, Session Management & Execution Engine
+
+Build the Simulator Runtime, Session Management and Execution Engine.
+
+This sprint is the foundation that connects:
+
+* Assessment Campaigns
+* Candidate Assignments
+* Simulators
+* Runtime Execution
+* Session Tracking
+
+This sprint transforms Naviora from an assessment management platform into a simulator orchestration platform.
+
+Follow platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* Audit Logging
+* Soft Deletes
+* Encryption Framework
+* Search
+* Filters
+* Pagination
+
+Generate production-ready implementation.
+
+Do not implement AI Assessment, Certificates or Final Results Calculations in this sprint.
+
+Focus only on runtime execution architecture.
+
+---
+
+# Business Objective
+
+Current Flow:
+
+Organization
+↓
+Assessment Campaign
+↓
+Candidate Assignment
+
+This Sprint Adds:
+
+Organization
+↓
+Assessment Campaign
+↓
+Candidate Assignment
+↓
+Simulator Session
+↓
+Simulator Launch
+↓
+Session Monitoring
+↓
+Raw Simulator Result
+
+---
+
+# Runtime Modes
+
+Support:
+
+CLOUD_API
+
+DESKTOP_OFFLINE
+
+MANUAL
+
+Purpose:
+
+Cloud API
+
+Browser-based simulators.
+
+Desktop Offline
+
+Desktop Agent + Simulator EXE.
+
+Manual
+
+Instructor-managed assessments.
+
+---
+
+# Navigation
+
+Admin Portal
+
+Simulator Management
+
+├── Runtime Configurations
+├── Simulator Sessions
+├── Agent Registry
+├── Session Logs
+└── Runtime Dashboard
+
+Organization Portal
+
+├── Sessions
+├── Session Monitoring
+└── Session History
+
+Candidate Portal
+
+├── Assigned Assessments
+├── Active Sessions
+└── Session History
+
+---
+
+# Core Concept
+
+Assessment Assignment
+↓
+Candidate Clicks Start
+↓
+Session Created
+↓
+Variant Selected
+↓
+Simulator Connector Launches Session
+↓
+Runtime Tracking
+↓
+Raw Result Captured
+
+No scoring yet.
+
+No AI yet.
+
+---
+
+# Database Design
+
+## simulator_sessions
+
+Fields:
+
+* id
+
+* uuid
+
+* session_reference
+
+* organization_id
+
+* campaign_id
+
+* assignment_id
+
+* candidate_id
+
+* assessment_id
+
+* exercise_id
+
+* variant_id
+
+* simulator_vendor_id
+
+* runtime_mode
+
+* launch_payload
+
+* raw_result
+
+* result_received
+
+* status
+
+* launched_by
+
+* started_at
+
+* completed_at
+
+* cancelled_at
+
+* failure_reason
+
+* created_at
+
+* updated_at
+
+Status:
+
+* Pending
+* Launching
+* Running
+* Completed
+* Failed
+* Cancelled
+* Timed Out
+
+Rules:
+
+* session_reference unique
+* assignment validation mandatory
+* organization scoped
+
+---
+
+## session_logs
+
+Fields:
+
+* id
+
+* simulator_session_id
+
+* log_level
+
+* event_type
+
+* event_message
+
+* payload
+
+* created_at
+
+Log Levels:
+
+* Info
+* Warning
+* Error
+
+Event Types:
+
+* Session Created
+* Launch Requested
+* Launch Successful
+* Launch Failed
+* Simulator Started
+* Simulator Stopped
+* Result Received
+* Session Cancelled
+
+---
+
+## session_attempts
+
+Fields:
+
+* id
+
+* simulator_session_id
+
+* attempt_number
+
+* started_at
+
+* completed_at
+
+* status
+
+Status:
+
+* Running
+* Completed
+* Failed
+
+Purpose:
+
+Track retries.
+
+---
+
+## desktop_agents
+
+Fields:
+
+* id
+
+* uuid
+
+* agent_name
+
+* machine_name
+
+* version
+
+* status
+
+* ip_address
+
+* last_heartbeat
+
+* runtime_mode
+
+* created_at
+
+Status:
+
+* Online
+* Offline
+* Disabled
+
+Purpose:
+
+Future Desktop Agent support.
+
+Build registry now.
+
+Do not build agent application yet.
+
+---
+
+# Runtime Configurations
+
+Create:
+
+runtime_configurations
+
+Fields:
+
+* simulator_vendor_id
+
+* runtime_mode
+
+* api_endpoint
+
+* executable_path
+
+* working_directory
+
+* launch_arguments
+
+* result_directory
+
+* auto_sync
+
+Runtime Modes:
+
+* CLOUD_API
+* DESKTOP_OFFLINE
+* MANUAL
+
+Rules:
+
+Store only paths.
+
+No executable uploads.
+
+No binary storage.
+
+---
+
+# Variant Resolution Engine
+
+Before launching:
+
+Resolve:
+
+Assessment
+↓
+Exercise
+↓
+Variant
+↓
+Simulator Mapping
+
+Example:
+
+Night Fog Crossing
+↓
+PASE Dynamic
+
+or
+
+KG-102
+
+or
+
+TS-45
+
+Use:
+
+exercise_variant_simulator_mappings
+
+from previous sprint.
+
+---
+
+# Connector Framework
+
+Create abstract connector architecture.
+
+BaseSimulatorConnector
+
+Methods:
+
+launch_session()
+
+get_status()
+
+fetch_results()
+
+terminate_session()
+
+validate_configuration()
+
+---
+
+# Cloud Connector
+
+CloudSimulatorConnector
+
+Purpose:
+
+Communicate with simulator APIs.
+
+Methods:
+
+launch_session()
+
+fetch_results()
+
+Support:
+
+* API Endpoint
+* Authentication Placeholder
+* Payload Generation
+
+---
+
+# Desktop Connector
+
+DesktopSimulatorConnector
+
+Purpose:
+
+Communicate with future Desktop Agent.
+
+For now:
+
+Generate launch request records.
+
+Create extension points.
+
+Do not launch executables directly.
+
+Future Flow:
+
+Naviora
+↓
+Desktop Agent
+↓
+Simulator EXE
+
+---
+
+# Manual Connector
+
+ManualSimulatorConnector
+
+Purpose:
+
+Instructor manually marks assessment completion.
+
+Support:
+
+Pass
+
+Fail
+
+Remarks
+
+Used when no integration exists.
+
+---
+
+# Session Launch Flow
+
+Candidate Dashboard
+
+Assigned Assessment
+
+Status:
+
+Ready To Start
+
+User Clicks:
+
+Start Assessment
+
+System:
+
+Validate Assignment
+
+Validate Schedule
+
+Validate Attempts
+
+Create Session
+
+Resolve Variant
+
+Resolve Simulator Mapping
+
+Select Connector
+
+Launch Session
+
+Update Status
+
+---
+
+# Session Monitoring
+
+Create monitoring dashboard.
+
+Show:
+
+Session ID
+
+Candidate
+
+Assessment
+
+Simulator
+
+Runtime Mode
+
+Status
+
+Started
+
+Completed
+
+Duration
+
+Support:
+
+Search
+
+Filters
+
+Pagination
+
+Auto Refresh
+
+---
+
+# Session Detail Page
+
+Show:
+
+Session Information
+
+Assessment Information
+
+Candidate Information
+
+Launch Payload
+
+Raw Result
+
+Activity Timeline
+
+Logs
+
+Future Result Section
+
+Future AI Section
+
+---
+
+# Candidate Portal Integration
+
+Create:
+
+/candidate/assessments
+
+/candidate/sessions
+
+When assessment available:
+
+Show:
+
+Ready To Start
+
+In Progress
+
+Completed
+
+Support:
+
+Start Assessment
+
+View Session History
+
+---
+
+# Agent Registry
+
+Create:
+
+/admin/agents
+
+Display:
+
+Agent Name
+
+Machine
+
+Version
+
+Status
+
+Last Heartbeat
+
+Actions:
+
+View
+
+Disable
+
+Future:
+
+Update Agent
+
+Restart Agent
+
+---
+
+# Runtime Dashboard
+
+Admin Dashboard
+
+Widgets:
+
+Active Sessions
+
+Running Sessions
+
+Failed Sessions
+
+Completed Sessions
+
+Connected Agents
+
+Sessions Today
+
+---
+
+# APIs
+
+Create APIs for:
+
+Session Creation
+
+Session Launch
+
+Session Status
+
+Session Monitoring
+
+Session Logs
+
+Agent Registry
+
+Runtime Configurations
+
+Support:
+
+Search
+
+Filters
+
+Sorting
+
+Pagination
+
+---
+
+# Security
+
+Protect all APIs using JWT.
+
+Validate:
+
+Organization Ownership
+
+Candidate Ownership
+
+Assignment Ownership
+
+Never allow launching another organization's sessions.
+
+Encrypt sensitive payloads where required.
+
+Use existing Encryption Service.
+
+---
+
+# Audit Logging
+
+Track:
+
+Session Created
+
+Session Started
+
+Session Completed
+
+Session Failed
+
+Session Cancelled
+
+Runtime Configuration Changes
+
+Agent Status Changes
+
+Use existing audit framework.
+
+---
+
+# Deliverables
+
+Generate:
+
+* Models
+* Migrations
+* Schemas
+* Repositories
+* Services
+* Connectors
+* APIs
+* Runtime Dashboard
+* Session Monitoring
+* Candidate Launch Flow
+* Agent Registry
+
+Use existing reusable components.
+
+Support:
+
+* Search
+* Filters
+* Pagination
+* Audit Logging
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* Desktop Agent
+* Browser Simulators
+* Vendor APIs
+* AI Assessment
+* Results Engine
+* Certificates
+* Competency Tracking
+* Offline Deployments
+
+Build this sprint as the universal simulator execution layer for Naviora by Blue Stratum.
+
+Sprint Completion Outcome:
+
+Candidate
+↓
+Assessment Assignment
+↓
+Start Assessment
+↓
+Simulator Session Created
+↓
+Simulator Launch Requested
+↓
+Runtime Tracking Active
+↓
+Raw Result Captured
+
+The next sprint will transform simulator outputs into standardized assessment results and reporting.

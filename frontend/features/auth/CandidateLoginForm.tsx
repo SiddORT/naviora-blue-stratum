@@ -5,9 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Eye, EyeOff, Loader2, Award, BookOpen, FileText } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/hooks/useAuth";
+import { candidateService } from "@/services/candidate.service";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -22,24 +23,29 @@ const HIGHLIGHTS = [
 ];
 
 export function CandidateLoginForm() {
-  const { login, isLoggingIn } = useAuth();
+  const router = useRouter();
   const [showPass, setShowPass] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setApiError(null);
-    login(data, {
-      onError: (err: unknown) => {
-        const msg =
-          (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-          "Login failed. Please check your credentials.";
-        setApiError(msg);
-      },
-    });
+    setIsLoading(true);
+    try {
+      await candidateService.login(data.email, data.password);
+      router.replace("/candidate/assessments");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+        "Login failed. Please check your credentials.";
+      setApiError(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const inputBase = cn(
@@ -171,13 +177,13 @@ export function CandidateLoginForm() {
               {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
             </div>
 
-            <button type="submit" disabled={isLoggingIn}
+            <button type="submit" disabled={isLoading}
               className="w-full flex items-center justify-center gap-2 mt-1 font-semibold text-sm rounded-xl py-3 px-4 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-black"
               style={{
                 background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)",
                 boxShadow: "0 4px 20px rgba(212,166,58,0.28)",
               }}>
-              {isLoggingIn ? <><Loader2 className="w-4 h-4 animate-spin text-black" />Signing in...</> : "Sign in"}
+              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin text-black" />Signing in...</> : "Sign in"}
             </button>
           </form>
 

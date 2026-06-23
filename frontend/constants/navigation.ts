@@ -64,6 +64,17 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    label: "Runtime Engine",
+    href: "/admin/runtime",
+    icon: "Cpu",
+    children: [
+      { label: "Runtime Dashboard", href: "/admin/runtime/dashboard",  icon: "LayoutDashboard" },
+      { label: "Active Sessions",   href: "/admin/runtime/sessions",   icon: "PlayCircle" },
+      { label: "Runtime Configs",   href: "/admin/runtime/configs",    icon: "Sliders" },
+      { label: "Desktop Agents",    href: "/admin/runtime/agents",     icon: "HardDrive" },
+    ],
+  },
+  {
     label: "Master Data",
     href: "/admin/master-data",
     icon: "Database",
