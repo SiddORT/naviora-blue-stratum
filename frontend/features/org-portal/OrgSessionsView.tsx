@@ -81,10 +81,12 @@ export function OrgSessionsView() {
         <select value={mode} onChange={e => { setMode(e.target.value); setPage(1); }} style={selectStyle}>
           {MODES.map(m => <option key={m} value={m}>{m || "All Modes"}</option>)}
         </select>
-        <select value={vendorUuid} onChange={e => { setVendorUuid(e.target.value); setPage(1); }} style={selectStyle}>
-          <option value="">All Vendors</option>
-          {vendors.map(v => <option key={v.uuid} value={v.uuid}>{v.name}</option>)}
-        </select>
+        {vendors.length >= 2 && (
+          <select value={vendorUuid} onChange={e => { setVendorUuid(e.target.value); setPage(1); }} style={selectStyle}>
+            <option value="">All Vendors</option>
+            {vendors.map(v => <option key={v.uuid} value={v.uuid}>{v.name}</option>)}
+          </select>
+        )}
         <button onClick={load} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 6, border: "1px solid #1E2430", background: "#141821", color: "#9CA3AF", cursor: "pointer", fontSize: 13 }}>
           <RefreshCw size={14} />Refresh
         </button>
