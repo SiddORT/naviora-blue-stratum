@@ -48,6 +48,9 @@ from app.models.candidate import Candidate  # noqa: F401
 from app.models.user_invitation import UserInvitation  # noqa: F401
 from app.models.organization_assignment import OrganizationAssignment  # noqa: F401
 from app.models.platform_settings import PlatformSettings  # noqa: F401
+from app.models.assessment_campaign import AssessmentCampaign  # noqa: F401
+from app.models.assessment_assignment import AssessmentAssignment  # noqa: F401
+from app.models.assignment_activity_log import AssignmentActivityLog  # noqa: F401
 from app.models.branding_settings import BrandingSettings  # noqa: F401
 from app.models.communication_settings import CommunicationSettings  # noqa: F401
 from app.models.notification_settings import NotificationSettings  # noqa: F401

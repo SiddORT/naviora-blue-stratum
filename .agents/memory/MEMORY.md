@@ -5,3 +5,5 @@
 - [sidebar-nav-keys](sidebar-nav-keys.md) — Sidebar uses href as React key; sibling nav items sharing the same href cause duplicate-key warnings. Fix: key=`${href}::${label}`.
 - [frontend-service-auth](frontend-service-auth.md) — All frontend services must use the `api` axios instance (services/api.ts), not raw fetch. Bearer token is stored in Zustand, attached by the axios request interceptor. Raw fetch with credentials:include does not work.
 - [sqlalchemy-async-lazy-load](sqlalchemy-async-lazy-load.md) — After db.commit(), never access lazy-loaded relationships; use _load_full(id) with selectinload to reload before building response.
+- [require-org-admin-depends](require-org-admin-depends.md) — require_org_admin must accept CurrentOrgUser (Annotated type), not plain OrgContext (NamedTuple), or FastAPI raises "Invalid args for response field" on startup.
+- [alembic-revision-collision](alembic-revision-collision.md) — Short hex revision IDs like a1b2c3d4e5f6 can collide with existing migrations; always check grep before assigning a new revision ID.

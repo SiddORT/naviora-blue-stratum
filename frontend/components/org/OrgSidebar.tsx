@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, ClipboardList,
   BarChart3, CreditCard, Settings, Building2, ChevronLeft, ChevronRight, LogOut, Ship,
+  Megaphone, ClipboardCheck, TrendingUp, CalendarDays,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ import { ORG_NAV_ITEMS } from "@/constants/org-navigation";
 const iconMap: Record<string, React.ElementType> = {
   LayoutDashboard, Users, GraduationCap, ClipboardList,
   BarChart3, CreditCard, Settings, Building2,
+  Megaphone, ClipboardCheck, TrendingUp, CalendarDays,
 };
 
 export function OrgSidebar() {
@@ -25,6 +27,29 @@ export function OrgSidebar() {
   const handleLogout = () => {
     logout();
     router.replace("/org/login");
+  };
+
+  const assessmentItems = ORG_NAV_ITEMS.filter((i) => i.group === "Assessments");
+  const otherItems = ORG_NAV_ITEMS.filter((i) => !i.group);
+
+  const renderItem = (item: (typeof ORG_NAV_ITEMS)[0]) => {
+    const Icon = iconMap[item.icon] ?? LayoutDashboard;
+    const active = pathname === item.href || pathname.startsWith(item.href + "/");
+    return (
+      <Link
+        key={`${item.href}::${item.label}`}
+        href={item.href}
+        title={collapsed ? item.label : undefined}
+        className={cn(
+          "flex items-center gap-3 mx-2 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium",
+          active ? "text-black" : "text-white/50 hover:text-white/80"
+        )}
+        style={active ? { background: "linear-gradient(135deg, #D4A63A, #B8860B)", color: "#000" } : {}}
+      >
+        <Icon className="w-4 h-4 flex-shrink-0" />
+        {!collapsed && <span className="truncate">{item.label}</span>}
+      </Link>
+    );
   };
 
   return (
@@ -57,31 +82,27 @@ export function OrgSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 overflow-y-auto">
-        {ORG_NAV_ITEMS.map((item) => {
-          const Icon = iconMap[item.icon] ?? LayoutDashboard;
-          const active = pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={collapsed ? item.label : undefined}
-              className={cn(
-                "flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium group",
-                active
-                  ? "text-black"
-                  : "text-white/50 hover:text-white/80"
-              )}
-              style={active ? {
-                background: "linear-gradient(135deg, #D4A63A, #B8860B)",
-                color: "#000",
-              } : {}}
-            >
-              <Icon className="w-4 h-4 flex-shrink-0" />
-              {!collapsed && <span className="truncate">{item.label}</span>}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 py-3 overflow-y-auto space-y-0.5">
+        {/* Main items (no group) up to Candidates */}
+        {otherItems.slice(0, 3).map(renderItem)}
+
+        {/* Assessments group */}
+        {!collapsed && (
+          <p className="px-5 pt-3 pb-1 text-[10px] font-semibold tracking-widest uppercase"
+             style={{ color: "rgba(212,166,58,0.5)" }}>
+            Assessments
+          </p>
+        )}
+        {assessmentItems.map(renderItem)}
+
+        {/* Remaining items */}
+        {!collapsed && (
+          <p className="px-5 pt-3 pb-1 text-[10px] font-semibold tracking-widest uppercase"
+             style={{ color: "rgba(255,255,255,0.2)" }}>
+            Account
+          </p>
+        )}
+        {otherItems.slice(3).map(renderItem)}
       </nav>
 
       {/* User + logout */}

@@ -75,11 +75,10 @@ async def get_current_org_user(
 CurrentOrgUser = Annotated[OrgContext, Depends(get_current_org_user)]
 
 
-def require_org_admin(ctx: OrgContext) -> OrgContext:
+def require_org_admin(ctx: CurrentOrgUser) -> None:
     """Raise 403 if the org user is not an ORG_ADMIN."""
     if ctx.user.user_type != "ORG_ADMIN":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Organization admin access required",
         )
-    return ctx

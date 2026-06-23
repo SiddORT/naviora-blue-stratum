@@ -1,0 +1,629 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.8 – Assessment Campaigns, Assignment Engine & Assessment Delivery
+
+Build the complete Assessment Campaign and Assignment Engine.
+
+This sprint enables Organizations to operationally use Assessments by assigning them to Candidates, scheduling execution windows and monitoring progress.
+
+This is the bridge between:
+
+* Assessments
+* Candidates
+* Simulator Runtime
+
+Follow platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* Audit Logging
+* Soft Deletes
+* Encryption Framework
+* Search
+* Filters
+* Pagination
+
+Generate production-ready implementation.
+
+---
+
+# Business Flow
+
+Assessment Library
+↓
+Organization
+↓
+Assessment Campaign
+↓
+Candidate Assignment
+↓
+Schedule
+↓
+Candidate Dashboard
+↓
+Start Assessment
+↓
+Simulator Session (Future Sprint)
+
+This sprint ends at assessment assignment and delivery preparation.
+
+Do not implement simulator launching yet.
+
+---
+
+# Navigation
+
+Organization Portal
+
+├── Assessment Campaigns
+├── Assignments
+├── Candidate Progress
+└── Assessment Calendar
+
+Routes:
+
+/org/assessment-campaigns
+
+/org/assessment-campaigns/create
+
+/org/assessment-campaigns/[id]
+
+/org/assignments
+
+/org/progress
+
+---
+
+# Core Concept
+
+Assessment Template
+
+Already exists.
+
+Example:
+
+COLREG Level 1
+
+Contains:
+
+* Crossing Assessment
+* Head-On Assessment
+* Overtaking Assessment
+
+---
+
+# Assessment Campaign
+
+Purpose:
+
+Create an operational assessment event.
+
+Example:
+
+Campaign Name:
+
+July 2026 COLREG Assessment
+
+Assessment:
+
+COLREG Level 1
+
+Candidates:
+
+25
+
+Schedule:
+
+1 July – 31 July
+
+---
+
+# Database Design
+
+## assessment_campaigns
+
+Fields:
+
+* id
+
+* uuid
+
+* organization_id
+
+* campaign_name
+
+* campaign_code
+
+* assessment_id
+
+* description
+
+* start_date
+
+* end_date
+
+* timezone
+
+* duration_override_minutes
+
+* passing_score_override
+
+* max_attempts_override
+
+* randomize_exercises
+
+* randomize_variants
+
+* status
+
+* published_at
+
+* created_at
+
+* updated_at
+
+* created_by
+
+* updated_by
+
+Status:
+
+* Draft
+* Published
+* Active
+* Completed
+* Archived
+
+Rules:
+
+* campaign_code unique
+* organization scoped
+
+---
+
+## assessment_assignments
+
+Fields:
+
+* id
+
+* uuid
+
+* campaign_id
+
+* candidate_id
+
+* assignment_status
+
+* assigned_at
+
+* started_at
+
+* completed_at
+
+* due_date
+
+* attempt_count
+
+* final_score
+
+* result_status
+
+Status:
+
+* Assigned
+* In Progress
+* Completed
+* Passed
+* Failed
+* Expired
+* Cancelled
+
+Result Status:
+
+* Pending
+* Passed
+* Failed
+
+Rules:
+
+* One active assignment per campaign per candidate
+* Prevent duplicates
+
+---
+
+## assignment_activity_logs
+
+Fields:
+
+* assignment_id
+
+* activity_type
+
+* activity_description
+
+* created_at
+
+Examples:
+
+Assignment Created
+
+Assessment Started
+
+Assessment Completed
+
+Attempt Created
+
+Result Published
+
+---
+
+# Campaign Builder
+
+Create wizard.
+
+Step 1
+
+Campaign Information
+
+* Campaign Name
+* Description
+
+Step 2
+
+Assessment Selection
+
+* Select Assessment
+
+Display:
+
+* Exercise Count
+* Estimated Duration
+* Passing Score
+
+Step 3
+
+Candidate Selection
+
+Support:
+
+* Multi-select Candidates
+* Search Candidates
+* Filters
+
+Display:
+
+* Candidate Name
+* Maritime Rank
+* Email
+
+Step 4
+
+Schedule
+
+Fields:
+
+* Start Date
+* End Date
+* Timezone
+
+Optional Overrides:
+
+* Duration
+* Passing Score
+* Attempts
+
+Step 5
+
+Assessment Options
+
+* Randomize Exercises
+* Randomize Variants
+
+Step 6
+
+Review & Publish
+
+---
+
+# Candidate Assignment Engine
+
+Support:
+
+Single Assignment
+
+Bulk Assignment
+
+Future:
+
+Organization-wide assignment
+
+CSV Assignment
+
+Create extension points.
+
+---
+
+# Campaign Dashboard
+
+Show:
+
+Campaign Information
+
+Assessment Details
+
+Assigned Candidates
+
+Schedule
+
+Progress
+
+Statistics
+
+Widgets:
+
+Total Assigned
+
+Not Started
+
+In Progress
+
+Completed
+
+Passed
+
+Failed
+
+Expired
+
+Pass Percentage
+
+Completion Percentage
+
+---
+
+# Candidate Progress Screen
+
+Route:
+
+/org/progress
+
+Columns:
+
+* Candidate Name
+* Assessment
+* Status
+* Attempts
+* Score
+* Last Activity
+
+Actions:
+
+* View Details
+* View History
+
+Support:
+
+* Search
+* Filters
+* Pagination
+* Export
+
+---
+
+# Assignment Detail Page
+
+Show:
+
+Candidate Information
+
+Assessment Information
+
+Assignment Timeline
+
+Attempts
+
+Future Simulator Sessions Section
+
+Future AI Reports Section
+
+---
+
+# Assessment Calendar
+
+Route:
+
+/org/calendar
+
+Show:
+
+Upcoming Assessments
+
+Assessment Windows
+
+Due Dates
+
+Completion Dates
+
+Use calendar view.
+
+---
+
+# Candidate Portal Preparation
+
+Assignments created here must later appear in:
+
+/candidate/dashboard
+
+Future candidate experience:
+
+Assigned Assessments
+
+Ready To Start
+
+Assessment History
+
+Results
+
+Certificates
+
+Create architecture compatibility.
+
+---
+
+# Entitlement Validation
+
+Before campaign creation:
+
+Validate:
+
+can_access_assessment()
+
+has_available_candidate_slots()
+
+has_available_assessment_quota()
+
+Use existing Entitlement Service.
+
+Prevent assignment beyond subscription limits.
+
+---
+
+# Multi-Tenancy
+
+Every campaign must belong to:
+
+organization_id
+
+Organizations can only view:
+
+* Their campaigns
+* Their assignments
+* Their candidates
+
+Apply filtering:
+
+Repository Layer
+
+Service Layer
+
+API Layer
+
+Never rely only on frontend filtering.
+
+---
+
+# APIs
+
+Create:
+
+Campaign CRUD
+
+Campaign Publish
+
+Campaign Archive
+
+Assignment CRUD
+
+Assignment Status
+
+Progress Dashboard
+
+Calendar Data
+
+Support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+---
+
+# Audit Logging
+
+Track:
+
+Campaign Creation
+
+Campaign Update
+
+Campaign Publish
+
+Candidate Assignment
+
+Assignment Removal
+
+Status Changes
+
+Use existing audit framework.
+
+---
+
+# Security
+
+Protect all APIs using JWT.
+
+Validate organization ownership.
+
+Apply organization middleware.
+
+Encrypt sensitive candidate information.
+
+---
+
+# Deliverables
+
+Generate:
+
+* Models
+* Migrations
+* Schemas
+* Repositories
+* Services
+* APIs
+* Campaign Builder
+* Progress Dashboard
+* Assignment Engine
+* Calendar View
+
+Use existing reusable:
+
+* DataTables
+* Form Components
+* Search Components
+* Pagination Components
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* Simulator Runtime
+* Assessment Attempts
+* AI Assessment
+* Results Engine
+* Certificates
+* Competency Tracking
+* Offline Deployments
+
+Build this module as the operational assessment delivery layer for Naviora by Blue Stratum.
+
+This sprint should conclude with:
+
+Organization
+↓
+Assessment Campaign
+↓
+Candidate Assignment
+↓
+Ready For Simulator Launch
+
+The next sprint will implement Simulator Runtime & Session Management.

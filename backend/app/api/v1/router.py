@@ -33,11 +33,16 @@ api_router.include_router(settings_ep.router, prefix="/settings", tags=["Platfor
 
 from app.api.v1.endpoints import (
     org_auth, org_dashboard, org_users, org_candidates, org_subscription, org_settings, org_profile,
+    org_campaigns, org_portal_assignments, org_progress, org_calendar,
 )
-api_router.include_router(org_auth.router,         prefix="/org/auth",         tags=["Org Portal — Auth"])
-api_router.include_router(org_dashboard.router,    prefix="/org/dashboard",    tags=["Org Portal — Dashboard"])
-api_router.include_router(org_users.router,        prefix="/org/users",        tags=["Org Portal — Users"])
-api_router.include_router(org_candidates.router,   prefix="/org/candidates",   tags=["Org Portal — Candidates"])
-api_router.include_router(org_subscription.router, prefix="/org/subscription", tags=["Org Portal — Subscription"])
-api_router.include_router(org_settings.router,     prefix="/org/settings",     tags=["Org Portal — Settings"])
-api_router.include_router(org_profile.router,      prefix="/org/profile",      tags=["Org Portal — Profile"])
+api_router.include_router(org_auth.router,                prefix="/org/auth",         tags=["Org Portal — Auth"])
+api_router.include_router(org_dashboard.router,           prefix="/org/dashboard",    tags=["Org Portal — Dashboard"])
+api_router.include_router(org_users.router,               prefix="/org/users",        tags=["Org Portal — Users"])
+api_router.include_router(org_candidates.router,          prefix="/org/candidates",   tags=["Org Portal — Candidates"])
+api_router.include_router(org_subscription.router,        prefix="/org/subscription", tags=["Org Portal — Subscription"])
+api_router.include_router(org_settings.router,            prefix="/org/settings",     tags=["Org Portal — Settings"])
+api_router.include_router(org_profile.router,             prefix="/org/profile",      tags=["Org Portal — Profile"])
+api_router.include_router(org_campaigns.router,           prefix="/org/campaigns",    tags=["Org Portal — Campaigns"])
+api_router.include_router(org_portal_assignments.router,  prefix="/org",              tags=["Org Portal — Assignments"])
+api_router.include_router(org_progress.router,            prefix="/org/progress",     tags=["Org Portal — Progress"])
+api_router.include_router(org_calendar.router,            prefix="/org/calendar",     tags=["Org Portal — Calendar"])
