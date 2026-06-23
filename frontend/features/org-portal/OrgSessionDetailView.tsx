@@ -81,6 +81,7 @@ export function OrgSessionDetailView({ uuid }: { uuid: string }) {
           {field("Campaign", session.campaign_name)}
           {field("Assessment", session.assessment_name)}
           {field("Exercise", session.exercise_name)}
+          {field("Simulator Vendor", session.vendor_name)}
           {field("Runtime Mode", session.runtime_mode)}
           {field("Started", session.started_at ? new Date(session.started_at).toLocaleString() : "—")}
           {field("Completed", session.completed_at ? new Date(session.completed_at).toLocaleString() : "—")}

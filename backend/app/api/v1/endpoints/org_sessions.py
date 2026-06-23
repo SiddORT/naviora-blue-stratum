@@ -20,6 +20,7 @@ from app.models.exercise_variant import ExerciseVariant
 from app.models.runtime_configuration import RuntimeConfiguration
 from app.models.session_log import SessionLog
 from app.models.simulator_session import SimulatorSession
+from app.models.simulator_vendor import SimulatorVendor
 from app.schemas.sessions import ManualResultInput, SessionCreateRequest
 from app.services.audit import AuditService
 from app.utils.responses import error_response, not_found_response, success_response
@@ -158,6 +159,7 @@ async def get_org_session(
     exercise = await db.get(Exercise, s.exercise_fk_id) if s.exercise_fk_id else None
     variant = await db.get(ExerciseVariant, s.variant_id) if s.variant_id else None
     campaign = await db.get(AssessmentCampaign, s.campaign_id) if s.campaign_id else None
+    vendor = await db.get(SimulatorVendor, s.simulator_vendor_id) if s.simulator_vendor_id else None
 
     log_rows = (await db.execute(
         select(SessionLog).where(SessionLog.simulator_session_id == s.id)
@@ -165,7 +167,7 @@ async def get_org_session(
     )).scalars().all()
 
     return success_response(data={
-        **_session_item(s, candidate, campaign, assessment, exercise, variant),
+        **_session_item(s, candidate, campaign, assessment, exercise, variant, vendor.name if vendor else None),
         "result_received": s.result_received,
         "raw_result": s.raw_result,
         "failure_reason": s.failure_reason,
