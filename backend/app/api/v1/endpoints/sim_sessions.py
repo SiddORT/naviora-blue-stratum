@@ -104,6 +104,7 @@ async def list_sessions(
     status: str | None = Query(None),
     runtime_mode: str | None = Query(None),
     org_id: int | None = Query(None),
+    candidate_search: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     base_q = select(SimulatorSession).where(SimulatorSession.deleted_at.is_(None))
@@ -113,6 +114,11 @@ async def list_sessions(
         base_q = base_q.where(SimulatorSession.runtime_mode == runtime_mode)
     if org_id:
         base_q = base_q.where(SimulatorSession.organization_id == org_id)
+    if candidate_search:
+        term = f"%{candidate_search.strip()}%"
+        base_q = base_q.join(Candidate, Candidate.id == SimulatorSession.candidate_fk_id).where(
+            Candidate.full_name.ilike(term) | Candidate.email.ilike(term)
+        )
 
     total = (await db.execute(select(func.count()).select_from(base_q.subquery()))).scalar_one()
     rows = (await db.execute(

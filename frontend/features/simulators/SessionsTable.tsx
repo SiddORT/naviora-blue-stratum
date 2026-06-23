@@ -29,16 +29,18 @@ function formatDuration(seconds: number | null): string {
 export function SessionsTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [candidateSearch, setCandidateSearch] = useState("");
   const [status, setStatus] = useState("");
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
   const pageSize = 20;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["simulator-sessions", page, search, status],
+    queryKey: ["simulator-sessions", page, search, candidateSearch, status],
     queryFn: () =>
       simulatorsService.listSessions({
         page, page_size: pageSize,
         search: search || undefined,
+        candidate_search: candidateSearch || undefined,
         status: status || undefined,
       }),
   });
@@ -63,6 +65,16 @@ export function SessionsTable() {
             placeholder="Search by session reference..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className={cn(inputClass, "pl-9 w-full")}
+          />
+        </div>
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by candidate name or email..."
+            value={candidateSearch}
+            onChange={(e) => { setCandidateSearch(e.target.value); setPage(1); }}
             className={cn(inputClass, "pl-9 w-full")}
           />
         </div>
@@ -103,7 +115,7 @@ export function SessionsTable() {
               ) : sessions.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
-                    {search || status ? "No sessions match your filters." : "No simulator sessions recorded yet."}
+                    {search || candidateSearch || status ? "No sessions match your filters." : "No simulator sessions recorded yet."}
                   </td>
                 </tr>
               ) : (
