@@ -44,6 +44,7 @@ def _to_list_response(c: Candidate) -> CandidateListResponse:
         full_name=c.full_name,
         phone=c.phone,
         organization_id=c.organization_id,
+        nationality=c.nationality,
         rank_or_designation=c.rank_or_designation,
         seafarer_id=c.seafarer_id,
         status=c.status,
