@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, GraduationCap, ClipboardList,
   BarChart3, CreditCard, Settings, Building2, ChevronLeft, ChevronRight, LogOut, Ship,
-  Megaphone, ClipboardCheck, TrendingUp, CalendarDays,
+  Megaphone, ClipboardCheck, TrendingUp, CalendarDays, Award, PlayCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { ORG_NAV_ITEMS } from "@/constants/org-navigation";
 const iconMap: Record<string, React.ElementType> = {
   LayoutDashboard, Users, GraduationCap, ClipboardList,
   BarChart3, CreditCard, Settings, Building2,
-  Megaphone, ClipboardCheck, TrendingUp, CalendarDays,
+  Megaphone, ClipboardCheck, TrendingUp, CalendarDays, Award, PlayCircle,
 };
 
 export function OrgSidebar() {

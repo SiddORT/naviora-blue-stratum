@@ -110,7 +110,17 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   },
   { label: "Maritime Knowledge Base",  href: "/admin/knowledge-base",icon: "Anchor" },
   { label: "AI Management",            href: "/admin/ai-management", icon: "Cpu" },
-  { label: "Certificates",             href: "/admin/certificates",  icon: "Award" },
+  {
+    label: "Certificates",
+    href: "/admin/certificates",
+    icon: "Award",
+    children: [
+      { label: "All Certificates",  href: "/admin/certificates",           icon: "Award" },
+      { label: "Templates",         href: "/admin/certificates/templates", icon: "FileText" },
+      { label: "Rules",             href: "/admin/certificates/rules",     icon: "Sliders" },
+      { label: "Analytics",         href: "/admin/certificates/analytics", icon: "BarChart2" },
+    ],
+  },
   { label: "Reports & Analytics",      href: "/admin/reports",       icon: "BarChart3" },
   { label: "Audit Logs",               href: "/admin/audit-logs",    icon: "FileText" },
   {

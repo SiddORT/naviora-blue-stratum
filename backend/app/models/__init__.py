@@ -63,3 +63,8 @@ from app.models.session_log import SessionLog  # noqa: F401
 from app.models.session_attempt import SessionAttempt  # noqa: F401
 from app.models.desktop_agent import DesktopAgent  # noqa: F401
 from app.models.exercise_variant_simulator_mapping import ExerciseVariantSimulatorMapping  # noqa: F401
+from app.models.certificate_template import CertificateTemplate  # noqa: F401
+from app.models.certificate_rule import CertificateRule  # noqa: F401
+from app.models.certificate import Certificate  # noqa: F401
+from app.models.certificate_history import CertificateHistory  # noqa: F401
+from app.models.certificate_settings import CertificateSettings  # noqa: F401

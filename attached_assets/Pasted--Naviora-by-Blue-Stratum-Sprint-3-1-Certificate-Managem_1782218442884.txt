@@ -1,0 +1,800 @@
+# Naviora by Blue Stratum
+
+## Sprint 3.1 – Certificate Management, Credential Engine & Verification Portal
+
+Build the complete Certificate Management and Credential Engine.
+
+This module transforms assessment results into verifiable digital certificates and competency records.
+
+The objective is to provide:
+
+* Certificate Templates
+* Certificate Generation
+* Certificate Issuance
+* Certificate Verification
+* Candidate Certificate Wallet
+* Certificate Lifecycle Management
+* Certification Analytics
+
+Follow platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* RBAC
+* Audit Logging
+* Encryption Framework
+* Search
+* Filters
+* Pagination
+
+Generate production-ready implementation.
+
+---
+
+# Business Flow
+
+Assessment Result
+↓
+Review Approved
+↓
+Certificate Eligibility Check
+↓
+Certificate Generated
+↓
+Certificate Issued
+↓
+Certificate Available to Candidate
+↓
+Public Verification Available
+
+---
+
+# Navigation
+
+Admin Portal
+
+Certificates
+
+├── Certificate Templates
+├── Certificate Rules
+├── Issued Certificates
+├── Certificate Verification
+├── Certificate Analytics
+└── Certificate Settings
+
+Organization Portal
+
+├── Certificates
+├── Issued Certificates
+├── Expiring Certificates
+├── Revoked Certificates
+└── Certificate Analytics
+
+Candidate Portal
+
+├── My Certificates
+├── Active Certifications
+├── Expired Certifications
+└── Verification Links
+
+Public
+
+├── Certificate Verification
+
+Route:
+
+/verify-certificate/[certificate_number]
+
+---
+
+# Database Design
+
+## certificate_templates
+
+Purpose:
+
+Define reusable certificate designs.
+
+Fields:
+
+* id
+
+* uuid
+
+* template_name
+
+* template_code
+
+* description
+
+* certificate_type
+
+* background_image_path
+
+* logo_path
+
+* signature_image_path
+
+* template_html
+
+* template_config
+
+* is_default
+
+* status
+
+* created_at
+
+* updated_at
+
+Status:
+
+* Draft
+* Active
+* Archived
+
+Rules:
+
+* template_code unique
+* files stored through Storage Helper
+* database stores file paths only
+
+---
+
+## certificate_rules
+
+Purpose:
+
+Define when certificates are generated.
+
+Fields:
+
+* id
+
+* uuid
+
+* assessment_id
+
+* template_id
+
+* minimum_score
+
+* require_review_approval
+
+* auto_issue
+
+* validity_period_months
+
+* status
+
+Examples:
+
+COLREG Assessment
+
+Minimum Score: 70
+
+Require Review Approval: Yes
+
+Auto Issue: Yes
+
+Validity: 24 Months
+
+---
+
+## certificates
+
+Purpose:
+
+Store generated certificates.
+
+Fields:
+
+* id
+
+* uuid
+
+* certificate_number
+
+* certificate_type
+
+* certificate_template_id
+
+* organization_id
+
+* candidate_id
+
+* assessment_id
+
+* result_id
+
+* issue_date
+
+* expiry_date
+
+* score
+
+* status
+
+* pdf_path
+
+* verification_hash
+
+* verification_url
+
+* remarks
+
+* issued_by
+
+* created_at
+
+* updated_at
+
+Status:
+
+* Draft
+* Issued
+* Expired
+* Revoked
+* Suspended
+
+Rules:
+
+* certificate_number unique
+* verification_hash unique
+
+---
+
+## certificate_history
+
+Purpose:
+
+Track certificate lifecycle.
+
+Fields:
+
+* certificate_id
+
+* action_type
+
+* previous_status
+
+* new_status
+
+* remarks
+
+* action_by
+
+* created_at
+
+Examples:
+
+Issued
+
+Renewed
+
+Revoked
+
+Expired
+
+Reinstated
+
+---
+
+# Certificate Numbering Engine
+
+Create:
+
+certificate_settings
+
+Fields:
+
+* certificate_prefix
+
+* next_certificate_number
+
+* reset_frequency
+
+Examples:
+
+CERT-2026-000001
+
+CERT-2026-000002
+
+Support:
+
+* Annual Reset
+* Monthly Reset
+* Continuous Numbering
+
+---
+
+# Template Builder
+
+Create certificate designer.
+
+Sections:
+
+Header
+
+Body
+
+Footer
+
+Variables
+
+Support placeholders:
+
+{{candidate_name}}
+
+{{organization_name}}
+
+{{certificate_number}}
+
+{{issue_date}}
+
+{{expiry_date}}
+
+{{assessment_name}}
+
+{{score}}
+
+{{platform_name}}
+
+{{verification_url}}
+
+{{instructor_name}}
+
+{{certificate_type}}
+
+Store placeholders dynamically.
+
+---
+
+# Certificate Generation Engine
+
+Create:
+
+CertificateGenerationService
+
+Responsibilities:
+
+Validate Eligibility
+
+Generate Certificate Number
+
+Populate Template Variables
+
+Generate PDF
+
+Store Certificate
+
+Generate Verification Hash
+
+Methods:
+
+validate_eligibility()
+
+generate_certificate()
+
+generate_pdf()
+
+generate_verification_url()
+
+---
+
+# Eligibility Engine
+
+Create:
+
+CertificateEligibilityService
+
+Rules:
+
+Assessment Passed
+
+Minimum Score Met
+
+Review Approved
+
+Certificate Rule Exists
+
+No Duplicate Active Certificate
+
+Methods:
+
+is_eligible()
+
+validate_score()
+
+validate_review_status()
+
+---
+
+# PDF Generation
+
+Generate downloadable PDF certificates.
+
+Requirements:
+
+* Organization Logo
+* Template Background
+* Candidate Name
+* Assessment Information
+* Issue Date
+* Expiry Date
+* Verification QR Code
+
+Store PDF via Storage Helper.
+
+Store only path in database.
+
+No BLOB storage.
+
+---
+
+# QR Code Verification
+
+Generate QR code.
+
+QR should point to:
+
+/verify-certificate/{certificate_number}
+
+Public users can verify authenticity.
+
+---
+
+# Public Verification Portal
+
+Route:
+
+/verify-certificate/[certificate_number]
+
+Display:
+
+Certificate Number
+
+Candidate Name
+
+Assessment
+
+Organization
+
+Issue Date
+
+Expiry Date
+
+Status
+
+Verification Status
+
+Statuses:
+
+Valid
+
+Expired
+
+Revoked
+
+Suspended
+
+Not Found
+
+No authentication required.
+
+---
+
+# Candidate Certificate Wallet
+
+Route:
+
+/candidate/certificates
+
+Display:
+
+Certificate Name
+
+Issue Date
+
+Expiry Date
+
+Status
+
+Certificate Number
+
+Actions:
+
+View
+
+Download PDF
+
+Copy Verification Link
+
+Support:
+
+Search
+
+Filters
+
+Pagination
+
+---
+
+# Organization Certificate Dashboard
+
+Route:
+
+/org/certificates
+
+Widgets:
+
+Issued Certificates
+
+Active Certificates
+
+Expiring Soon
+
+Expired
+
+Revoked
+
+Recent Issuances
+
+Grid Columns:
+
+Candidate
+
+Certificate
+
+Issue Date
+
+Expiry Date
+
+Status
+
+Actions:
+
+View
+
+Download
+
+Revoke
+
+Renew
+
+---
+
+# Certificate Lifecycle Management
+
+Support:
+
+Issue
+
+Renew
+
+Expire
+
+Suspend
+
+Revoke
+
+Reinstate
+
+Track all changes.
+
+Create audit trail.
+
+---
+
+# Renewal Engine
+
+Support:
+
+Manual Renewal
+
+Future Automated Renewal
+
+Renewal creates:
+
+New Certificate Version
+
+Maintains History
+
+---
+
+# Certificate Analytics
+
+Admin Dashboard
+
+Widgets:
+
+Certificates Issued
+
+Certificates Expiring
+
+Certificates Revoked
+
+Certificates by Organization
+
+Certificates by Assessment
+
+Organization Dashboard
+
+Widgets:
+
+Issued
+
+Active
+
+Expiring
+
+Expired
+
+Revoked
+
+Candidate Dashboard
+
+Widgets:
+
+My Certificates
+
+Expiring Soon
+
+Expired
+
+---
+
+# APIs
+
+Create:
+
+Certificate Templates
+
+Certificate Rules
+
+Certificate Generation
+
+Certificate Issuance
+
+Certificate Renewal
+
+Certificate Revocation
+
+Certificate Verification
+
+Certificate Analytics
+
+Support:
+
+Search
+
+Filters
+
+Sorting
+
+Pagination
+
+---
+
+# Security
+
+Protect:
+
+Template Management
+
+Certificate Generation
+
+Revocation
+
+Renewal
+
+using RBAC.
+
+Verification endpoint remains public.
+
+Validate:
+
+Organization Ownership
+
+Candidate Ownership
+
+Assessment Ownership
+
+---
+
+# Audit Logging
+
+Track:
+
+Template Created
+
+Template Updated
+
+Certificate Generated
+
+Certificate Issued
+
+Certificate Downloaded
+
+Certificate Revoked
+
+Certificate Renewed
+
+Certificate Verified
+
+Use existing audit framework.
+
+---
+
+# Frontend Deliverables
+
+Create:
+
+/admin/certificate-templates
+
+/admin/certificate-rules
+
+/admin/certificates
+
+/admin/certificate-analytics
+
+/org/certificates
+
+/org/certificate-analytics
+
+/candidate/certificates
+
+/verify-certificate/[certificate_number]
+
+Use:
+
+Reusable DataTables
+
+Filters
+
+Search
+
+Pagination
+
+Template Designer
+
+PDF Preview
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* STCW Certifications
+* Competency Framework
+* AI Reports
+* Digital Credentials
+* Blockchain Verification
+* Maritime Training Records
+* Learning Management Integration
+* Certificate Expiry Notifications
+
+Build this module as the official credential and certification engine for Naviora by Blue Stratum.
+
+Sprint Completion Outcome:
+
+Assessment Result
+↓
+Certificate Eligibility
+↓
+Certificate Generated
+↓
+Certificate Issued
+↓
+Certificate Wallet
+↓
+Public Verification Available
+
+This sprint creates the formal certification layer of the platform and prepares the foundation for AI Assessment, Competency Tracking and Maritime Career Records.

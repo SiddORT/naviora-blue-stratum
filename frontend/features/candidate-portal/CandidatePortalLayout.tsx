@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { candidateService, type CandidateProfile } from "@/services/candidate.service";
-import { ClipboardList, PlayCircle, LogOut, User, Menu, X } from "lucide-react";
+import { ClipboardList, PlayCircle, LogOut, User, Menu, X, Award } from "lucide-react";
 
 interface NavLink { label: string; href: string; icon: React.ElementType }
 const NAV: NavLink[] = [
-  { label: "My Assessments", href: "/candidate/assessments", icon: ClipboardList },
-  { label: "My Sessions",    href: "/candidate/sessions",    icon: PlayCircle },
+  { label: "My Assessments",  href: "/candidate/assessments",  icon: ClipboardList },
+  { label: "My Sessions",     href: "/candidate/sessions",     icon: PlayCircle },
+  { label: "My Certificates", href: "/candidate/certificates", icon: Award },
 ];
 
 export function CandidatePortalLayout({ children }: { children: React.ReactNode }) {

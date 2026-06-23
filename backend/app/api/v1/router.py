@@ -50,6 +50,9 @@ api_router.include_router(org_progress.router,            prefix="/org/progress"
 api_router.include_router(org_calendar.router,            prefix="/org/calendar",     tags=["Org Portal — Calendar"])
 api_router.include_router(org_sessions.router,            prefix="/org/sessions",     tags=["Org Portal — Sessions"])
 
+from app.api.v1.endpoints import org_certificates
+api_router.include_router(org_certificates.router,        prefix="/org/certificates", tags=["Org Portal — Certificates"])
+
 # ── Admin Runtime ─────────────────────────────────────────────────────────────
 from app.api.v1.endpoints import (
     runtime_configs, sim_sessions, desktop_agents, runtime_dashboard,
@@ -61,8 +64,14 @@ api_router.include_router(desktop_agents.router,     prefix="/runtime/agents",  
 
 # ── Candidate Portal ──────────────────────────────────────────────────────────
 from app.api.v1.endpoints import (
-    candidate_auth, candidate_assessments, candidate_sessions,
+    candidate_auth, candidate_assessments, candidate_sessions, candidate_certificates,
 )
 api_router.include_router(candidate_auth.router,         prefix="/candidate/auth",        tags=["Candidate Portal — Auth"])
 api_router.include_router(candidate_assessments.router,  prefix="/candidate/assignments", tags=["Candidate Portal — Assignments"])
 api_router.include_router(candidate_sessions.router,     prefix="/candidate/sessions",    tags=["Candidate Portal — Sessions"])
+api_router.include_router(candidate_certificates.router, prefix="/candidate/certificates", tags=["Candidate Portal — Certificates"])
+
+# ── Certificates ──────────────────────────────────────────────────────────────
+from app.api.v1.endpoints import certificates as certs_ep, certificate_verify
+api_router.include_router(certs_ep.router,         prefix="/certificates",       tags=["Certificate Management"])
+api_router.include_router(certificate_verify.router, prefix="/verify",           tags=["Public — Certificate Verify"])

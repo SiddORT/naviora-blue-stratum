@@ -14,6 +14,7 @@ export const ORG_NAV_ITEMS: OrgNavItem[] = [
   { label: "Progress",             href: "/org/progress",              icon: "TrendingUp",   group: "Assessments" },
   { label: "Calendar",             href: "/org/calendar",              icon: "CalendarDays", group: "Assessments" },
   { label: "Sessions",             href: "/org/sessions",              icon: "PlayCircle",   group: "Assessments" },
+  { label: "Certificates",         href: "/org/certificates",          icon: "Award" },
   { label: "Reports",              href: "/org/reports",               icon: "BarChart3" },
   { label: "Subscription",         href: "/org/subscription",          icon: "CreditCard" },
   { label: "Settings",             href: "/org/settings",              icon: "Settings" },
