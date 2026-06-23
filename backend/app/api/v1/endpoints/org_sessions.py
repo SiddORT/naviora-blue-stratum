@@ -33,7 +33,8 @@ def _ref() -> str:
 
 def _session_item(s: SimulatorSession, candidate: Candidate | None = None,
                   campaign: AssessmentCampaign | None = None, assessment: Assessment | None = None,
-                  exercise: Exercise | None = None, variant: ExerciseVariant | None = None) -> dict:
+                  exercise: Exercise | None = None, variant: ExerciseVariant | None = None,
+                  vendor_name: str | None = None) -> dict:
     return {
         "uuid": s.uuid,
         "session_reference": s.session_reference,
@@ -45,6 +46,8 @@ def _session_item(s: SimulatorSession, candidate: Candidate | None = None,
         "assessment_name": assessment.assessment_name if assessment else None,
         "exercise_name": exercise.exercise_name if exercise else None,
         "variant_name": variant.variant_name if variant else None,
+        "vendor_name": vendor_name,
+        "organization_name": None,
         "started_at": s.started_at.isoformat() if s.started_at else None,
         "completed_at": s.completed_at.isoformat() if s.completed_at else None,
         "result_received": s.result_received,

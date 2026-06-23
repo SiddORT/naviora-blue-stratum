@@ -76,6 +76,7 @@ class CandidateListResponse(BaseSchema):
     full_name: str
     phone: Optional[str] = None
     organization_id: Optional[int] = None
+    nationality: Optional[str] = None
     rank_or_designation: Optional[str] = None
     seafarer_id: Optional[str] = None
     status: str
