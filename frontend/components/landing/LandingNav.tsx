@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
@@ -60,18 +61,15 @@ export function LandingNav() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="relative w-8 h-8">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
-              <path d="M16 4C9.373 4 4 9.373 4 16C4 22.627 9.373 28 16 28" stroke="#2EA8FF" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M16 4C22.627 4 28 9.373 28 16C28 22.627 22.627 28 16 28" stroke="#D4A63A" strokeWidth="2.5" strokeLinecap="round"/>
-              <circle cx="16" cy="16" r="3.5" fill="#D4A63A"/>
-            </svg>
-          </div>
-          <div className="leading-none">
-            <div className="text-white font-bold text-lg tracking-tight leading-none">Naviora</div>
-            <div className="text-xs tracking-widest uppercase" style={{ color: "#D4A63A", opacity: 0.8, fontSize: "9px" }}>Blue Stratum</div>
-          </div>
+        <Link href="/" className="flex items-center shrink-0">
+          <Image
+            src="/logos/bluestratum-mark-v2.png"
+            alt="Blue Stratum — Naviora"
+            width={130}
+            height={44}
+            className="object-contain"
+            priority
+          />
         </Link>
 
         {/* Desktop nav */}

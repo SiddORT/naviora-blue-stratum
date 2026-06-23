@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Eye, EyeOff, Loader2, Users, BarChart3, ClipboardList } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useOrgAuthStore } from "@/store/org-auth.store";
@@ -76,11 +77,14 @@ export function OrgLoginForm() {
           style={{ background: "linear-gradient(to bottom, transparent, rgba(46,168,255,0.3) 30%, rgba(46,168,255,0.3) 70%, transparent)" }} />
 
         <div className="mb-8">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16">
-            <path d="M24 6C13.954 6 6 13.954 6 24C6 34.046 13.954 42 24 42" stroke="#2EA8FF" strokeWidth="3.5" strokeLinecap="round"/>
-            <path d="M24 6C34.046 6 42 13.954 42 24C42 34.046 34.046 42 24 42" stroke="#D4A63A" strokeWidth="3.5" strokeLinecap="round"/>
-            <circle cx="24" cy="24" r="5" fill="#2EA8FF"/>
-          </svg>
+          <Image
+            src="/logos/bluestratum-mark-v2.png"
+            alt="Blue Stratum"
+            width={220}
+            height={148}
+            className="object-contain"
+            priority
+          />
         </div>
 
         <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "#2EA8FF", opacity: 0.7 }}>
@@ -128,12 +132,14 @@ export function OrgLoginForm() {
         }}>
 
         <div className="flex flex-col items-center mb-8 lg:hidden">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mb-2">
-            <path d="M24 6C13.954 6 6 13.954 6 24C6 34.046 13.954 42 24 42" stroke="#2EA8FF" strokeWidth="3.5" strokeLinecap="round"/>
-            <path d="M24 6C34.046 6 42 13.954 42 24C42 34.046 34.046 42 24 42" stroke="#D4A63A" strokeWidth="3.5" strokeLinecap="round"/>
-            <circle cx="24" cy="24" r="5" fill="#2EA8FF"/>
-          </svg>
-          <h1 className="text-2xl font-black" style={{ color: "#2EA8FF" }}>Naviora</h1>
+          <Image
+            src="/logos/bluestratum-mark-v2.png"
+            alt="Blue Stratum"
+            width={140}
+            height={94}
+            className="object-contain mb-2"
+            priority
+          />
           <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.45)" }}>Organization Portal</p>
         </div>
 
