@@ -72,6 +72,12 @@ export const planService = {
     api.put(`/plans/${uuid}/simulators`, body).then(() => ({ data: undefined })),
   removeSimulator: (uuid: string, vendorId: number) =>
     api.delete(`/plans/${uuid}/simulators/${vendorId}`).then(() => ({ data: undefined })),
+
+  listAllActive: () =>
+    api.get<{ data: PlanPage }>(`/plans${qs({ page_size: 200, status: "active" })}`).then((r) => {
+      const page = r.data.data ?? (r.data as any);
+      return { data: (page as PlanPage)?.items ?? page };
+    }),
 };
 
 // ── Subscriptions ─────────────────────────────────────────────────────────────

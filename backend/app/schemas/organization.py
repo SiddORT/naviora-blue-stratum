@@ -12,6 +12,14 @@ class OrganizationCreate(BaseSchema):
     code: str = Field(min_length=2, max_length=50, pattern=r"^[A-Z0-9_-]+$")
     email: Optional[str] = None
     phone: Optional[str] = Field(default=None, max_length=50)
+    phone_country_code: Optional[str] = Field(default=None, max_length=10)
+    address_line1: Optional[str] = Field(default=None, max_length=255)
+    address_line2: Optional[str] = Field(default=None, max_length=255)
+    pincode: Optional[str] = Field(default=None, max_length=20)
+    country: Optional[str] = Field(default=None, max_length=100)
+    state: Optional[str] = Field(default=None, max_length=100)
+    city: Optional[str] = Field(default=None, max_length=100)
+    district: Optional[str] = Field(default=None, max_length=100)
     address: Optional[str] = None
     website: Optional[str] = Field(default=None, max_length=255)
     plan_id: Optional[int] = None
@@ -23,6 +31,14 @@ class OrganizationUpdate(BaseSchema):
     name: Optional[str] = Field(default=None, min_length=2, max_length=255)
     email: Optional[str] = None
     phone: Optional[str] = Field(default=None, max_length=50)
+    phone_country_code: Optional[str] = Field(default=None, max_length=10)
+    address_line1: Optional[str] = Field(default=None, max_length=255)
+    address_line2: Optional[str] = Field(default=None, max_length=255)
+    pincode: Optional[str] = Field(default=None, max_length=20)
+    country: Optional[str] = Field(default=None, max_length=100)
+    state: Optional[str] = Field(default=None, max_length=100)
+    city: Optional[str] = Field(default=None, max_length=100)
+    district: Optional[str] = Field(default=None, max_length=100)
     address: Optional[str] = None
     website: Optional[str] = Field(default=None, max_length=255)
     plan_id: Optional[int] = None
@@ -38,6 +54,14 @@ class OrganizationResponse(BaseSchema):
     code: str
     email: Optional[str] = None
     phone: Optional[str] = None
+    phone_country_code: Optional[str] = None
+    address_line1: Optional[str] = None
+    address_line2: Optional[str] = None
+    pincode: Optional[str] = None
+    country: Optional[str] = None
+    state: Optional[str] = None
+    city: Optional[str] = None
+    district: Optional[str] = None
     address: Optional[str] = None
     website: Optional[str] = None
     logo_url: Optional[str] = None

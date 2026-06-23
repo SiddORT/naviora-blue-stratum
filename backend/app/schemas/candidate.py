@@ -13,6 +13,7 @@ class CandidateCreate(BaseSchema):
     password: str = Field(min_length=8)
     username: Optional[str] = Field(default=None, max_length=100)
     phone: Optional[str] = Field(default=None, max_length=50)
+    phone_country_code: Optional[str] = Field(default=None, max_length=10)
     organization_id: Optional[int] = None
     date_of_birth: Optional[date] = None
     nationality: Optional[str] = Field(default=None, max_length=100)
@@ -36,6 +37,7 @@ class CandidateUpdate(BaseSchema):
     full_name: Optional[str] = Field(default=None, min_length=2, max_length=255)
     username: Optional[str] = Field(default=None, max_length=100)
     phone: Optional[str] = Field(default=None, max_length=50)
+    phone_country_code: Optional[str] = Field(default=None, max_length=10)
     organization_id: Optional[int] = None
     date_of_birth: Optional[date] = None
     nationality: Optional[str] = Field(default=None, max_length=100)
@@ -52,6 +54,7 @@ class CandidateResponse(BaseSchema):
     full_name: str
     username: Optional[str] = None
     phone: Optional[str] = None
+    phone_country_code: Optional[str] = None
     organization_id: Optional[int] = None
     date_of_birth: Optional[date] = None
     nationality: Optional[str] = None

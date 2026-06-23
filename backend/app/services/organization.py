@@ -20,8 +20,10 @@ logger = logging.getLogger(__name__)
 def _to_response(org: Organization, user_count: int = 0) -> OrganizationResponse:
     return OrganizationResponse(
         id=org.id, uuid=org.uuid, name=org.name, code=org.code,
-        email=org.email, phone=org.phone, address=org.address, website=org.website,
-        logo_url=org.logo_url, plan_id=org.plan_id,
+        email=org.email, phone=org.phone, phone_country_code=org.phone_country_code,
+        address=org.address, address_line1=org.address_line1, address_line2=org.address_line2,
+        pincode=org.pincode, country=org.country, state=org.state, city=org.city, district=org.district,
+        website=org.website, logo_url=org.logo_url, plan_id=org.plan_id,
         subscription_status=org.subscription_status, max_users=org.max_users,
         is_active=org.is_active, created_at=org.created_at, updated_at=org.updated_at,
         user_count=user_count,

@@ -26,6 +26,7 @@ class Candidate(TimestampMixin):
     username: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    phone_country_code: Mapped[str | None] = mapped_column(String(10), nullable=True)
     date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
     nationality: Mapped[str | None] = mapped_column(String(100), nullable=True)
     rank_or_designation: Mapped[str | None] = mapped_column(String(150), nullable=True)
