@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { OrgSessionsView } from "@/features/org-portal/OrgSessionsView";
 
@@ -12,7 +13,9 @@ export default function OrgSessionsPage() {
           Monitor simulator sessions for candidates in your organization.
         </p>
       </div>
-      <OrgSessionsView />
+      <Suspense>
+        <OrgSessionsView />
+      </Suspense>
     </div>
   );
 }

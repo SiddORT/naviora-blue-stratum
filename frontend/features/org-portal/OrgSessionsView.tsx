@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { orgSessionsService } from "@/services/org-sessions.service";
 import type { RuntimeSession } from "@/services/runtime.service";
 import { RefreshCw, Eye } from "lucide-react";
@@ -16,17 +16,35 @@ const MODES = ["", "CLOUD_API", "DESKTOP_OFFLINE", "MANUAL"];
 
 export function OrgSessionsView() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [sessions, setSessions] = useState<RuntimeSession[]>([]);
   const [stats, setStats] = useState<{ total: number; by_status: Record<string, number> } | null>(null);
   const [vendors, setVendors] = useState<{ uuid: string; name: string }[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
-  const [mode, setMode] = useState("");
-  const [vendorUuid, setVendorUuid] = useState("");
+
+  const [status, setStatus] = useState(() => searchParams.get("status") ?? "");
+  const [mode, setMode] = useState(() => searchParams.get("mode") ?? "");
+  const [vendorUuid, setVendorUuid] = useState(() => searchParams.get("vendor") ?? "");
   const [candidateSearch, setCandidateSearch] = useState("");
+  const [page, setPage] = useState(() => {
+    const p = parseInt(searchParams.get("page") ?? "1", 10);
+    return isNaN(p) || p < 1 ? 1 : p;
+  });
+
   const pageSize = 25;
+
+  const pushParams = useCallback((s: string, m: string, v: string, pg: number) => {
+    const params = new URLSearchParams();
+    if (s) params.set("status", s);
+    if (m) params.set("mode", m);
+    if (v) params.set("vendor", v);
+    if (pg > 1) params.set("page", String(pg));
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [router, pathname]);
 
   useEffect(() => {
     orgSessionsService.listVendors().then(res => {
@@ -52,6 +70,29 @@ export function OrgSessionsView() {
   }, [page, status, mode, vendorUuid, candidateSearch]);
 
   useEffect(() => { load(); }, [load]);
+
+  const handleStatusChange = (val: string) => {
+    setStatus(val);
+    setPage(1);
+    pushParams(val, mode, vendorUuid, 1);
+  };
+
+  const handleModeChange = (val: string) => {
+    setMode(val);
+    setPage(1);
+    pushParams(status, val, vendorUuid, 1);
+  };
+
+  const handleVendorChange = (val: string) => {
+    setVendorUuid(val);
+    setPage(1);
+    pushParams(status, mode, val, 1);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    pushParams(status, mode, vendorUuid, newPage);
+  };
 
   const totalPages = Math.ceil(total / pageSize);
   const selectStyle = { background: "#0B0B0F", border: "1px solid #1E2430", borderRadius: 6, padding: "6px 10px", color: "#F9FAFB", fontSize: 13 };
@@ -84,14 +125,14 @@ export function OrgSessionsView() {
           onChange={e => { setCandidateSearch(e.target.value); setPage(1); }}
           style={{ ...selectStyle, minWidth: 220, flex: "1 1 220px" }}
         />
-        <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={selectStyle}>
+        <select value={status} onChange={e => handleStatusChange(e.target.value)} style={selectStyle}>
           {STATUSES.map(s => <option key={s} value={s}>{s || "All Statuses"}</option>)}
         </select>
-        <select value={mode} onChange={e => { setMode(e.target.value); setPage(1); }} style={selectStyle}>
+        <select value={mode} onChange={e => handleModeChange(e.target.value)} style={selectStyle}>
           {MODES.map(m => <option key={m} value={m}>{m || "All Modes"}</option>)}
         </select>
         {vendors.length >= 2 && (
-          <select value={vendorUuid} onChange={e => { setVendorUuid(e.target.value); setPage(1); }} style={selectStyle}>
+          <select value={vendorUuid} onChange={e => handleVendorChange(e.target.value)} style={selectStyle}>
             <option value="">All Vendors</option>
             {vendors.map(v => <option key={v.uuid} value={v.uuid}>{v.name}</option>)}
           </select>
@@ -151,9 +192,9 @@ export function OrgSessionsView() {
       {totalPages > 1 && (
         <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end" }}>
           <span style={{ fontSize: 13, color: "#6B7280" }}>{total} total</span>
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #1E2430", background: "#141821", color: "#9CA3AF", cursor: "pointer", fontSize: 12 }}>Prev</button>
+          <button disabled={page <= 1} onClick={() => handlePageChange(page - 1)} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #1E2430", background: "#141821", color: "#9CA3AF", cursor: "pointer", fontSize: 12 }}>Prev</button>
           <span style={{ fontSize: 13, color: "#D1D5DB" }}>{page} / {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #1E2430", background: "#141821", color: "#9CA3AF", cursor: "pointer", fontSize: 12 }}>Next</button>
+          <button disabled={page >= totalPages} onClick={() => handlePageChange(page + 1)} style={{ padding: "4px 10px", borderRadius: 4, border: "1px solid #1E2430", background: "#141821", color: "#9CA3AF", cursor: "pointer", fontSize: 12 }}>Next</button>
         </div>
       )}
     </div>
