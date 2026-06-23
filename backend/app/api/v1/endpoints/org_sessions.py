@@ -56,6 +56,34 @@ def _session_item(s: SimulatorSession, candidate: Candidate | None = None,
     }
 
 
+@router.get("/vendors", summary="List vendors that have sessions in this org")
+async def list_org_session_vendors(
+    ctx: CurrentOrgUser,
+    db: AsyncSession = Depends(get_db),
+):
+    vendor_id_rows = (await db.execute(
+        select(SimulatorSession.simulator_vendor_id)
+        .where(
+            and_(
+                SimulatorSession.organization_id == ctx.organization_id,
+                SimulatorSession.deleted_at.is_(None),
+                SimulatorSession.simulator_vendor_id.is_not(None),
+            )
+        )
+        .distinct()
+    )).scalars().all()
+
+    vendors: list[dict] = []
+    if vendor_id_rows:
+        v_rows = (await db.execute(
+            select(SimulatorVendor).where(SimulatorVendor.id.in_(vendor_id_rows))
+            .order_by(SimulatorVendor.name.asc())
+        )).scalars().all()
+        vendors = [{"uuid": v.uuid, "name": v.name} for v in v_rows]
+
+    return success_response(data=vendors)
+
+
 @router.get("", summary="List org sessions")
 async def list_org_sessions(
     ctx: CurrentOrgUser,
@@ -64,6 +92,7 @@ async def list_org_sessions(
     status: str | None = Query(None),
     runtime_mode: str | None = Query(None),
     campaign_uuid: str | None = Query(None),
+    vendor_uuid: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     base_q = select(SimulatorSession).where(
@@ -76,6 +105,15 @@ async def list_org_sessions(
         base_q = base_q.where(SimulatorSession.status == status)
     if runtime_mode:
         base_q = base_q.where(SimulatorSession.runtime_mode == runtime_mode)
+    if vendor_uuid:
+        vendor_res = await db.execute(
+            select(SimulatorVendor).where(SimulatorVendor.uuid == vendor_uuid)
+        )
+        vendor = vendor_res.scalar_one_or_none()
+        if vendor:
+            base_q = base_q.where(SimulatorSession.simulator_vendor_id == vendor.id)
+        else:
+            base_q = base_q.where(SimulatorSession.simulator_vendor_id.is_(None))
     if campaign_uuid:
         camp_res = await db.execute(
             select(AssessmentCampaign).where(

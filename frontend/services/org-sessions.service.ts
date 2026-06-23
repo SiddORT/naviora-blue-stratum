@@ -10,6 +10,11 @@ export const orgSessionsService = {
     return res.data;
   },
 
+  async listVendors(): Promise<ApiResponse<{ uuid: string; name: string }[]>> {
+    const res = await api.get<ApiResponse<{ uuid: string; name: string }[]>>(`${BASE}/vendors`);
+    return res.data;
+  },
+
   async getSession(uuid: string): Promise<ApiResponse<SessionDetail>> {
     const res = await api.get<ApiResponse<SessionDetail>>(`${BASE}/${uuid}`);
     return res.data;

@@ -18,12 +18,20 @@ export function OrgSessionsView() {
   const router = useRouter();
   const [sessions, setSessions] = useState<RuntimeSession[]>([]);
   const [stats, setStats] = useState<{ total: number; by_status: Record<string, number> } | null>(null);
+  const [vendors, setVendors] = useState<{ uuid: string; name: string }[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [mode, setMode] = useState("");
+  const [vendorUuid, setVendorUuid] = useState("");
   const pageSize = 25;
+
+  useEffect(() => {
+    orgSessionsService.listVendors().then(res => {
+      if (res.success && res.data) setVendors(res.data);
+    });
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -31,6 +39,7 @@ export function OrgSessionsView() {
       const params: Record<string, unknown> = { page, page_size: pageSize };
       if (status) params.status = status;
       if (mode) params.runtime_mode = mode;
+      if (vendorUuid) params.vendor_uuid = vendorUuid;
       const [res, statsRes] = await Promise.all([
         orgSessionsService.listSessions(params),
         orgSessionsService.getStats(),
@@ -38,7 +47,7 @@ export function OrgSessionsView() {
       if (res.success) { setSessions(res.data!.items); setTotal(res.data!.total); }
       if (statsRes.success) setStats(statsRes.data!);
     } finally { setLoading(false); }
-  }, [page, status, mode]);
+  }, [page, status, mode, vendorUuid]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -71,6 +80,10 @@ export function OrgSessionsView() {
         </select>
         <select value={mode} onChange={e => { setMode(e.target.value); setPage(1); }} style={selectStyle}>
           {MODES.map(m => <option key={m} value={m}>{m || "All Modes"}</option>)}
+        </select>
+        <select value={vendorUuid} onChange={e => { setVendorUuid(e.target.value); setPage(1); }} style={selectStyle}>
+          <option value="">All Vendors</option>
+          {vendors.map(v => <option key={v.uuid} value={v.uuid}>{v.name}</option>)}
         </select>
         <button onClick={load} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 6, border: "1px solid #1E2430", background: "#141821", color: "#9CA3AF", cursor: "pointer", fontSize: 13 }}>
           <RefreshCw size={14} />Refresh
