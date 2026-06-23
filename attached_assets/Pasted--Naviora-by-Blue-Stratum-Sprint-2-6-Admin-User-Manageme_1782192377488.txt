@@ -1,0 +1,826 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.6 – Admin User Management, Dynamic RBAC & Organization Ownership
+
+Build the complete Admin User Management and Dynamic RBAC (Role Based Access Control) module.
+
+This sprint establishes the internal administration foundation of Naviora.
+
+Before Organizations, Simulator Runtime, Results and AI modules are implemented, the platform must support:
+
+* Admin User Management
+* User Invitations
+* Dynamic Roles
+* Dynamic Permissions
+* Permission Scopes
+* Organization Ownership
+* Admin Authorization Middleware
+
+This RBAC system must be completely database-driven.
+
+Do NOT hardcode roles.
+
+Do NOT hardcode permissions.
+
+Roles and permissions must be configurable from the UI.
+
+Seed default roles and permissions, but allow modification.
+
+Follow all existing platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* Audit Logging
+* Encryption Framework
+* GDPR Compliance
+* Search
+* Filters
+* Pagination
+
+Generate production-ready code.
+
+---
+
+# Business Objective
+
+Support internal Blue Stratum teams.
+
+Examples:
+
+* Super Admin
+* Platform Admin
+* Sales Manager
+* Sales Executive
+* Assessment Manager
+* Support Manager
+* Operations Manager
+
+Different users should have access only to the modules they require.
+
+Example:
+
+Sales Executive:
+
+Can:
+
+* View Assigned Organizations
+* View Leads
+* Manage Enquiries
+
+Cannot:
+
+* Manage Simulators
+* Manage Permissions
+* Manage Settings
+
+---
+
+# Navigation
+
+Create:
+
+Administration
+
+├── Users
+├── Roles
+├── Permissions
+├── User Invitations
+├── Organization Assignments
+└── Access Audit
+
+---
+
+# Database Design
+
+## admin_users
+
+Use existing users table.
+
+Extend if required.
+
+Fields:
+
+* id
+
+* uuid
+
+* first_name
+
+* last_name
+
+* email
+
+* password_hash
+
+* user_type
+
+* is_active
+
+* last_login_at
+
+* invited_at
+
+* activated_at
+
+* created_at
+
+* updated_at
+
+User Type:
+
+* ADMIN
+
+Only admin users should access this module.
+
+---
+
+# Roles
+
+Database Table:
+
+roles
+
+Fields:
+
+* id
+
+* uuid
+
+* role_name
+
+* role_code
+
+* description
+
+* is_system_role
+
+* status
+
+* created_at
+
+* updated_at
+
+Status:
+
+* Active
+* Inactive
+
+Rules:
+
+* role_code unique
+* role_name unique
+
+System roles can be modified but cannot be deleted.
+
+---
+
+# Permissions
+
+Database Table:
+
+permissions
+
+Fields:
+
+* id
+
+* uuid
+
+* permission_name
+
+* permission_code
+
+* permission_category
+
+* description
+
+* status
+
+Permission Categories:
+
+* Organizations
+* Users
+* Roles
+* Permissions
+* Plans
+* Exercises
+* Assessments
+* Simulators
+* Reports
+* CRM
+* Audit Logs
+* Settings
+
+Examples:
+
+organizations.view
+
+organizations.create
+
+organizations.edit
+
+organizations.archive
+
+organizations.assign
+
+users.view
+
+users.create
+
+users.edit
+
+users.disable
+
+plans.view
+
+plans.create
+
+plans.edit
+
+assessments.view
+
+assessments.create
+
+assessments.assign
+
+simulators.view
+
+simulators.manage
+
+reports.view
+
+reports.export
+
+settings.manage
+
+roles.manage
+
+permissions.manage
+
+Rules:
+
+* permission_code unique
+
+---
+
+# Role Permissions
+
+Database Table:
+
+role_permissions
+
+Fields:
+
+* role_id
+
+* permission_id
+
+* scope
+
+Scope Values:
+
+* ALL
+* ASSIGNED_ONLY
+* OWNED_ONLY
+
+Purpose:
+
+Support granular access.
+
+Example:
+
+organizations.view
+
+Scope:
+
+ASSIGNED_ONLY
+
+Meaning:
+
+User can only see organizations assigned to them.
+
+---
+
+# User Roles
+
+Database Table:
+
+user_roles
+
+Fields:
+
+* user_id
+* role_id
+
+Support:
+
+One User → Multiple Roles
+
+Future-ready for enterprise deployments.
+
+---
+
+# User Invitations
+
+Database Table:
+
+user_invitations
+
+Fields:
+
+* id
+
+* uuid
+
+* email
+
+* role_id
+
+* invitation_token
+
+* expires_at
+
+* invited_by
+
+* status
+
+Status:
+
+* Pending
+* Accepted
+* Expired
+* Cancelled
+
+Rules:
+
+* Token expires after 7 days
+* Email must be unique
+* Prevent duplicate invitations
+
+---
+
+# Invitation Flow
+
+Step 1
+
+Admin creates user invitation.
+
+Fields:
+
+* Name
+* Email
+* Role
+
+Step 2
+
+Generate secure invitation token.
+
+Step 3
+
+Store invitation.
+
+Step 4
+
+Future email integration placeholder.
+
+Step 5
+
+User activates account.
+
+Step 6
+
+Set password.
+
+Step 7
+
+Account becomes Active.
+
+Do not implement email provider yet.
+
+Create extension points only.
+
+---
+
+# Organization Ownership
+
+Create:
+
+organization_assignments
+
+Purpose:
+
+Assign internal Blue Stratum users to organizations.
+
+Fields:
+
+* id
+
+* uuid
+
+* organization_id
+
+* user_id
+
+* assignment_type
+
+* is_primary
+
+Assignment Types:
+
+* ACCOUNT_MANAGER
+* SUPPORT_MANAGER
+* ASSESSMENT_MANAGER
+* OPERATIONS_MANAGER
+
+Examples:
+
+ABC Maritime Academy
+
+Account Manager:
+Sarah
+
+Support Manager:
+Mike
+
+Assessment Manager:
+John
+
+---
+
+# Permission Enforcement
+
+Create centralized RBAC Service.
+
+Methods:
+
+has_permission()
+
+has_role()
+
+has_scope()
+
+can_access_organization()
+
+can_manage_user()
+
+All authorization checks must happen server-side.
+
+Never rely only on frontend visibility.
+
+---
+
+# JWT Claims
+
+Extend JWT payload:
+
+{
+"user_id": "",
+"user_type": "ADMIN",
+"roles": [],
+"organization_assignments": []
+}
+
+Do not store permissions directly in JWT.
+
+Resolve permissions from database.
+
+---
+
+# Middleware
+
+Create:
+
+RBAC Middleware
+
+Validate:
+
+Authentication
+
+Role Membership
+
+Permission Access
+
+Scope Access
+
+Examples:
+
+organizations.view
+
+Scope = ASSIGNED_ONLY
+
+Only return assigned organizations.
+
+---
+
+# Seed Data
+
+Seed Default Roles:
+
+Super Admin
+
+Platform Admin
+
+Sales Manager
+
+Sales Executive
+
+Support Manager
+
+Assessment Manager
+
+Operations Manager
+
+---
+
+# Seed Permissions
+
+Generate all permissions for:
+
+Organizations
+
+Users
+
+Roles
+
+Permissions
+
+Plans
+
+Exercises
+
+Assessments
+
+Simulators
+
+Reports
+
+CRM
+
+Audit Logs
+
+Settings
+
+Create CRUD-style permissions automatically.
+
+Example:
+
+organizations.view
+
+organizations.create
+
+organizations.edit
+
+organizations.delete
+
+organizations.archive
+
+organizations.assign
+
+Repeat pattern across modules.
+
+---
+
+# Admin Users Page
+
+Route:
+
+/admin/users
+
+Columns:
+
+* Name
+* Email
+* Roles
+* Status
+* Last Login
+
+Actions:
+
+* View
+* Edit
+* Assign Roles
+* Deactivate
+* Reset Password
+
+Support:
+
+* Search
+* Filters
+* Pagination
+
+---
+
+# Roles Page
+
+Route:
+
+/admin/roles
+
+Columns:
+
+* Role Name
+* Users Count
+* Status
+
+Actions:
+
+* View
+* Edit
+* Clone
+* Deactivate
+
+---
+
+# Role Builder
+
+Create dynamic role builder.
+
+Role Information:
+
+* Name
+* Description
+
+Permissions Matrix:
+
+Organizations
+
+☑ View
+☑ Create
+☑ Edit
+☑ Archive
+
+Users
+
+☑ View
+☑ Create
+☑ Edit
+
+Assessments
+
+☑ View
+☑ Create
+☑ Assign
+
+Support:
+
+Permission Scope Selection
+
+Example:
+
+organizations.view
+
+Scope:
+
+○ ALL
+
+○ ASSIGNED_ONLY
+
+○ OWNED_ONLY
+
+---
+
+# Permissions Page
+
+Route:
+
+/admin/permissions
+
+Show all available permissions.
+
+Support:
+
+* Search
+* Filters
+* Categories
+
+Allow creation of new permissions.
+
+---
+
+# Organization Assignment Page
+
+Route:
+
+/admin/organization-assignments
+
+Support:
+
+Assign:
+
+* Account Manager
+* Support Manager
+* Assessment Manager
+* Operations Manager
+
+to organizations.
+
+---
+
+# Access Audit
+
+Route:
+
+/admin/access-audit
+
+Track:
+
+* Login Success
+* Login Failure
+* Permission Denied
+* Unauthorized Access Attempts
+* Role Changes
+* Permission Changes
+
+Support:
+
+* Search
+* Filters
+* Export
+
+---
+
+# Backend Deliverables
+
+Generate:
+
+* Models
+* Migrations
+* Schemas
+* Repositories
+* Services
+* Validators
+* APIs
+* Middleware
+
+Implement complete RBAC architecture.
+
+---
+
+# Frontend Deliverables
+
+Generate:
+
+/admin/users
+
+/admin/roles
+
+/admin/permissions
+
+/admin/invitations
+
+/admin/organization-assignments
+
+/admin/access-audit
+
+Use:
+
+* Existing Admin Layout
+* Reusable DataTable
+* React Hook Form
+* Zod Validation
+
+Support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+---
+
+# Audit Logging
+
+Track:
+
+* User Creation
+* User Updates
+* Invitations
+* Role Assignments
+* Permission Assignments
+* Organization Assignments
+* Login Activity
+
+Use existing audit framework.
+
+---
+
+# Future Compatibility
+
+Design RBAC to support:
+
+* Organization RBAC
+* Candidate Permissions
+* API Tokens
+* SSO
+* Azure AD
+* Okta
+* Multi-Region Teams
+* Department-Based Access
+
+Build this as the core authorization foundation for Naviora by Blue Stratum.

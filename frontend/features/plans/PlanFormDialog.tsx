@@ -17,9 +17,9 @@ import { planService } from "@/services/plans.service";
 import type { Plan } from "@/types/plan.types";
 import { BILLING_CYCLES, PLAN_STATUSES } from "@/types/plan.types";
 
-const schema = z.object({
+const commonFields = {
   plan_name: z.string().min(1, "Required"),
-  plan_code: z.string().min(1, "Required").regex(/^[A-Z0-9_\-]+$/, "Uppercase letters, numbers, _ or - only"),
+  plan_code: z.string().min(1, "Required"),
   description: z.string().optional(),
   monthly_price: z.coerce.number().min(0),
   yearly_price: z.coerce.number().min(0),
@@ -36,9 +36,16 @@ const schema = z.object({
   status: z.enum(["Draft", "Active", "Archived"]),
   is_public: z.boolean(),
   display_order: z.coerce.number().int().min(0),
+};
+
+const createSchema = z.object({
+  ...commonFields,
+  plan_code: z.string().min(1, "Required").regex(/^[A-Z0-9_-]+$/, "Uppercase letters, numbers, _ or - only"),
 });
 
-type FormValues = z.infer<typeof schema>;
+const editSchema = z.object(commonFields);
+
+type FormValues = z.infer<typeof createSchema>;
 
 interface Props {
   open: boolean;
@@ -51,7 +58,7 @@ export function PlanFormDialog({ open, onClose, plan }: Props) {
   const isEdit = !!plan;
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(isEdit ? editSchema : createSchema),
     defaultValues: {
       plan_name: "", plan_code: "", description: "", monthly_price: 0, yearly_price: 0,
       billing_cycle: "Monthly", max_users: 10, max_candidates: 50, max_assessments_per_month: 10,
@@ -118,7 +125,7 @@ export function PlanFormDialog({ open, onClose, plan }: Props) {
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-6">
-          {/* Step 1 — Basic Info */}
+          {/* Basic Info */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Basic Information</h3>
             <div className="grid grid-cols-2 gap-3">
@@ -129,7 +136,18 @@ export function PlanFormDialog({ open, onClose, plan }: Props) {
               </div>
               <div className="space-y-1">
                 <Label>Plan Code {isEdit && <span className="text-muted-foreground">(read-only)</span>}</Label>
-                <Input {...register("plan_code")} disabled={isEdit} className="bg-background border-border" placeholder="ENTERPRISE" />
+                <Input
+                  {...register("plan_code")}
+                  disabled={isEdit}
+                  className="bg-background border-border"
+                  placeholder="ENTERPRISE"
+                  onChange={(e) => {
+                    if (!isEdit) {
+                      e.target.value = e.target.value.toUpperCase();
+                      register("plan_code").onChange(e);
+                    }
+                  }}
+                />
                 {errors.plan_code && <p className="text-xs text-destructive">{errors.plan_code.message}</p>}
               </div>
             </div>
@@ -158,7 +176,7 @@ export function PlanFormDialog({ open, onClose, plan }: Props) {
             </div>
           </div>
 
-          {/* Step 2 — Limits */}
+          {/* Limits */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Limits (-1 = unlimited)</h3>
             <div className="grid grid-cols-3 gap-3">
@@ -171,7 +189,7 @@ export function PlanFormDialog({ open, onClose, plan }: Props) {
             </div>
           </div>
 
-          {/* Step 3 — Features & Status */}
+          {/* Feature Flags */}
           <div className="space-y-3">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Feature Flags</h3>
             <div className="grid grid-cols-2 gap-2 rounded-lg border border-border p-3 bg-background">
