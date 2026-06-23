@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { GraduationCap, Plus, Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useCallback, type ElementType } from "react";
+import { Plus, Search, X, ChevronLeft, ChevronRight, User, Mail, Phone, Globe, Anchor, CreditCard, FileText, Calendar, Pencil, Check } from "lucide-react";
 import { useOrgAuthStore } from "@/store/org-auth.store";
-import { listOrgCandidates, createOrgCandidate, updateOrgCandidateStatus } from "@/services/org-portal.service";
-import type { OrgCandidateListItem } from "@/types/org-portal.types";
+import { listOrgCandidates, createOrgCandidate, updateOrgCandidateStatus, getOrgCandidate, updateOrgCandidate } from "@/services/org-portal.service";
+import type { OrgCandidateListItem, OrgCandidate } from "@/types/org-portal.types";
 
 const STATUS_COLORS: Record<string, string> = {
   active: "#22C55E",
@@ -21,7 +21,17 @@ interface CandidateForm {
   seafarer_id: string;
 }
 
+interface EditForm {
+  full_name: string;
+  phone: string;
+  nationality: string;
+  rank_or_designation: string;
+  seafarer_id: string;
+  notes: string;
+}
+
 const EMPTY_FORM: CandidateForm = { email: "", full_name: "", phone: "", nationality: "", rank_or_designation: "", seafarer_id: "" };
+const EMPTY_EDIT: EditForm = { full_name: "", phone: "", nationality: "", rank_or_designation: "", seafarer_id: "", notes: "" };
 
 export function OrgCandidatesView() {
   const { accessToken } = useOrgAuthStore();
@@ -34,6 +44,14 @@ export function OrgCandidatesView() {
   const [form, setForm] = useState<CandidateForm>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const [detail, setDetail] = useState<OrgCandidate | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState<EditForm>(EMPTY_EDIT);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
   const PAGE_SIZE = 20;
 
   const load = useCallback(async () => {
@@ -72,6 +90,53 @@ export function OrgCandidatesView() {
     if (!accessToken) return;
     const next = status === "active" ? "inactive" : "active";
     try { await updateOrgCandidateStatus(accessToken, uuid, next); load(); } catch {}
+  };
+
+  const openDetail = async (uuid: string) => {
+    if (!accessToken) return;
+    setDetail(null);
+    setEditing(false);
+    setEditError(null);
+    setDetailLoading(true);
+    try {
+      const c = await getOrgCandidate(accessToken, uuid);
+      setDetail(c);
+      setEditForm({
+        full_name: c.full_name ?? "",
+        phone: c.phone ?? "",
+        nationality: c.nationality ?? "",
+        rank_or_designation: c.rank_or_designation ?? "",
+        seafarer_id: c.seafarer_id ?? "",
+        notes: c.notes ?? "",
+      });
+    } catch {
+      // silently close on error
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!accessToken || !detail) return;
+    setEditSubmitting(true);
+    setEditError(null);
+    try {
+      const updated = await updateOrgCandidate(accessToken, detail.uuid, editForm);
+      setDetail(updated.data as OrgCandidate);
+      setEditing(false);
+      load();
+    } catch (err: unknown) {
+      setEditError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to save changes");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const closeDetail = () => {
+    setDetail(null);
+    setDetailLoading(false);
+    setEditing(false);
+    setEditError(null);
   };
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -124,7 +189,8 @@ export function OrgCandidatesView() {
               <tr><td colSpan={7} className="px-4 py-8 text-center text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>No candidates found</td></tr>
             ) : candidates.map(c => (
               <tr key={c.uuid} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-                  className="hover:bg-white/[0.02] transition-colors">
+                  className="hover:bg-white/[0.02] transition-colors cursor-pointer"
+                  onClick={() => openDetail(c.uuid)}>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
@@ -152,7 +218,7 @@ export function OrgCandidatesView() {
                     {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                   <button onClick={() => toggleStatus(c.uuid, c.status)}
                           className="text-[11px] px-2 py-1 rounded transition-all"
                           style={{ color: c.status === "active" ? "#EF4444" : "#22C55E", background: c.status === "active" ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)" }}>
@@ -185,6 +251,151 @@ export function OrgCandidatesView() {
           </div>
         )}
       </div>
+
+      {/* Detail / Edit Panel */}
+      {(detailLoading || detail) && (
+        <div className="fixed inset-0 z-50 flex" style={{ background: "rgba(0,0,0,0.6)" }}
+             onClick={closeDetail}>
+          <div className="ml-auto h-full w-full max-w-md overflow-y-auto"
+               style={{ background: "#0B0B0F", borderLeft: "1px solid rgba(212,166,58,0.18)" }}
+               onClick={e => e.stopPropagation()}>
+
+            {detailLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.35)" }}>Loading...</p>
+              </div>
+            ) : detail && (
+              <>
+                {/* Panel header */}
+                <div className="flex items-start justify-between p-5"
+                     style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
+                         style={{ background: "rgba(212,166,58,0.12)", color: "#D4A63A" }}>
+                      {detail.full_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{detail.full_name}</p>
+                      <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{detail.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!editing && (
+                      <button onClick={() => setEditing(true)}
+                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all"
+                              style={{ background: "rgba(212,166,58,0.1)", color: "#D4A63A", border: "1px solid rgba(212,166,58,0.2)" }}>
+                        <Pencil className="w-3 h-3" /> Edit
+                      </button>
+                    )}
+                    <button onClick={closeDetail} style={{ color: "rgba(255,255,255,0.4)" }}>
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Status badge */}
+                <div className="px-5 pt-4 pb-1 flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 text-xs font-medium"
+                        style={{ color: STATUS_COLORS[detail.status] ?? "#6B7280" }}>
+                    <span className="w-1.5 h-1.5 rounded-full"
+                          style={{ background: STATUS_COLORS[detail.status] ?? "#6B7280" }} />
+                    {detail.status.charAt(0).toUpperCase() + detail.status.slice(1)}
+                  </span>
+                </div>
+
+                {editing ? (
+                  /* Edit form */
+                  <div className="px-5 py-4 space-y-4">
+                    {editError && (
+                      <div className="px-3 py-2 rounded-lg text-xs text-red-400"
+                           style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                        {editError}
+                      </div>
+                    )}
+                    {([
+                      { label: "Full Name", key: "full_name", placeholder: "John Smith" },
+                      { label: "Phone", key: "phone", placeholder: "+1 555 0000" },
+                      { label: "Nationality", key: "nationality", placeholder: "Filipino" },
+                      { label: "Maritime Rank", key: "rank_or_designation", placeholder: "Chief Officer" },
+                      { label: "Seafarer ID", key: "seafarer_id", placeholder: "SF-0001" },
+                    ] as { label: string; key: keyof EditForm; placeholder: string }[]).map(({ label, key, placeholder }) => (
+                      <div key={key}>
+                        <label className="block text-xs font-medium mb-1.5"
+                               style={{ color: "rgba(255,255,255,0.45)" }}>{label}</label>
+                        <input type="text" placeholder={placeholder}
+                               value={editForm[key]}
+                               onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
+                               className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none"
+                               style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                      </div>
+                    ))}
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5"
+                             style={{ color: "rgba(255,255,255,0.45)" }}>Notes</label>
+                      <textarea placeholder="Internal notes..." rows={3}
+                                value={editForm.notes}
+                                onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
+                                className="w-full rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none resize-none"
+                                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button onClick={() => { setEditing(false); setEditError(null); }}
+                              className="flex-1 py-2.5 rounded-lg text-sm font-medium"
+                              style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                        Cancel
+                      </button>
+                      <button onClick={handleEditSave} disabled={editSubmitting}
+                              className="flex-1 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2"
+                              style={{ background: "linear-gradient(135deg, #D4A63A, #B8860B)", color: "#000" }}>
+                        <Check className="w-4 h-4" />
+                        {editSubmitting ? "Saving..." : "Save Changes"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Detail view */
+                  <div className="px-5 py-4 space-y-1">
+                    {([
+                      { icon: User, label: "Full Name", value: detail.full_name },
+                      { icon: Mail, label: "Email", value: detail.email },
+                      { icon: Phone, label: "Phone", value: detail.phone },
+                      { icon: Globe, label: "Nationality", value: detail.nationality },
+                      { icon: Anchor, label: "Maritime Rank", value: detail.rank_or_designation },
+                      { icon: CreditCard, label: "Seafarer ID", value: detail.seafarer_id },
+                      { icon: Calendar, label: "Date of Birth", value: detail.date_of_birth },
+                      { icon: Calendar, label: "Member Since", value: detail.created_at ? new Date(detail.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : null },
+                    ] as { icon: ElementType; label: string; value: string | null | undefined }[]).map(({ icon: Icon, label, value }) => (
+                      <div key={label} className="flex items-start gap-3 py-3"
+                           style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                        <Icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[10px] font-medium uppercase tracking-wider mb-0.5"
+                             style={{ color: "rgba(255,255,255,0.3)" }}>{label}</p>
+                          {value ? (
+                            <p className="text-sm text-white break-words">{value}</p>
+                          ) : (
+                            <p className="text-sm" style={{ color: "rgba(255,255,255,0.2)" }}>—</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {detail.notes && (
+                      <div className="flex items-start gap-3 py-3">
+                        <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
+                        <div>
+                          <p className="text-[10px] font-medium uppercase tracking-wider mb-0.5"
+                             style={{ color: "rgba(255,255,255,0.3)" }}>Notes</p>
+                          <p className="text-sm text-white whitespace-pre-wrap">{detail.notes}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Create Modal */}
       {showCreate && (
