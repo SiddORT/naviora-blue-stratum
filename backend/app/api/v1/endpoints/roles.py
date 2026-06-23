@@ -9,7 +9,7 @@ from app.db.session import get_db
 from app.dependencies.auth import CurrentUser
 from app.dependencies.permissions import check_permissions
 from app.helpers.pagination import PaginatedResponse
-from app.schemas.role import RoleCreate, RoleListResponse, RoleUpdate
+from app.schemas.role import RoleClone, RoleCreate, RoleListResponse, RoleUpdate
 from app.services.role import RoleService
 from app.utils.responses import created_response, error_response, not_found_response, success_response
 
@@ -23,7 +23,7 @@ router = APIRouter()
 )
 async def list_roles(
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
+    page_size: int = Query(default=20, ge=1, le=200),
     search: Optional[str] = Query(default=None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -72,6 +72,22 @@ async def create_role(body: RoleCreate, current_user: CurrentUser, db: AsyncSess
     except ValueError as exc:
         return error_response(message=str(exc), status_code=400)
     return created_response(data=role.model_dump(), message="Role created successfully")
+
+
+@router.post(
+    "/{uuid}/clone",
+    summary="Clone a role with its permissions",
+    dependencies=[Depends(check_permissions(["roles.create"]))],
+)
+async def clone_role(
+    uuid: str, body: RoleClone, current_user: CurrentUser, db: AsyncSession = Depends(get_db)
+):
+    service = RoleService(db)
+    try:
+        role = await service.clone_role(uuid, body, created_by_uuid=current_user.uuid)
+    except ValueError as exc:
+        return error_response(message=str(exc), status_code=400)
+    return created_response(data=role.model_dump(), message="Role cloned successfully")
 
 
 @router.put(

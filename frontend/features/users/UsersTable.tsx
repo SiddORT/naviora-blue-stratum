@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Plus, Search } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus, Search, MoreHorizontal, UserCog, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usersService } from "@/services/users.service";
 import type { User } from "@/types/common.types";
 import { formatDate, getInitials } from "@/lib/utils";
+import { UserFormDialog } from "./UserFormDialog";
+import { AssignRolesDialog } from "./AssignRolesDialog";
 
 const statusColors: Record<string, string> = {
   active:    "bg-emerald-500/15 text-emerald-400",
@@ -18,14 +20,20 @@ const statusColors: Record<string, string> = {
 const inputClass = "bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors";
 
 export function UsersTable() {
+  const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [userTypeFilter, setUserTypeFilter] = useState("");
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [assignUser, setAssignUser] = useState<User | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
   const pageSize = 20;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["users", page, search, statusFilter],
-    queryFn: () => usersService.list({ page, page_size: pageSize, search: search || undefined }),
+    queryKey: ["users", page, search, statusFilter, userTypeFilter],
+    queryFn: () => usersService.list({ page, page_size: pageSize, search: search || undefined, status: statusFilter || undefined, user_type: userTypeFilter || undefined }),
   });
 
   const paginatedData = data?.data;
@@ -35,7 +43,28 @@ export function UsersTable() {
   const fromRow = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const toRow = Math.min(page * pageSize, total);
 
-  const filtered = statusFilter ? users.filter(u => u.status === statusFilter) : users;
+  const deleteMutation = useMutation({
+    mutationFn: (uuid: string) => usersService.delete(uuid),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ uuid, status }: { uuid: string; status: string }) => usersService.setStatus(uuid, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+
+  const handleDelete = (user: User) => {
+    if (confirm(`Delete user "${user.full_name}"? This cannot be undone.`)) {
+      deleteMutation.mutate(user.uuid);
+    }
+    setOpenMenu(null);
+  };
+
+  const handleStatusToggle = (user: User) => {
+    const newStatus = user.status === "active" ? "inactive" : "active";
+    statusMutation.mutate({ uuid: user.uuid, status: newStatus });
+    setOpenMenu(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -58,7 +87,17 @@ export function UsersTable() {
           <option value="suspended">Suspended</option>
           <option value="pending">Pending</option>
         </select>
-        <button className="ml-auto flex items-center gap-2 gradient-gold text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+        <select value={userTypeFilter} onChange={(e) => { setUserTypeFilter(e.target.value); setPage(1); }} className={inputClass}>
+          <option value="">All Types</option>
+          <option value="ADMIN">Admin</option>
+          <option value="ORG_ADMIN">Org Admin</option>
+          <option value="ASSESSOR">Assessor</option>
+          <option value="CANDIDATE">Candidate</option>
+        </select>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="ml-auto flex items-center gap-2 gradient-gold text-black text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+        >
           <Plus className="w-4 h-4" />
           Add User
         </button>
@@ -70,7 +109,7 @@ export function UsersTable() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-muted/40 border-b border-border">
-                {["#", "User", "Roles", "Status", "Last Login", "Created"].map((h) => (
+                {["#", "User", "Type", "Roles", "Status", "Last Login", "Created", ""].map((h) => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {h}
                   </th>
@@ -81,19 +120,19 @@ export function UsersTable() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    {Array.from({ length: 6 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="px-4 py-3"><div className="h-4 bg-muted rounded w-24" /></td>
                     ))}
                   </tr>
                 ))
-              ) : filtered.length === 0 ? (
+              ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-14 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
                     {search || statusFilter ? "No users match your filters." : "No users found."}
                   </td>
                 </tr>
               ) : (
-                filtered.map((user, idx) => (
+                users.map((user, idx) => (
                   <tr key={user.uuid} className="hover:bg-accent/40 transition-colors">
                     <td className="px-4 py-3 text-xs text-muted-foreground w-10 tabular-nums">{fromRow + idx}</td>
                     <td className="px-4 py-3">
@@ -107,11 +146,14 @@ export function UsersTable() {
                         </div>
                       </div>
                     </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground capitalize">
+                      {(user.user_type ?? "ADMIN").replace(/_/g, " ")}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {user.roles.map((r) => (
                           <span key={r} className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-secondary/10 text-secondary capitalize">
-                            {r.replace("_", " ")}
+                            {r.replace(/_/g, " ")}
                           </span>
                         ))}
                         {user.roles.length === 0 && <span className="text-muted-foreground text-xs">No roles</span>}
@@ -122,11 +164,54 @@ export function UsersTable() {
                         {user.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">
+                    <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
                       {user.last_login ? formatDate(user.last_login) : "Never"}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground text-xs whitespace-nowrap">
                       {formatDate(user.created_at)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="relative">
+                        <button
+                          onClick={() => setOpenMenu(openMenu === user.uuid ? null : user.uuid)}
+                          className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                        {openMenu === user.uuid && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setOpenMenu(null)} />
+                            <div className="absolute right-0 top-8 z-20 w-48 rounded-lg border border-border bg-card shadow-lg py-1">
+                              <button
+                                onClick={() => { setEditUser(user); setOpenMenu(null); }}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                              >
+                                <UserCog className="w-3.5 h-3.5" /> Edit User
+                              </button>
+                              <button
+                                onClick={() => { setAssignUser(user); setOpenMenu(null); }}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                              >
+                                <ShieldCheck className="w-3.5 h-3.5" /> Assign Roles
+                              </button>
+                              <button
+                                onClick={() => handleStatusToggle(user)}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5" />
+                                {user.status === "active" ? "Deactivate" : "Activate"}
+                              </button>
+                              <div className="border-t border-border my-1" />
+                              <button
+                                onClick={() => handleDelete(user)}
+                                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -147,6 +232,30 @@ export function UsersTable() {
           </div>
         </div>
       </div>
+
+      {showCreate && (
+        <UserFormDialog
+          open={showCreate}
+          onClose={() => setShowCreate(false)}
+          onSuccess={() => { qc.invalidateQueries({ queryKey: ["users"] }); setShowCreate(false); }}
+        />
+      )}
+      {editUser && (
+        <UserFormDialog
+          open={!!editUser}
+          user={editUser}
+          onClose={() => setEditUser(null)}
+          onSuccess={() => { qc.invalidateQueries({ queryKey: ["users"] }); setEditUser(null); }}
+        />
+      )}
+      {assignUser && (
+        <AssignRolesDialog
+          open={!!assignUser}
+          user={assignUser}
+          onClose={() => setAssignUser(null)}
+          onSuccess={() => { qc.invalidateQueries({ queryKey: ["users"] }); setAssignUser(null); }}
+        />
+      )}
     </div>
   );
 }

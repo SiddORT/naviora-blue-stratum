@@ -45,3 +45,5 @@ from app.models.enquiry import Enquiry, EnquiryNote  # noqa: F401
 from app.models.enquiry_consent import EnquiryConsent  # noqa: F401
 from app.models.onboarding_request import OnboardingRequest  # noqa: F401
 from app.models.candidate import Candidate  # noqa: F401
+from app.models.user_invitation import UserInvitation  # noqa: F401
+from app.models.organization_assignment import OrganizationAssignment  # noqa: F401

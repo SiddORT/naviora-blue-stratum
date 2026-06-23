@@ -16,12 +16,105 @@ export interface User {
   uuid: string;
   email: string;
   full_name: string;
+  username?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
   status: string;
+  user_type: string;
   organization_id: number | null;
   is_active: boolean;
   last_login: string | null;
+  notes?: string | null;
   created_at: string;
+  updated_at?: string;
   roles: string[];
+}
+
+export interface Permission {
+  id: number;
+  uuid: string;
+  name: string;
+  slug: string;
+  module: string;
+  action: string;
+  description: string | null;
+  is_active: boolean;
+}
+
+export interface RolePermissionDetail extends Permission {
+  scope: string;
+}
+
+export interface Role {
+  id: number;
+  uuid: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_system: boolean;
+  is_active: boolean;
+  permission_count: number;
+  user_count: number;
+}
+
+export interface RoleDetail {
+  id: number;
+  uuid: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  is_system: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  permissions: RolePermissionDetail[];
+}
+
+export interface Invitation {
+  id: number;
+  uuid: string;
+  email: string;
+  full_name: string | null;
+  organization_id: number | null;
+  role_id: number | null;
+  organization_name: string | null;
+  role_name: string | null;
+  status: string;
+  message: string | null;
+  expires_at: string;
+  accepted_at: string | null;
+  invited_by_name: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface OrgAssignment {
+  id: number;
+  user_id: number;
+  organization_id: number;
+  user_name: string | null;
+  user_email: string | null;
+  organization_name: string | null;
+  assignment_type: string;
+  assigned_by: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuditLog {
+  id: number;
+  user_id: string | null;
+  module: string;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  old_values: Record<string, unknown> | null;
+  new_values: Record<string, unknown> | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: string;
 }
 
 export type EnquiryType = "CONTACT" | "CUSTOM_PLAN" | "ORGANIZATION_REGISTRATION" | "CANDIDATE_REGISTRATION";

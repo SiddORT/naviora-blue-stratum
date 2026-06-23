@@ -26,8 +26,19 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
       { label: "Candidates",     href: "/admin/candidates",    icon: "GraduationCap" },
     ],
   },
-  { label: "Users",                 href: "/admin/users",          icon: "Users" },
-  { label: "Roles & Permissions",   href: "/admin/roles",          icon: "ShieldCheck" },
+  {
+    label: "Administration",
+    href: "/admin/users",
+    icon: "Shield",
+    children: [
+      { label: "Users",                   href: "/admin/users",                     icon: "Users" },
+      { label: "Roles",                   href: "/admin/roles",                     icon: "ShieldCheck" },
+      { label: "Permissions",             href: "/admin/permissions",               icon: "Key" },
+      { label: "User Invitations",        href: "/admin/invitations",               icon: "Mail" },
+      { label: "Organization Assignments", href: "/admin/organization-assignments", icon: "Link" },
+      { label: "Access Audit",            href: "/admin/access-audit",              icon: "Activity" },
+    ],
+  },
   {
     label: "Plans & Licensing",
     href: "/admin/plans",

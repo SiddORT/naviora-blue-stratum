@@ -7,10 +7,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.role import Role
 from app.models.role_permission import RolePermission
 from app.repositories.role import PermissionRepository, RoleRepository
-from app.schemas.role import PermissionResponse, RoleCreate, RoleListResponse, RoleResponse, RoleUpdate
+from app.schemas.role import (
+    PermissionResponse, RoleClone, RoleCreate, RoleListResponse,
+    RolePermissionDetail, RoleResponse, RoleUpdate,
+)
 from app.services.audit import AuditService
 
 logger = logging.getLogger(__name__)
+
+
+def _perm_to_detail(rp: RolePermission) -> Optional[RolePermissionDetail]:
+    p = rp.permission
+    if not p:
+        return None
+    return RolePermissionDetail(
+        id=p.id, uuid=p.uuid, name=p.name, slug=p.slug,
+        module=p.module, action=p.action, description=p.description,
+        is_active=p.is_active, scope=rp.scope,
+    )
 
 
 def _perm_to_response(rp: RolePermission) -> Optional[PermissionResponse]:
@@ -24,7 +38,7 @@ def _perm_to_response(rp: RolePermission) -> Optional[PermissionResponse]:
 
 
 def _to_response(role: Role) -> RoleResponse:
-    perms = [_perm_to_response(rp) for rp in (role.role_permissions or []) if rp.permission]
+    perms = [_perm_to_detail(rp) for rp in (role.role_permissions or []) if rp.permission]
     return RoleResponse(
         id=role.id, uuid=role.uuid, name=role.name, slug=role.slug,
         description=role.description, is_system=role.is_system,
@@ -48,10 +62,11 @@ class RoleService:
         for role in roles:
             full_role = await self.repo.get_with_permissions(role.id)
             perm_count = len(full_role.role_permissions) if full_role else 0
+            user_count = await self.repo.get_user_count(role.id)
             results.append(RoleListResponse(
                 id=role.id, uuid=role.uuid, name=role.name, slug=role.slug,
                 description=role.description, is_system=role.is_system,
-                is_active=role.is_active, permission_count=perm_count,
+                is_active=role.is_active, permission_count=perm_count, user_count=user_count,
             ))
         return results, total
 
@@ -81,7 +96,11 @@ class RoleService:
             "description": data.description, "is_system": False,
             "created_by": created_by_uuid, "updated_by": created_by_uuid,
         })
-        if data.permission_ids:
+        if data.permission_entries:
+            await self.repo.set_permissions_with_scope(
+                role.id, [{"permission_id": e.permission_id, "scope": e.scope} for e in data.permission_entries]
+            )
+        elif data.permission_ids:
             await self.repo.set_permissions(role.id, data.permission_ids)
         await self.audit.log(
             module="roles", action="create", user_id=created_by_uuid,
@@ -96,16 +115,50 @@ class RoleService:
         role = await self.repo.get_by_uuid(uuid)
         if not role:
             return None
-        update_dict = data.model_dump(exclude_unset=True, exclude={"permission_ids"})
+        update_dict = data.model_dump(exclude_unset=True, exclude={"permission_ids", "permission_entries"})
         update_dict["updated_by"] = updated_by_uuid
         role = await self.repo.update(role, update_dict)
-        if data.permission_ids is not None:
+        if data.permission_entries is not None:
+            await self.repo.set_permissions_with_scope(
+                role.id, [{"permission_id": e.permission_id, "scope": e.scope} for e in data.permission_entries]
+            )
+        elif data.permission_ids is not None:
             await self.repo.set_permissions(role.id, data.permission_ids)
         await self.audit.log(
             module="roles", action="update", user_id=updated_by_uuid,
             resource_type="role", resource_id=uuid,
         )
         full = await self.repo.get_with_permissions(role.id)
+        return _to_response(full)  # type: ignore[arg-type]
+
+    async def clone_role(
+        self, uuid: str, data: RoleClone, created_by_uuid: Optional[str] = None
+    ) -> RoleResponse:
+        source = await self.repo.get_by_uuid(uuid)
+        if not source:
+            raise ValueError("Source role not found")
+        existing = await self.repo.get_by_slug(data.slug)
+        if existing:
+            raise ValueError(f"Role slug '{data.slug}' already exists")
+        full_source = await self.repo.get_with_permissions(source.id)
+        new_role = await self.repo.create({
+            "name": data.name, "slug": data.slug,
+            "description": data.description or source.description,
+            "is_system": False,
+            "created_by": created_by_uuid, "updated_by": created_by_uuid,
+        })
+        if full_source and full_source.role_permissions:
+            entries = [
+                {"permission_id": rp.permission_id, "scope": rp.scope}
+                for rp in full_source.role_permissions
+            ]
+            await self.repo.set_permissions_with_scope(new_role.id, entries)
+        await self.audit.log(
+            module="roles", action="clone", user_id=created_by_uuid,
+            resource_type="role", resource_id=new_role.uuid,
+            new_values={"cloned_from": uuid},
+        )
+        full = await self.repo.get_with_permissions(new_role.id)
         return _to_response(full)  # type: ignore[arg-type]
 
     async def delete_role(self, uuid: str, deleted_by_uuid: str) -> bool:

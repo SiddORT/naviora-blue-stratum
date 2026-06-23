@@ -40,6 +40,7 @@ class UserRepository(BaseRepository[User]):
         search: Optional[str] = None,
         organization_id: Optional[int] = None,
         status: Optional[str] = None,
+        user_type: Optional[str] = None,
     ) -> tuple[list[User], int]:
         base_query = (
             select(User)
@@ -50,6 +51,8 @@ class UserRepository(BaseRepository[User]):
             base_query = base_query.where(User.organization_id == organization_id)
         if status:
             base_query = base_query.where(User.status == status)
+        if user_type:
+            base_query = base_query.where(User.user_type == user_type)
         if search:
             pattern = f"%{search}%"
             base_query = base_query.where(
