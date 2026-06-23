@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { organizationsService } from "@/services/organizations.service";
@@ -21,7 +21,6 @@ const EMPTY_ADDRESS: AddressValue = {
 
 type FormState = {
   name: string;
-  code: string;
   email: string;
   phone: string;
   phone_dial: string;
@@ -29,13 +28,8 @@ type FormState = {
   plan_id: string;
   max_users: string;
   notes: string;
+  subscription_status: string;
   address: AddressValue;
-};
-
-const EMPTY: FormState = {
-  name: "", code: "", email: "", phone: "", phone_dial: "+91",
-  website: "", plan_id: "", max_users: "10", notes: "",
-  address: EMPTY_ADDRESS,
 };
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -64,10 +58,25 @@ function Field({
   );
 }
 
-export function OrganizationForm() {
+const STATUS_OPTIONS = [
+  { value: "active",    label: "Active" },
+  { value: "trial",     label: "Trial" },
+  { value: "inactive",  label: "Inactive" },
+  { value: "suspended", label: "Suspended" },
+  { value: "expired",   label: "Expired" },
+];
+
+interface Props { uuid: string; }
+
+export function OrganizationEditForm({ uuid }: Props) {
   const router = useRouter();
-  const [form, setForm] = useState<FormState>(EMPTY);
+  const [form, setForm] = useState<FormState | null>(null);
   const [error, setError] = useState("");
+
+  const { data: orgData, isLoading: orgLoading } = useQuery({
+    queryKey: ["organization", uuid],
+    queryFn: () => organizationsService.get(uuid),
+  });
 
   const { data: plansData } = useQuery({
     queryKey: ["plans"],
@@ -76,39 +85,59 @@ export function OrganizationForm() {
   });
   const plans = (plansData?.data ?? []) as { id: number; plan_name: string; plan_code: string }[];
 
-  const createMutation = useMutation({
-    mutationFn: (body: object) => organizationsService.create(body),
+  useEffect(() => {
+    const org = orgData?.data as any;
+    if (!org) return;
+    setForm({
+      name: org.name ?? "",
+      email: org.email ?? "",
+      phone: org.phone ?? "",
+      phone_dial: org.phone_country_code ?? "+91",
+      website: org.website ?? "",
+      plan_id: org.plan_id ? String(org.plan_id) : "",
+      max_users: String(org.max_users ?? 10),
+      notes: org.notes ?? "",
+      subscription_status: org.subscription_status ?? "active",
+      address: {
+        address_line1: org.address_line1 ?? "",
+        address_line2: org.address_line2 ?? "",
+        pincode: org.pincode ?? "",
+        country: org.country ?? "India",
+        state: org.state ?? "",
+        city: org.city ?? "",
+        district: org.district ?? "",
+      },
+    });
+  }, [orgData]);
+
+  const updateMutation = useMutation({
+    mutationFn: (body: object) => organizationsService.update(uuid, body),
     onSuccess: () => router.push("/admin/organizations"),
-    onError: (e: any) => setError(e?.response?.data?.message ?? "Failed to create organization."),
+    onError: (e: any) => setError(e?.response?.data?.message ?? "Failed to update organization."),
   });
 
   function setF(field: keyof Omit<FormState, "address">, value: string) {
-    setForm(f => ({ ...f, [field]: value }));
+    setForm(f => f ? { ...f, [field]: value } : f);
     setError("");
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!form) return;
     setError("");
-
     if (!form.name.trim()) { setError("Organization name is required."); return; }
-    if (!form.code.trim()) { setError("Code is required."); return; }
-    if (!/^[A-Z0-9_-]+$/.test(form.code.trim())) {
-      setError("Code must be uppercase letters, numbers, underscores or hyphens only.");
-      return;
-    }
     const maxUsers = parseInt(form.max_users, 10);
     if (isNaN(maxUsers) || maxUsers < 1) { setError("Max users must be at least 1."); return; }
 
-    createMutation.mutate({
+    updateMutation.mutate({
       name: form.name.trim(),
-      code: form.code.trim().toUpperCase(),
       max_users: maxUsers,
+      subscription_status: form.subscription_status,
       ...(form.email.trim() && { email: form.email.trim() }),
       ...(form.phone.trim() && { phone: form.phone.trim() }),
       phone_country_code: form.phone_dial || null,
       ...(form.website.trim() && { website: form.website.trim() }),
-      ...(form.plan_id && { plan_id: parseInt(form.plan_id, 10) }),
+      plan_id: form.plan_id ? parseInt(form.plan_id, 10) : null,
       ...(form.notes.trim() && { notes: form.notes.trim() }),
       address_line1: form.address.address_line1 || null,
       address_line2: form.address.address_line2 || null,
@@ -120,11 +149,21 @@ export function OrganizationForm() {
     });
   }
 
-  const isPending = createMutation.isPending;
+  const org = orgData?.data as any;
+  const isPending = updateMutation.isPending;
+
+  if (orgLoading || !form) {
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-xl border border-border bg-card shadow-sm h-32 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Back + error */}
       <div className="flex items-center gap-3">
         <Link
           href="/admin/organizations"
@@ -133,6 +172,11 @@ export function OrganizationForm() {
           <ArrowLeft className="w-4 h-4" />
           Back to Organizations
         </Link>
+        {org && (
+          <span className="text-xs font-mono text-muted-foreground border border-border rounded px-2 py-0.5 bg-muted/40">
+            {org.code}
+          </span>
+        )}
       </div>
 
       {error && (
@@ -142,10 +186,9 @@ export function OrganizationForm() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column — main fields */}
+        {/* Left column */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* Basic Information */}
           <SectionCard title="Basic Information">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
@@ -160,18 +203,12 @@ export function OrganizationForm() {
                   />
                 </Field>
               </div>
-              <Field
-                label="Code"
-                required
-                hint="Uppercase letters, numbers, _ or - only. Cannot be changed later."
-              >
+              <Field label="Code" hint="Cannot be changed after creation.">
                 <input
                   type="text"
-                  value={form.code}
-                  onChange={e => setF("code", e.target.value.toUpperCase())}
-                  placeholder="e.g. ACME"
-                  className={cn(inputClass, "font-mono tracking-widest")}
-                  maxLength={50}
+                  value={org?.code ?? ""}
+                  disabled
+                  className={cn(inputClass, "font-mono tracking-widest opacity-60 cursor-not-allowed")}
                 />
               </Field>
               <Field label="Max Users">
@@ -186,7 +223,6 @@ export function OrganizationForm() {
             </div>
           </SectionCard>
 
-          {/* Contact Details */}
           <SectionCard title="Contact Details">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Email">
@@ -212,8 +248,8 @@ export function OrganizationForm() {
                   <PhoneInput
                     value={form.phone}
                     dialCode={form.phone_dial}
-                    onValueChange={v => setForm(f => ({ ...f, phone: v }))}
-                    onDialCodeChange={v => setForm(f => ({ ...f, phone_dial: v }))}
+                    onValueChange={v => setForm(f => f ? { ...f, phone: v } : f)}
+                    onDialCodeChange={v => setForm(f => f ? { ...f, phone_dial: v } : f)}
                     placeholder="Phone number"
                   />
                 </Field>
@@ -221,51 +257,60 @@ export function OrganizationForm() {
             </div>
           </SectionCard>
 
-          {/* Address */}
           <SectionCard title="Address">
             <AddressFields
               value={form.address}
-              onChange={addr => setForm(f => ({ ...f, address: addr }))}
+              onChange={addr => setForm(f => f ? { ...f, address: addr } : f)}
               inputClass={inputClass}
             />
           </SectionCard>
         </div>
 
-        {/* Right column — plan + notes + submit */}
+        {/* Right column */}
         <div className="space-y-6">
 
-          {/* Plan Assignment */}
-          <SectionCard title="Plan & Licensing">
-            <Field label="Assign Plan">
-              <select
-                value={form.plan_id}
-                onChange={e => setF("plan_id", e.target.value)}
-                className={inputClass}
-              >
-                <option value="">No plan assigned</option>
-                {plans.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.plan_name} ({p.plan_code})
-                  </option>
-                ))}
-              </select>
-            </Field>
+          <SectionCard title="Status & Plan">
+            <div className="space-y-4">
+              <Field label="Subscription Status">
+                <select
+                  value={form.subscription_status}
+                  onChange={e => setF("subscription_status", e.target.value)}
+                  className={inputClass}
+                >
+                  {STATUS_OPTIONS.map(s => (
+                    <option key={s.value} value={s.value}>{s.label}</option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Assign Plan">
+                <select
+                  value={form.plan_id}
+                  onChange={e => setF("plan_id", e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">No plan assigned</option>
+                  {plans.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.plan_name} ({p.plan_code})
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
           </SectionCard>
 
-          {/* Notes */}
           <SectionCard title="Internal Notes">
             <Field label="Notes">
               <textarea
                 rows={5}
                 value={form.notes}
                 onChange={e => setF("notes", e.target.value)}
-                placeholder="Any internal remarks about this organization..."
+                placeholder="Any internal remarks..."
                 className={cn(inputClass, "resize-y")}
               />
             </Field>
           </SectionCard>
 
-          {/* Actions */}
           <div className="rounded-xl border border-border bg-card shadow-sm px-6 py-5 space-y-3">
             <button
               type="submit"
@@ -273,8 +318,8 @@ export function OrganizationForm() {
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold text-black disabled:opacity-50 transition-opacity hover:opacity-90"
               style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}
             >
-              <Building2 className="w-4 h-4" />
-              {isPending ? "Creating..." : "Create Organization"}
+              <Save className="w-4 h-4" />
+              {isPending ? "Saving..." : "Save Changes"}
             </button>
             <Link
               href="/admin/organizations"

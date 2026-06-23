@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Pencil, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Plus, Search, Pencil } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { organizationsService } from "@/services/organizations.service";
-import { planService } from "@/services/plans.service";
 import type { Organization } from "@/types/common.types";
 import { formatDate } from "@/lib/utils";
-import { PhoneInput } from "@/components/shared/PhoneInput";
-import { AddressFields, type AddressValue } from "@/components/shared/AddressFields";
 
 const statusColors: Record<string, string> = {
   active:    "bg-emerald-500/15 text-emerald-400",
@@ -22,72 +19,17 @@ const statusColors: Record<string, string> = {
 
 const inputClass = "bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors";
 
-const EMPTY_ADDRESS: AddressValue = {
-  address_line1: "", address_line2: "", pincode: "",
-  country: "India", state: "", city: "", district: "",
-};
-
-type EditFormState = {
-  name: string;
-  email: string;
-  phone: string;
-  phone_dial: string;
-  website: string;
-  plan_id: string;
-  max_users: string;
-  address: AddressValue;
-  subscription_status: string;
-};
-
-const EMPTY_EDIT: EditFormState = {
-  name: "", email: "", phone: "", phone_dial: "+91",
-  website: "", plan_id: "", max_users: "10",
-  address: EMPTY_ADDRESS, subscription_status: "active",
-};
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 pb-1.5 border-b border-border">
-      {children}
-    </p>
-  );
-}
-
-function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide">
-        {label}{required && <span className="text-destructive ml-1">*</span>}
-      </label>
-      {children}
-      {hint && <p className="text-[11px] text-muted-foreground mt-1">{hint}</p>}
-    </div>
-  );
-}
-
 export function OrganizationsTable() {
-  const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const pageSize = 20;
-
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editOrg, setEditOrg] = useState<Organization | null>(null);
-  const [form, setForm] = useState<EditFormState>(EMPTY_EDIT);
-  const [error, setError] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["organizations", page, search, statusFilter],
     queryFn: () =>
       organizationsService.list({ page, page_size: pageSize, search: search || undefined }),
   });
-
-  const { data: plansData } = useQuery({
-    queryKey: ["plans-active"],
-    queryFn: () => planService.listAllActive(),
-  });
-  const plans = (plansData?.data ?? []) as { id: number; plan_name: string; plan_code: string }[];
 
   const paginatedData = data?.data;
   const orgs: Organization[] = (paginatedData?.items ?? []).filter((o) =>
@@ -97,79 +39,6 @@ export function OrganizationsTable() {
   const totalPages = paginatedData?.total_pages ?? 1;
   const fromRow = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const toRow = Math.min(page * pageSize, total);
-
-  const updateMutation = useMutation({
-    mutationFn: ({ uuid, body }: { uuid: string; body: object }) => organizationsService.update(uuid, body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["organizations"] }); closeEditModal(); },
-    onError: (e: any) => setError(e?.response?.data?.message ?? "Failed to update organization."),
-  });
-
-  function openEdit(org: Organization) {
-    const o = org as any;
-    setEditOrg(org);
-    setForm({
-      name: org.name,
-      email: org.email ?? "",
-      phone: o.phone ?? "",
-      phone_dial: o.phone_country_code ?? "+91",
-      website: o.website ?? "",
-      plan_id: o.plan_id ? String(o.plan_id) : "",
-      max_users: String(org.max_users),
-      subscription_status: org.subscription_status,
-      address: {
-        address_line1: o.address_line1 ?? "",
-        address_line2: o.address_line2 ?? "",
-        pincode: o.pincode ?? "",
-        country: o.country ?? "India",
-        state: o.state ?? "",
-        city: o.city ?? "",
-        district: o.district ?? "",
-      },
-    });
-    setError("");
-    setEditModalOpen(true);
-  }
-
-  function closeEditModal() {
-    setEditModalOpen(false);
-    setEditOrg(null);
-    setForm(EMPTY_EDIT);
-    setError("");
-  }
-
-  function setF(field: keyof Omit<EditFormState, "address">, value: string) {
-    setForm(f => ({ ...f, [field]: value }));
-    setError("");
-  }
-
-  function handleUpdate() {
-    if (!form.name.trim()) { setError("Name is required."); return; }
-    const maxUsers = parseInt(form.max_users, 10);
-    if (isNaN(maxUsers) || maxUsers < 1) { setError("Max users must be at least 1."); return; }
-
-    updateMutation.mutate({
-      uuid: editOrg!.uuid,
-      body: {
-        name: form.name.trim(),
-        max_users: maxUsers,
-        ...(form.email.trim() && { email: form.email.trim() }),
-        ...(form.phone.trim() && { phone: form.phone.trim() }),
-        phone_country_code: form.phone_dial || null,
-        ...(form.website.trim() && { website: form.website.trim() }),
-        ...(form.plan_id && { plan_id: parseInt(form.plan_id, 10) }),
-        subscription_status: form.subscription_status,
-        address_line1: form.address.address_line1 || null,
-        address_line2: form.address.address_line2 || null,
-        pincode: form.address.pincode || null,
-        country: form.address.country || null,
-        state: form.address.state || null,
-        city: form.address.city || null,
-        district: form.address.district || null,
-      },
-    });
-  }
-
-  const isPending = updateMutation.isPending;
 
   return (
     <div className="space-y-4">
@@ -251,13 +120,13 @@ export function OrganizationsTable() {
                       {formatDate(org.created_at)}
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => openEdit(org)}
-                        className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      <Link
+                        href={`/admin/organizations/${org.uuid}/edit`}
+                        className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors inline-flex items-center"
                         title="Edit"
                       >
                         <Pencil className="w-3.5 h-3.5" />
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))
@@ -284,128 +153,6 @@ export function OrganizationsTable() {
           </div>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      {editModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-start justify-center pt-8 pb-6 px-4"
-          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
-          onClick={closeEditModal}
-        >
-          <div
-            className="w-full max-w-xl rounded-xl border border-border bg-card shadow-2xl flex flex-col max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-              <div>
-                <h3 className="text-base font-semibold text-foreground">Edit Organization</h3>
-                {editOrg && <p className="text-xs text-muted-foreground mt-0.5 font-mono">{editOrg.code}</p>}
-              </div>
-              <button onClick={closeEditModal} className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-              {error && (
-                <div className="px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
-
-              {/* Basic */}
-              <div>
-                <SectionLabel>Basic Information</SectionLabel>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <Field label="Organization Name" required>
-                      <input type="text" value={form.name} onChange={e => setF("name", e.target.value)}
-                        placeholder="Organization name" className={cn(inputClass, "w-full")} />
-                    </Field>
-                  </div>
-                  <Field label="Max Users">
-                    <input type="number" min={1} value={form.max_users}
-                      onChange={e => setF("max_users", e.target.value)} className={cn(inputClass, "w-full")} />
-                  </Field>
-                  <Field label="Status">
-                    <select value={form.subscription_status} onChange={e => setF("subscription_status", e.target.value)}
-                      className={cn(inputClass, "w-full")}>
-                      <option value="active">Active</option>
-                      <option value="trial">Trial</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="expired">Expired</option>
-                    </select>
-                  </Field>
-                  <div className="col-span-2">
-                    <Field label="Plan">
-                      <select value={form.plan_id} onChange={e => setF("plan_id", e.target.value)}
-                        className={cn(inputClass, "w-full")}>
-                        <option value="">No plan assigned</option>
-                        {plans.map(p => (
-                          <option key={p.id} value={p.id}>{p.plan_name} ({p.plan_code})</option>
-                        ))}
-                      </select>
-                    </Field>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact */}
-              <div>
-                <SectionLabel>Contact</SectionLabel>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <Field label="Email">
-                      <input type="email" value={form.email} onChange={e => setF("email", e.target.value)}
-                        placeholder="contact@example.com" className={cn(inputClass, "w-full")} />
-                    </Field>
-                  </div>
-                  <div className="col-span-2">
-                    <Field label="Phone">
-                      <PhoneInput value={form.phone} dialCode={form.phone_dial}
-                        onValueChange={v => setForm(f => ({ ...f, phone: v }))}
-                        onDialCodeChange={v => setForm(f => ({ ...f, phone_dial: v }))}
-                        placeholder="Phone number" />
-                    </Field>
-                  </div>
-                  <div className="col-span-2">
-                    <Field label="Website">
-                      <input type="text" value={form.website} onChange={e => setF("website", e.target.value)}
-                        placeholder="https://example.com" className={cn(inputClass, "w-full")} />
-                    </Field>
-                  </div>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div>
-                <SectionLabel>Address</SectionLabel>
-                <AddressFields
-                  value={form.address}
-                  onChange={addr => setForm(f => ({ ...f, address: addr }))}
-                  inputClass={cn(inputClass, "w-full")}
-                />
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
-              <button onClick={closeEditModal}
-                className="px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                Cancel
-              </button>
-              <button onClick={handleUpdate} disabled={isPending}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-black disabled:opacity-50 transition-opacity hover:opacity-90"
-                style={{ background: "linear-gradient(135deg,#D4A63A 0%,#B8860B 100%)" }}>
-                {isPending ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
