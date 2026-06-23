@@ -33,6 +33,7 @@ export interface RuntimeSession {
   assessment_name: string | null;
   exercise_name: string | null;
   variant_name: string | null;
+  vendor_name: string | null;
   organization_name: string | null;
   started_at: string | null;
   completed_at: string | null;
@@ -57,7 +58,6 @@ export interface SessionDetail extends RuntimeSession {
   cancelled_at: string | null;
   updated_at: string;
   logs: SessionLog[];
-  vendor_name?: string | null;
 }
 
 export interface DesktopAgent {

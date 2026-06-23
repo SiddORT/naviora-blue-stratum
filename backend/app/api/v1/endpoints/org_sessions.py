@@ -103,9 +103,16 @@ async def list_org_sessions(
         ca_rows = (await db.execute(select(AssessmentCampaign).where(AssessmentCampaign.id.in_(camp_ids)))).scalars().all()
         campaigns = {c.id: c for c in ca_rows}
 
+    vendor_ids = list({r.simulator_vendor_id for r in rows if r.simulator_vendor_id})
+    vendors: dict[int, SimulatorVendor] = {}
+    if vendor_ids:
+        v_rows = (await db.execute(select(SimulatorVendor).where(SimulatorVendor.id.in_(vendor_ids)))).scalars().all()
+        vendors = {v.id: v for v in v_rows}
+
     items = [
         _session_item(r, candidates.get(r.candidate_fk_id) if r.candidate_fk_id else None,
-                      campaigns.get(r.campaign_id) if r.campaign_id else None)
+                      campaigns.get(r.campaign_id) if r.campaign_id else None,
+                      vendor_name=vendors[r.simulator_vendor_id].name if r.simulator_vendor_id and r.simulator_vendor_id in vendors else None)
         for r in rows
     ]
     return success_response(

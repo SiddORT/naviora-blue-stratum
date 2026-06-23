@@ -82,16 +82,16 @@ export function OrgSessionsView() {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #1E2430" }}>
-              {["Reference", "Candidate", "Campaign", "Mode", "Status", "Started", ""].map((h, i) => (
+              {["Reference", "Candidate", "Campaign", "Vendor", "Mode", "Status", "Started", ""].map((h, i) => (
                 <th key={i} style={{ textAlign: "left", padding: "12px 16px", color: "#6B7280", fontWeight: 500 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} style={{ textAlign: "center", padding: 40, color: "#6B7280" }}>Loading...</td></tr>
+              <tr><td colSpan={8} style={{ textAlign: "center", padding: 40, color: "#6B7280" }}>Loading...</td></tr>
             ) : sessions.length === 0 ? (
-              <tr><td colSpan={7} style={{ textAlign: "center", padding: 40, color: "#6B7280" }}>No sessions found</td></tr>
+              <tr><td colSpan={8} style={{ textAlign: "center", padding: 40, color: "#6B7280" }}>No sessions found</td></tr>
             ) : sessions.map(s => (
               <tr key={s.uuid} style={{ borderBottom: "1px solid #1E2430" }}>
                 <td style={{ padding: "12px 16px", color: "#D4A63A", fontFamily: "monospace", fontSize: 12 }}>{s.session_reference}</td>
@@ -100,6 +100,7 @@ export function OrgSessionsView() {
                   {s.candidate_email && <div style={{ color: "#6B7280", fontSize: 11 }}>{s.candidate_email}</div>}
                 </td>
                 <td style={{ padding: "12px 16px", color: "#D1D5DB" }}>{s.campaign_name ?? "—"}</td>
+                <td style={{ padding: "12px 16px", color: "#D1D5DB" }}>{s.vendor_name ?? "—"}</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 11, background: "#1E2430", color: "#9CA3AF" }}>{s.runtime_mode}</span>
                 </td>
