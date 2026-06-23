@@ -13,6 +13,7 @@ export interface CandidateProfile {
   seafarer_id: string | null;
   nationality: string | null;
   avatar_url: string | null;
+  date_of_birth: string | null;
   status: string;
   organization_id: number | null;
   last_login: string | null;
@@ -55,6 +56,10 @@ export interface CandidateSession {
   created_at: string;
 }
 
+function authHeader(token: string) {
+  return { Authorization: `Bearer ${token}` };
+}
+
 export const candidateService = {
   getToken: () => (typeof window !== "undefined" ? localStorage.getItem(CAND_AUTH_KEY) : null),
   getUser: (): CandidateProfile | null => {
@@ -72,6 +77,7 @@ export const candidateService = {
   },
   isLoggedIn: () => Boolean(candidateService.getToken()),
 
+  // ── Auth ──────────────────────────────────────────────────────────────────
   async login(email: string, password: string): Promise<{ token: string; candidate: CandidateProfile }> {
     const res = await api.post<ApiResponse<{ access_token: string; candidate: CandidateProfile }>>(
       "/candidate/auth/login",
@@ -84,15 +90,28 @@ export const candidateService = {
 
   async getMe(token: string): Promise<CandidateProfile> {
     const res = await api.get<ApiResponse<CandidateProfile>>("/candidate/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: authHeader(token),
     });
     return res.data.data!;
   },
 
+  // ── Dashboard ─────────────────────────────────────────────────────────────
+  async getDashboard(token: string): Promise<ApiResponse<{
+    stats: {
+      total_assignments: number; in_progress: number; completed: number;
+      assigned: number; passed: number; total_sessions: number; total_certificates: number;
+    };
+    recent_assignments: CandidateAssignment[];
+  }>> {
+    const res = await api.get("/candidate/dashboard", { headers: authHeader(token) });
+    return res.data;
+  },
+
+  // ── Assignments ───────────────────────────────────────────────────────────
   async listAssignments(token: string, params?: Record<string, unknown>): Promise<ApiResponse<PaginatedData<CandidateAssignment>>> {
     const res = await api.get<ApiResponse<PaginatedData<CandidateAssignment>>>(
       "/candidate/assignments",
-      { params, headers: { Authorization: `Bearer ${token}` } }
+      { params, headers: authHeader(token) }
     );
     return res.data;
   },
@@ -100,15 +119,16 @@ export const candidateService = {
   async getAssignment(token: string, uuid: string): Promise<ApiResponse<CandidateAssignment>> {
     const res = await api.get<ApiResponse<CandidateAssignment>>(
       `/candidate/assignments/${uuid}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: authHeader(token) }
     );
     return res.data;
   },
 
+  // ── Sessions ──────────────────────────────────────────────────────────────
   async listSessions(token: string, params?: Record<string, unknown>): Promise<ApiResponse<PaginatedData<CandidateSession>>> {
     const res = await api.get<ApiResponse<PaginatedData<CandidateSession>>>(
       "/candidate/sessions",
-      { params, headers: { Authorization: `Bearer ${token}` } }
+      { params, headers: authHeader(token) }
     );
     return res.data;
   },
@@ -117,7 +137,7 @@ export const candidateService = {
     const res = await api.post<ApiResponse<CandidateSession>>(
       "/candidate/sessions",
       { assignment_uuid: assignmentUuid, runtime_mode: runtimeMode },
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: authHeader(token) }
     );
     return res.data;
   },
@@ -125,7 +145,126 @@ export const candidateService = {
   async getSession(token: string, uuid: string): Promise<ApiResponse<CandidateSession>> {
     const res = await api.get<ApiResponse<CandidateSession>>(
       `/candidate/sessions/${uuid}`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  // ── Profile ───────────────────────────────────────────────────────────────
+  async getProfile(token: string): Promise<ApiResponse<CandidateProfile>> {
+    const res = await api.get<ApiResponse<CandidateProfile>>(
+      "/candidate/profile",
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  async updateProfile(token: string, data: {
+    full_name?: string;
+    phone?: string;
+    nationality?: string;
+    rank_or_designation?: string;
+    date_of_birth?: string;
+  }): Promise<ApiResponse<CandidateProfile>> {
+    const res = await api.put<ApiResponse<CandidateProfile>>(
+      "/candidate/profile",
+      data,
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  async uploadPhoto(token: string, file: File): Promise<ApiResponse<{ avatar_url: string }>> {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await api.post<ApiResponse<{ avatar_url: string }>>(
+      "/candidate/profile/photo",
+      form,
+      { headers: { ...authHeader(token), "Content-Type": "multipart/form-data" } }
+    );
+    return res.data;
+  },
+
+  async changePassword(token: string, currentPassword: string, newPassword: string): Promise<ApiResponse<null>> {
+    const res = await api.post<ApiResponse<null>>(
+      "/candidate/profile/change-password",
+      { current_password: currentPassword, new_password: newPassword },
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  // ── Check-In ──────────────────────────────────────────────────────────────
+  async submitCheckin(token: string, assignmentUuid: string, data: {
+    identity_confirmed: boolean;
+    rules_accepted: boolean;
+    browser_name?: string;
+    browser_version?: string;
+    operating_system?: string;
+    device_type?: string;
+    screen_resolution?: string;
+    timezone_name?: string;
+  }): Promise<ApiResponse<{ uuid: string; checked_in_at: string }>> {
+    const res = await api.post<ApiResponse<{ uuid: string; checked_in_at: string }>>(
+      `/candidate/checkin/${assignmentUuid}`,
+      data,
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  async getCheckin(token: string, assignmentUuid: string): Promise<ApiResponse<{
+    uuid: string;
+    identity_confirmed: boolean;
+    rules_accepted: boolean;
+    is_complete: boolean;
+    checked_in_at: string | null;
+  }>> {
+    const res = await api.get(
+      `/candidate/checkin/${assignmentUuid}`,
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  async uploadWebcam(token: string, assignmentUuid: string, file: File): Promise<ApiResponse<{ webcam_snapshot_path: string }>> {
+    const form = new FormData();
+    form.append("file", file);
+    const res = await api.post<ApiResponse<{ webcam_snapshot_path: string }>>(
+      `/candidate/checkin/${assignmentUuid}/webcam`,
+      form,
+      { headers: { ...authHeader(token), "Content-Type": "multipart/form-data" } }
+    );
+    return res.data;
+  },
+
+  // ── Proctoring ────────────────────────────────────────────────────────────
+  async logProctoringEvent(token: string, assignmentUuid: string, eventType: string, remarks?: string): Promise<ApiResponse<null>> {
+    const res = await api.post<ApiResponse<null>>(
+      "/candidate/proctoring",
+      { assignment_uuid: assignmentUuid, event_type: eventType, remarks },
+      { headers: authHeader(token) }
+    );
+    return res.data;
+  },
+
+  // ── Activity ──────────────────────────────────────────────────────────────
+  async getActivity(token: string, page = 1, pageSize = 20): Promise<ApiResponse<{
+    items: Array<{
+      id: number;
+      assignment_id: number;
+      activity_type: string;
+      activity_description: string | null;
+      icon: string;
+      created_at: string;
+    }>;
+    total: number;
+    page: number;
+    pages: number;
+  }>> {
+    const res = await api.get(
+      "/candidate/activity",
+      { params: { page, page_size: pageSize }, headers: authHeader(token) }
     );
     return res.data;
   },

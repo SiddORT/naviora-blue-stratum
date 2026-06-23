@@ -1,0 +1,758 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.8B – Candidate Portal Foundation & Basic Proctoring
+
+Build the complete Candidate Portal Foundation and Basic Proctoring Module.
+
+This sprint creates the primary experience for candidates participating in assessments.
+
+Candidates must be able to:
+
+* Login
+* View assigned assessments
+* Complete assessment check-in
+* Review assessment instructions
+* Launch assessments
+* Track progress
+* View session history
+* Manage profile
+* Complete basic proctoring requirements
+
+This sprint must prepare the platform for:
+
+* Simulator Runtime Engine
+* Results Engine
+* Certificates
+* AI Assessment
+
+Follow platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Pydantic v2
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* Audit Logging
+* Encryption Framework
+* GDPR Compliance
+* Search
+* Filters
+* Pagination
+
+Generate production-ready implementation.
+
+Store all uploaded files through Storage Helper.
+
+Store only file paths in database.
+
+Never store files as BLOBs.
+
+---
+
+# Candidate Portal Routes
+
+Create:
+
+```text
+/candidate/login
+
+/candidate/dashboard
+
+/candidate/profile
+
+/candidate/assessments
+
+/candidate/assessments/[id]
+
+/candidate/checkin/[assignmentId]
+
+/candidate/sessions
+
+/candidate/activity
+```
+
+Protect all routes using candidate middleware.
+
+Validate:
+
+* JWT
+* Candidate User Type
+* Organization Membership
+* Assignment Ownership
+
+---
+
+# Candidate Dashboard
+
+Route:
+
+```text
+/candidate/dashboard
+```
+
+Widgets:
+
+Assigned Assessments
+
+Ready To Start
+
+In Progress
+
+Completed
+
+Upcoming Assessments
+
+Recent Activity
+
+Statistics:
+
+* Total Assignments
+* Completed
+* Passed (future)
+* Certificates (future)
+
+Quick Actions:
+
+* Start Assessment
+* Continue Assessment
+* View Instructions
+
+---
+
+# My Assessments
+
+Route:
+
+```text
+/candidate/assessments
+```
+
+Display:
+
+Assessment Name
+
+Campaign Name
+
+Organization
+
+Assigned Date
+
+Due Date
+
+Status
+
+Attempts Remaining
+
+Estimated Duration
+
+Status Values:
+
+* Assigned
+* Ready To Start
+* In Progress
+* Completed
+* Expired
+
+Actions:
+
+* View
+* Check-In
+* Start Assessment
+* Continue Assessment
+
+Support:
+
+* Search
+* Filters
+* Pagination
+
+---
+
+# Assessment Detail Page
+
+Route:
+
+```text
+/candidate/assessments/[id]
+```
+
+Display:
+
+Assessment Information
+
+Assessment Description
+
+Exercises Included
+
+Estimated Duration
+
+Attempts Allowed
+
+Passing Criteria
+
+Instructions
+
+Assessment Rules
+
+Proctoring Requirements
+
+Assessment Timeline
+
+Buttons:
+
+* Begin Check-In
+* Start Assessment
+
+---
+
+# Assessment Check-In Module
+
+Route:
+
+```text
+/candidate/checkin/[assignmentId]
+```
+
+Purpose:
+
+Verify candidate readiness before assessment launch.
+
+Flow:
+
+Step 1
+
+Identity Confirmation
+
+Step 2
+
+Assessment Rules Acceptance
+
+Step 3
+
+Optional Webcam Snapshot
+
+Step 4
+
+Environment Validation
+
+Step 5
+
+Ready To Start
+
+---
+
+# Candidate Identity Confirmation
+
+Display:
+
+Candidate Name
+
+Organization
+
+Assessment
+
+Candidate must confirm:
+
+☑ I confirm I am the authorized participant.
+
+☑ I understand the assessment requirements.
+
+Store:
+
+* Confirmation Timestamp
+* IP Address
+* User Agent
+
+---
+
+# Rules Acceptance
+
+Candidate must accept:
+
+☑ No external assistance.
+
+☑ Assessment integrity declaration.
+
+☑ Compliance with assessment rules.
+
+Store:
+
+* Accepted Timestamp
+* Version Number
+
+Maintain audit history.
+
+---
+
+# Webcam Snapshot (Optional)
+
+Assessment configuration may require:
+
+Enable Snapshot:
+
+Yes / No
+
+Capture:
+
+* Start Snapshot
+* End Snapshot
+
+Store:
+
+* File Path
+* Timestamp
+
+Use Storage Helper.
+
+Store path only.
+
+No BLOB storage.
+
+Create extension points for future AI Proctoring.
+
+---
+
+# Environment Validation
+
+Capture:
+
+Browser
+
+Browser Version
+
+Operating System
+
+Device Type
+
+Screen Resolution
+
+IP Address
+
+Timezone
+
+Store in:
+
+assessment_checkins
+
+Purpose:
+
+Audit trail and assessment integrity.
+
+---
+
+# Database Design
+
+## assessment_checkins
+
+Fields:
+
+* id
+
+* uuid
+
+* assignment_id
+
+* candidate_id
+
+* organization_id
+
+* identity_confirmed
+
+* rules_accepted
+
+* webcam_snapshot_path
+
+* browser_name
+
+* browser_version
+
+* operating_system
+
+* device_type
+
+* screen_resolution
+
+* ip_address
+
+* user_agent
+
+* checked_in_at
+
+* created_at
+
+Rules:
+
+One active check-in per assessment attempt.
+
+---
+
+# Basic Proctoring Module
+
+Create:
+
+assessment_proctoring_events
+
+Purpose:
+
+Track integrity-related events.
+
+Fields:
+
+* id
+
+* assignment_id
+
+* candidate_id
+
+* session_id
+
+* event_type
+
+* event_timestamp
+
+* remarks
+
+Event Types:
+
+* Assessment Started
+* Assessment Paused
+* Assessment Resumed
+* Assessment Completed
+* Browser Lost Focus
+* Browser Regained Focus
+* Session Timeout
+* Candidate Disconnected
+
+Purpose:
+
+Monitoring only.
+
+Do not block assessments.
+
+---
+
+# Browser Focus Monitoring
+
+Track:
+
+Window Blur
+
+Window Focus
+
+Tab Changes
+
+Store events automatically.
+
+Example:
+
+Candidate left assessment screen 4 times.
+
+Display in reports later.
+
+---
+
+# Candidate Sessions
+
+Route:
+
+```text
+/candidate/sessions
+```
+
+Display:
+
+Session ID
+
+Assessment
+
+Status
+
+Started
+
+Completed
+
+Duration
+
+Status:
+
+* Pending
+* Running
+* Completed
+* Failed
+
+Actions:
+
+* View Session
+
+Future:
+
+* View Results
+* Download Reports
+
+---
+
+# Candidate Activity
+
+Route:
+
+```text
+/candidate/activity
+```
+
+Display timeline:
+
+Assessment Assigned
+
+Check-In Completed
+
+Assessment Started
+
+Assessment Completed
+
+Session Created
+
+Future Certificate Issued
+
+---
+
+# Candidate Profile
+
+Route:
+
+```text
+/candidate/profile
+```
+
+Display:
+
+Personal Information
+
+Email
+
+Phone
+
+Rank
+
+Organization
+
+Nationality
+
+Employee ID
+
+Profile Photo
+
+Support:
+
+Edit Profile
+
+Change Password
+
+Profile Photo Upload
+
+Store files using Storage Helper.
+
+---
+
+# Organization Portal Integration
+
+Create:
+
+```text
+/org/proctoring
+```
+
+Display:
+
+Candidate
+
+Assessment
+
+Check-In Status
+
+Focus Violations
+
+Session Events
+
+Assessment Integrity Status
+
+Support:
+
+Search
+
+Filters
+
+Pagination
+
+---
+
+# Admin Portal Integration
+
+Create:
+
+```text
+/admin/proctoring
+```
+
+Dashboard:
+
+Check-Ins Today
+
+Assessments Started
+
+Focus Violations
+
+Disconnected Sessions
+
+Integrity Events
+
+---
+
+# APIs
+
+Create APIs for:
+
+Candidate Dashboard
+
+Candidate Assessments
+
+Assessment Details
+
+Assessment Check-In
+
+Webcam Upload
+
+Proctoring Events
+
+Candidate Sessions
+
+Candidate Profile
+
+Support:
+
+Search
+
+Filters
+
+Sorting
+
+Pagination
+
+---
+
+# Security
+
+Validate:
+
+Assignment Ownership
+
+Candidate Ownership
+
+Organization Ownership
+
+Prevent candidates from accessing another candidate's data.
+
+Protect all APIs using JWT.
+
+Use existing RBAC framework.
+
+Apply GDPR requirements.
+
+---
+
+# Audit Logging
+
+Track:
+
+Candidate Login
+
+Check-In Completed
+
+Rules Accepted
+
+Assessment Started
+
+Assessment Completed
+
+Profile Changes
+
+Snapshot Uploads
+
+Proctoring Events
+
+Use existing audit framework.
+
+---
+
+# Frontend Deliverables
+
+Create:
+
+/candidate/dashboard
+
+/candidate/assessments
+
+/candidate/assessments/[id]
+
+/candidate/checkin/[assignmentId]
+
+/candidate/sessions
+
+/candidate/activity
+
+/candidate/profile
+
+/admin/proctoring
+
+/org/proctoring
+
+Use:
+
+Reusable DataTables
+
+Search
+
+Filters
+
+Pagination
+
+Activity Timeline Components
+
+Check-In Wizard
+
+File Upload Components
+
+---
+
+# Future Compatibility
+
+Design architecture to support:
+
+* AI Proctoring
+* Face Verification
+* Screen Recording
+* Audio Monitoring
+* Multi-Camera Verification
+* Competency Tracking
+* AI Assessment
+* Certificates
+
+Build this sprint as the complete candidate experience foundation for Naviora by Blue Stratum.
+
+Sprint Completion Outcome:
+
+Candidate Login
+↓
+Assigned Assessments
+↓
+Assessment Check-In
+↓
+Basic Proctoring
+↓
+Ready For Simulator Launch
+↓
+Session Tracking
+
+This sprint prepares the platform for Simulator Runtime, Results Engine and Certification workflows.

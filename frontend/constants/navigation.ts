@@ -108,6 +108,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
       { label: "All Assessments", href: "/admin/assessments", icon: "ClipboardList" },
     ],
   },
+  { label: "Proctoring",  href: "/admin/proctoring", icon: "Shield" },
   { label: "Maritime Knowledge Base",  href: "/admin/knowledge-base",icon: "Anchor" },
   { label: "AI Management",            href: "/admin/ai-management", icon: "Cpu" },
   {

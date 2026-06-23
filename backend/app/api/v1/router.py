@@ -65,11 +65,23 @@ api_router.include_router(desktop_agents.router,     prefix="/runtime/agents",  
 # ── Candidate Portal ──────────────────────────────────────────────────────────
 from app.api.v1.endpoints import (
     candidate_auth, candidate_assessments, candidate_sessions, candidate_certificates,
+    candidate_dashboard, candidate_checkin, candidate_proctoring,
+    candidate_profile, candidate_activity,
 )
-api_router.include_router(candidate_auth.router,         prefix="/candidate/auth",        tags=["Candidate Portal — Auth"])
-api_router.include_router(candidate_assessments.router,  prefix="/candidate/assignments", tags=["Candidate Portal — Assignments"])
-api_router.include_router(candidate_sessions.router,     prefix="/candidate/sessions",    tags=["Candidate Portal — Sessions"])
-api_router.include_router(candidate_certificates.router, prefix="/candidate/certificates", tags=["Candidate Portal — Certificates"])
+api_router.include_router(candidate_auth.router,          prefix="/candidate/auth",         tags=["Candidate Portal — Auth"])
+api_router.include_router(candidate_dashboard.router,     prefix="/candidate/dashboard",    tags=["Candidate Portal — Dashboard"])
+api_router.include_router(candidate_assessments.router,   prefix="/candidate/assignments",  tags=["Candidate Portal — Assignments"])
+api_router.include_router(candidate_sessions.router,      prefix="/candidate/sessions",     tags=["Candidate Portal — Sessions"])
+api_router.include_router(candidate_certificates.router,  prefix="/candidate/certificates", tags=["Candidate Portal — Certificates"])
+api_router.include_router(candidate_checkin.router,       prefix="/candidate/checkin",      tags=["Candidate Portal — Check-In"])
+api_router.include_router(candidate_proctoring.router,    prefix="/candidate/proctoring",   tags=["Candidate Portal — Proctoring"])
+api_router.include_router(candidate_profile.router,       prefix="/candidate/profile",      tags=["Candidate Portal — Profile"])
+api_router.include_router(candidate_activity.router,      prefix="/candidate/activity",     tags=["Candidate Portal — Activity"])
+
+# ── Proctoring (Admin + Org) ──────────────────────────────────────────────────
+from app.api.v1.endpoints import admin_proctoring, org_proctoring
+api_router.include_router(admin_proctoring.router, prefix="/proctoring",     tags=["Admin — Proctoring"])
+api_router.include_router(org_proctoring.router,   prefix="/org/proctoring", tags=["Org Portal — Proctoring"])
 
 # ── Certificates ──────────────────────────────────────────────────────────────
 from app.api.v1.endpoints import certificates as certs_ep, certificate_verify
