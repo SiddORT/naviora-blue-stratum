@@ -93,6 +93,7 @@ async def list_org_sessions(
     runtime_mode: str | None = Query(None),
     campaign_uuid: str | None = Query(None),
     vendor_uuid: str | None = Query(None),
+    candidate_search: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
     base_q = select(SimulatorSession).where(
@@ -105,6 +106,11 @@ async def list_org_sessions(
         base_q = base_q.where(SimulatorSession.status == status)
     if runtime_mode:
         base_q = base_q.where(SimulatorSession.runtime_mode == runtime_mode)
+    if candidate_search:
+        term = f"%{candidate_search.strip()}%"
+        base_q = base_q.join(Candidate, Candidate.id == SimulatorSession.candidate_fk_id).where(
+            Candidate.full_name.ilike(term) | Candidate.email.ilike(term)
+        )
     if vendor_uuid:
         vendor_res = await db.execute(
             select(SimulatorVendor).where(SimulatorVendor.uuid == vendor_uuid)

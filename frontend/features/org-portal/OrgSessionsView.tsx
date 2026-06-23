@@ -25,6 +25,7 @@ export function OrgSessionsView() {
   const [status, setStatus] = useState("");
   const [mode, setMode] = useState("");
   const [vendorUuid, setVendorUuid] = useState("");
+  const [candidateSearch, setCandidateSearch] = useState("");
   const pageSize = 25;
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function OrgSessionsView() {
       if (status) params.status = status;
       if (mode) params.runtime_mode = mode;
       if (vendorUuid) params.vendor_uuid = vendorUuid;
+      if (candidateSearch.trim()) params.candidate_search = candidateSearch.trim();
       const [res, statsRes] = await Promise.all([
         orgSessionsService.listSessions(params),
         orgSessionsService.getStats(),
@@ -47,7 +49,7 @@ export function OrgSessionsView() {
       if (res.success) { setSessions(res.data!.items); setTotal(res.data!.total); }
       if (statsRes.success) setStats(statsRes.data!);
     } finally { setLoading(false); }
-  }, [page, status, mode, vendorUuid]);
+  }, [page, status, mode, vendorUuid, candidateSearch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -74,7 +76,14 @@ export function OrgSessionsView() {
       )}
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <input
+          type="text"
+          placeholder="Search candidate name or email..."
+          value={candidateSearch}
+          onChange={e => { setCandidateSearch(e.target.value); setPage(1); }}
+          style={{ ...selectStyle, minWidth: 220, flex: "1 1 220px" }}
+        />
         <select value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} style={selectStyle}>
           {STATUSES.map(s => <option key={s} value={s}>{s || "All Statuses"}</option>)}
         </select>
