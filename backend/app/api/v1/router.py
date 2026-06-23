@@ -27,3 +27,6 @@ api_router.include_router(plans.router,             prefix="",                  
 api_router.include_router(contact.router,           prefix="",                        tags=["Public"])
 api_router.include_router(enquiries.router,         prefix="",                        tags=["CRM"])
 api_router.include_router(candidates.router,        prefix="/candidates",             tags=["Candidates"])
+
+from app.api.v1.endpoints import settings as settings_ep
+api_router.include_router(settings_ep.router, prefix="/settings", tags=["Platform Settings"])

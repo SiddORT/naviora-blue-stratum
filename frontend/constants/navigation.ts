@@ -102,5 +102,19 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Certificates",             href: "/admin/certificates",  icon: "Award" },
   { label: "Reports & Analytics",      href: "/admin/reports",       icon: "BarChart3" },
   { label: "Audit Logs",               href: "/admin/audit-logs",    icon: "FileText" },
-  { label: "Settings",                 href: "/admin/settings",      icon: "Settings" },
+  {
+    label: "Platform Settings",
+    href: "/admin/settings/platform",
+    icon: "Settings",
+    children: [
+      { label: "Platform Settings",      href: "/admin/settings/platform",       icon: "Globe" },
+      { label: "Branding",               href: "/admin/settings/branding",       icon: "Palette" },
+      { label: "Communication",          href: "/admin/settings/communication",  icon: "Mail" },
+      { label: "Email Templates",        href: "/admin/settings/email-templates",icon: "FileText" },
+      { label: "Notifications",          href: "/admin/settings/notifications",  icon: "Bell" },
+      { label: "Invoice Settings",       href: "/admin/settings/invoice",        icon: "Receipt" },
+      { label: "System Preferences",     href: "/admin/settings/system",         icon: "SlidersHorizontal" },
+      { label: "Portal Settings",        href: "/admin/settings/portal",         icon: "ExternalLink" },
+    ],
+  },
 ];

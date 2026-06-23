@@ -47,3 +47,11 @@ from app.models.onboarding_request import OnboardingRequest  # noqa: F401
 from app.models.candidate import Candidate  # noqa: F401
 from app.models.user_invitation import UserInvitation  # noqa: F401
 from app.models.organization_assignment import OrganizationAssignment  # noqa: F401
+from app.models.platform_settings import PlatformSettings  # noqa: F401
+from app.models.branding_settings import BrandingSettings  # noqa: F401
+from app.models.communication_settings import CommunicationSettings  # noqa: F401
+from app.models.notification_settings import NotificationSettings  # noqa: F401
+from app.models.invoice_settings import InvoiceSettings  # noqa: F401
+from app.models.system_preferences import SystemPreferences  # noqa: F401
+from app.models.email_template import EmailTemplate  # noqa: F401
+from app.models.portal_settings import PortalSettings  # noqa: F401

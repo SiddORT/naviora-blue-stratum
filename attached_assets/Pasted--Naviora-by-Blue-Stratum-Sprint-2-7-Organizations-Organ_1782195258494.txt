@@ -1,0 +1,505 @@
+# Naviora by Blue Stratum
+
+## Sprint 2.7 – Organizations, Organization Portal & User Management
+
+Build the complete Organization Management and Organization Portal module.
+
+This sprint transforms approved onboarding requests into active organizations with their own isolated portal.
+
+Organizations must be able to:
+
+* Login to their portal
+* Manage users
+* Manage candidates
+* View subscription details
+* Access entitled assessments
+* Access entitled simulators
+* View reports
+* Manage organization settings
+
+All organization data must be isolated.
+
+Organizations must never see another organization's data.
+
+Follow platform standards:
+
+* FastAPI
+* PostgreSQL
+* SQLAlchemy 2.0
+* Alembic
+* Next.js 15
+* TypeScript
+* JWT Authentication
+* Audit Logging
+* Encryption Framework
+* GDPR Compliance
+
+Generate production-ready code.
+
+---
+
+# Business Flow
+
+Landing Page
+↓
+Registration Request
+↓
+Admin Approval
+↓
+Organization Created
+↓
+Plan Assigned
+↓
+Organization Admin Invited
+↓
+Organization Login
+↓
+Organization Setup Complete
+
+---
+
+# Organization Portal Routes
+
+Create:
+
+/org/login
+
+/org/dashboard
+
+/org/users
+
+/org/candidates
+
+/org/assessments
+
+/org/reports
+
+/org/subscription
+
+/org/settings
+
+/org/profile
+
+---
+
+# Organization Entity
+
+organizations
+
+Fields:
+
+* id
+
+* uuid
+
+* organization_name
+
+* organization_code
+
+* organization_type
+
+* email
+
+* phone
+
+* website
+
+* address_line_1
+
+* address_line_2
+
+* city
+
+* state
+
+* country
+
+* postal_code
+
+* timezone
+
+* logo_path
+
+* subscription_id
+
+* runtime_mode
+
+* status
+
+Status:
+
+* Pending
+* Active
+* Suspended
+* Archived
+
+Runtime Mode:
+
+* CLOUD
+* OFFLINE_DESKTOP
+
+Rules:
+
+* organization_code unique
+* logo stored via Storage Helper
+* file path stored in database
+
+---
+
+# Organization Portal Access
+
+Organization Admin receives:
+
+ORGANIZATION_ADMIN_INVITATION
+
+Email template.
+
+User clicks:
+
+Set Password
+
+Account Activated
+
+Login via:
+
+/org/login
+
+---
+
+# Organization Dashboard
+
+Create dashboard widgets.
+
+Show:
+
+Subscription Information
+
+* Current Plan
+* Renewal Date
+* Usage Summary
+
+Organization Statistics
+
+* Total Users
+* Total Candidates
+* Active Assessments
+* Completed Assessments
+* Pass Rate
+
+Future Statistics
+
+* Simulator Sessions
+* AI Reports
+* Certificates
+
+---
+
+# Organization Users
+
+Create:
+
+organization_users
+
+Fields:
+
+* organization_id
+
+* user_id
+
+* role
+
+* status
+
+Roles:
+
+* Organization Admin
+* Instructor
+* Assessor
+* Candidate
+
+Keep permissions simple for V1.
+
+Future RBAC can be added later.
+
+---
+
+# User Invitation Flow
+
+Organization Admin can:
+
+Create User
+
+Invite User
+
+Assign Role
+
+Send Invitation
+
+Supported Users:
+
+* Instructor
+* Assessor
+* Candidate
+
+Create invitation workflow.
+
+Reuse platform invitation engine.
+
+---
+
+# Candidate Management
+
+Create:
+
+/org/candidates
+
+Features:
+
+* Create Candidate
+* Edit Candidate
+* Deactivate Candidate
+* Import Candidates (placeholder)
+* View Candidate History
+
+Fields:
+
+* First Name
+* Last Name
+* Email
+* Maritime Rank
+* Employee ID
+* Nationality
+* Date of Birth
+
+Support:
+
+* Search
+* Filters
+* Pagination
+
+---
+
+# Subscription View
+
+Create:
+
+/org/subscription
+
+Display:
+
+Current Plan
+
+Features Enabled
+
+Exercise Access
+
+Simulator Access
+
+Usage Limits
+
+Usage Consumed
+
+Remaining Capacity
+
+Read-only view.
+
+Use Entitlement Service.
+
+---
+
+# Assessment Access
+
+Organizations can only view:
+
+Assessments available under their subscription.
+
+Use:
+
+can_access_assessment()
+
+Validate server-side.
+
+---
+
+# Simulator Access
+
+Organizations can only access:
+
+Simulators included in their plan.
+
+Use:
+
+can_access_simulator()
+
+Validate server-side.
+
+---
+
+# Organization Settings
+
+Create:
+
+/org/settings
+
+Tabs:
+
+General
+
+Branding
+
+Notifications
+
+Security
+
+General:
+
+* Organization Name
+* Contact Information
+* Timezone
+
+Branding:
+
+* Logo Upload
+* Organization Display Name
+
+Notifications:
+
+* Notification Emails
+
+Security:
+
+* Password Policy (future)
+
+---
+
+# Organization Profile
+
+Create:
+
+/org/profile
+
+Display:
+
+Organization Information
+
+Assigned Account Manager
+
+Assigned Support Manager
+
+Assigned Assessment Manager
+
+Subscription Details
+
+Organization Activity Timeline
+
+---
+
+# Multi-Tenancy Rules
+
+Every organization-owned record must include:
+
+organization_id
+
+Examples:
+
+* users
+* candidates
+* assessments
+* simulator_sessions
+* reports
+
+Apply filtering:
+
+Repository Layer
+
+Service Layer
+
+API Layer
+
+Never rely on frontend filtering.
+
+---
+
+# Organization Middleware
+
+Protect:
+
+/org/*
+
+Validate:
+
+* JWT
+* User Type
+* Organization Membership
+* Subscription Status
+
+Prevent cross-organization access.
+
+---
+
+# APIs
+
+Create APIs for:
+
+Organizations
+
+Organization Users
+
+Candidates
+
+Subscription View
+
+Organization Settings
+
+Organization Profile
+
+Support:
+
+* Search
+* Filters
+* Sorting
+* Pagination
+
+---
+
+# Audit Logging
+
+Track:
+
+* Organization Creation
+* Organization Updates
+* User Invitations
+* Candidate Creation
+* Candidate Updates
+* Settings Changes
+
+Use existing audit framework.
+
+---
+
+# Security
+
+Encrypt sensitive personal information.
+
+Apply GDPR standards.
+
+Use existing Encryption Service.
+
+Support soft deletes.
+
+---
+
+# Future Compatibility
+
+Design for:
+
+* Multiple Branches
+* Multiple Locations
+* Organization RBAC
+* Offline Deployments
+* Simulator Runtime
+* AI Assessments
+* Certificates
+* Competency Tracking
+
+Build this as the complete tenant and customer portal foundation for Naviora by Blue Stratum.
