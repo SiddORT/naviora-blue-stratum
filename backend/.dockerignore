@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+uploads/
+.git
+.gitignore
+*.md
+alembic/versions/__pycache__
