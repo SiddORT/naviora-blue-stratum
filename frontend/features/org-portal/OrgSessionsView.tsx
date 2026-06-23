@@ -33,7 +33,7 @@ export function OrgSessionsView() {
     const p = parseInt(searchParams.get("page") ?? "1", 10);
     return isNaN(p) || p < 1 ? 1 : p;
   });
-
+  const [debouncedCandidateSearch, setDebouncedCandidateSearch] = useState("");
   const pageSize = 25;
 
   const pushParams = useCallback((s: string, m: string, v: string, pg: number) => {
@@ -45,6 +45,14 @@ export function OrgSessionsView() {
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [router, pathname]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedCandidateSearch(candidateSearch);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [candidateSearch]);
 
   useEffect(() => {
     orgSessionsService.listVendors().then(res => {
@@ -59,7 +67,7 @@ export function OrgSessionsView() {
       if (status) params.status = status;
       if (mode) params.runtime_mode = mode;
       if (vendorUuid) params.vendor_uuid = vendorUuid;
-      if (candidateSearch.trim()) params.candidate_search = candidateSearch.trim();
+      if (debouncedCandidateSearch.trim()) params.candidate_search = debouncedCandidateSearch.trim();
       const [res, statsRes] = await Promise.all([
         orgSessionsService.listSessions(params),
         orgSessionsService.getStats(),
@@ -67,7 +75,7 @@ export function OrgSessionsView() {
       if (res.success) { setSessions(res.data!.items); setTotal(res.data!.total); }
       if (statsRes.success) setStats(statsRes.data!);
     } finally { setLoading(false); }
-  }, [page, status, mode, vendorUuid, candidateSearch]);
+  }, [page, status, mode, vendorUuid, debouncedCandidateSearch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -122,7 +130,7 @@ export function OrgSessionsView() {
           type="text"
           placeholder="Search candidate name or email..."
           value={candidateSearch}
-          onChange={e => { setCandidateSearch(e.target.value); setPage(1); }}
+          onChange={e => setCandidateSearch(e.target.value)}
           style={{ ...selectStyle, minWidth: 220, flex: "1 1 220px" }}
         />
         <select value={status} onChange={e => handleStatusChange(e.target.value)} style={selectStyle}>
